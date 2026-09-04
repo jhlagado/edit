@@ -1,0 +1,26 @@
+{
+  "name": "@jhlagado/edit",
+  "version": "0.1.0",
+  "description": "A small portable Z80 text editor for CP/M-compatible systems",
+  "type": "module",
+  "private": true,
+  "license": "GPL-3.0-or-later",
+  "engines": {
+    "node": ">=22"
+  },
+  "scripts": {
+    "build": "node tools/build.mjs",
+    "test": "node test/prove-editor.mjs",
+    "check": "node tools/check-assembler-policy.mjs && npm run build && npm test",
+    "measure": "npm run measure:buffers && npm run measure:search && npm run measure:new-file && npm run measure:replace",
+    "measure:buffers": "node tools/measure-buffers.mjs",
+    "measure:search": "node tools/measure-search.mjs",
+    "measure:new-file": "node tools/measure-new-file.mjs",
+    "measure:replace": "node tools/measure-replace.mjs",
+    "prepublishOnly": "npm run check"
+  },
+  "devDependencies": {
+    "@jhlagado/debug80-runtime": "git+https://github.com/jhlagado/debug80-runtime.git#0024be1d868473568984fcde5a8323e575e595bf",
+    "atom-z80": "git+https://github.com/jhlagado/atom.git#802b5c2d320bec777f427755ff2d7338e3b80a05"
+  }
+}
