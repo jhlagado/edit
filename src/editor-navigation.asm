@@ -59,6 +59,7 @@ EditorMoveUp:
             DEC  HL
             CALL EditorNavigationLineStart
             LD   DE,(EditorDesiredColumn)
+            LD   A,(EditorDesiredColumnHigh)
             CALL EditorNavigationOffsetForColumn
             LD   (EditorCursor),HL
             XOR  A
@@ -73,6 +74,7 @@ EditorMoveDown:
             CALL EditorNavigationNextLine
             JP   C,EditorBufferBoundary
             LD   DE,(EditorDesiredColumn)
+            LD   A,(EditorDesiredColumnHigh)
             CALL EditorNavigationOffsetForColumn
             LD   (EditorCursor),HL
             XOR  A
@@ -86,6 +88,7 @@ EditorNavigationPrepareVertical:
             JR   NZ,EditorNavigationVerticalReady
             CALL EditorNavigationCursorColumn
             LD   (EditorDesiredColumn),HL
+            LD   (EditorDesiredColumnHigh),A
             LD   A,(EditorFlags)
             OR   EditorFlagDesiredValid
             LD   (EditorFlags),A
@@ -127,8 +130,11 @@ EditorNavigationNextLine:
             OR   A
             RET
 
-.routine out HL,carry,zero clobbers sign,parity,halfCarry,A,BC,DE
+; Return the visual column in A:HL (24 bits).
+.routine out A,HL,carry,zero clobbers sign,parity,halfCarry,BC,DE
 EditorNavigationCursorColumn:
+            XOR  A
+            LD   (EditorColumnHigh),A
             LD   HL,(EditorCursor)
             LD   (EditorScratchA),HL
             CALL EditorNavigationLineStart
@@ -149,19 +155,29 @@ EditorNavigationColumnLoop:
             CP   9
             JR   Z,EditorNavigationColumnTab
             INC  DE
-            JR   EditorNavigationColumnNext
+            LD   A,D
+            OR   E
+            JR   NZ,EditorNavigationColumnNext
+            JR   EditorNavigationColumnCarry
 EditorNavigationColumnTab:
             EX   DE,HL
             CALL EditorNavigationNextTab
             EX   DE,HL
+            JR   NC,EditorNavigationColumnNext
+EditorNavigationColumnCarry:
+            LD   A,(EditorColumnHigh)
+            INC  A
+            LD   (EditorColumnHigh),A
 EditorNavigationColumnNext:
             INC  HL
             JR   EditorNavigationColumnLoop
 EditorNavigationColumnDone:
             EX   DE,HL
+            LD   A,(EditorColumnHigh)
             OR   A
             RET
 
+; Advance the low word to the next tab stop; carry reports a 16-bit wrap.
 .routine in HL out HL,carry,zero clobbers sign,parity,halfCarry,A
 EditorNavigationNextTab:
             LD   A,L
@@ -170,12 +186,17 @@ EditorNavigationNextTab:
             LD   L,A
             RET  NZ
             INC  H
+            RET  NZ
+            SCF
             RET
 
 ; Return the insertion offset on the line beginning at HL whose visual column
-; is nearest to, but does not exceed, DE.
-.routine in DE,HL out HL,carry,zero clobbers sign,parity,halfCarry,A,BC,DE
+; is nearest to, but does not exceed, A:DE.
+.routine in A,DE,HL out HL,carry,zero clobbers sign,parity,halfCarry,A,BC,DE
 EditorNavigationOffsetForColumn:
+            LD   (EditorTargetColumnHigh),A
+            XOR  A
+            LD   (EditorColumnHigh),A
             LD   (EditorScratchA),DE
             LD   BC,0
 EditorNavigationOffsetLoop:
@@ -191,14 +212,28 @@ EditorNavigationOffsetLoop:
             CP   9
             JR   Z,EditorNavigationOffsetTab
             INC  BC
-            JR   EditorNavigationOffsetCompare
+            LD   A,B
+            OR   C
+            JR   NZ,EditorNavigationOffsetCompare
+            JR   EditorNavigationOffsetCarry
 EditorNavigationOffsetTab:
             LD   H,B
             LD   L,C
             CALL EditorNavigationNextTab
             LD   B,H
             LD   C,L
+            JR   NC,EditorNavigationOffsetCompare
+EditorNavigationOffsetCarry:
+            LD   A,(EditorColumnHigh)
+            INC  A
+            LD   (EditorColumnHigh),A
 EditorNavigationOffsetCompare:
+            LD   A,(EditorTargetColumnHigh)
+            LD   D,A
+            LD   A,(EditorColumnHigh)
+            CP   D
+            JR   C,EditorNavigationOffsetTake
+            JR   NZ,EditorNavigationOffsetReject
             LD   H,B
             LD   L,C
             LD   DE,(EditorScratchA)
@@ -206,6 +241,7 @@ EditorNavigationOffsetCompare:
             SBC  HL,DE
             JR   C,EditorNavigationOffsetTake
             JR   Z,EditorNavigationOffsetTake
+EditorNavigationOffsetReject:
             LD   HL,(EditorScratchC)
             RET
 EditorNavigationOffsetTake:
