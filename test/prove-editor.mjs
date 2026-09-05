@@ -80,6 +80,10 @@ function writeWord(memory, address, value) {
   memory[address + 1] = value >>> 8;
 }
 
+function readVisualColumn(memory, name) {
+  return readWord(memory, symbol(name)) + memory[symbol(`${name}High`)] * 65536;
+}
+
 function canonicalName(memory, fcbAddress) {
   const name = Buffer.from(memory.slice(fcbAddress + 1, fcbAddress + 9))
     .toString("ascii")
@@ -333,6 +337,8 @@ function installBuffer(machine, bytes, cursor = 0) {
   writeWord(machine.memory, symbol("EditorTop"), 0);
   writeWord(machine.memory, symbol("EditorHorizontal"), 0);
   writeWord(machine.memory, symbol("EditorDesiredColumn"), 0);
+  machine.memory[symbol("EditorHorizontalHigh")] = 0;
+  machine.memory[symbol("EditorDesiredColumnHigh")] = 0;
   machine.memory[symbol("EditorFlags")] = 0;
   machine.memory[symbol("EditorStatus")] = 0;
   machine.memory[symbol("EditorSaveState")] = 0;
@@ -430,6 +436,8 @@ function proveLoad(name, physical, expected, expectedError) {
   if (expectedError === undefined) {
     assert.equal(result.carry, false, `${name} load failed`);
     assert.deepEqual(bufferBytes(machine), Uint8Array.from(expected));
+    assert.equal(readVisualColumn(machine.memory, "EditorHorizontal"), 0);
+    assert.equal(readVisualColumn(machine.memory, "EditorDesiredColumn"), 0);
     assertUnusedTextCanary(machine);
   } else {
     assert.equal(result.carry, true, `${name} load unexpectedly succeeded`);
@@ -722,6 +730,105 @@ const editMeasurements = {};
 }
 
 const navigationMeasurements = {};
+for (const column of [0, 1, 7, 8, 247, 248, 255, 256, 32767, 65527, 65528, 65535]) {
+  const machine = createMachine();
+  const result = invokeRoutine(machine, "EditorNavigationNextTab", {
+    registers: { h: column >>> 8, l: column & 255 },
+    beforeRun() { machine.runtime.cpu.flags.C = 1; },
+  });
+  const expected = Math.floor(column / 8) * 8 + 8;
+  assert.equal(machine.runtime.cpu.h * 256 + machine.runtime.cpu.l, expected & 65535);
+  assert.equal(result.carry, expected > 65535);
+  assertCanaries(machine);
+}
+{
+  const machine = createMachine();
+  const bytes = Buffer.concat([Buffer.alloc(8192, 9), Buffer.from("\nABC")]);
+  installBuffer(machine, bytes, 8192);
+  navigationMeasurements.downWide = invokeRoutine(machine, "EditorMoveDown");
+  assert.equal(readWord(machine.memory, symbol("EditorCursor")), bytes.length,
+    "vertical movement must retain visual column 65536");
+  assert.equal(readVisualColumn(machine.memory, "EditorDesiredColumn"), 65536);
+  invokeRoutine(machine, "EditorMoveUp");
+  assert.equal(readWord(machine.memory, symbol("EditorCursor")), 8192);
+  assert.deepEqual(bufferBytes(machine), Uint8Array.from(bytes));
+  assertCanaries(machine);
+}
+// Exercise tab and ordinary-character carries at each reachable high-bit
+// boundary, including the maximum legal all-tab buffer. Expected offsets use
+// an independent unbounded-integer walk of the source bytes.
+for (const width of [65528, 65535, 65536, 65537, 131071, 131072,
+  196607, 196608, 262143, 262144, 327679, 327680, symbol("EditorTextCapacity") * 8]) {
+  const machine = createMachine();
+  const bytes = Buffer.concat([
+    Buffer.alloc(Math.floor(width / 8), 9), Buffer.alloc(width % 8, 0x58),
+  ]);
+  installBuffer(machine, bytes, bytes.length);
+  const result = invokeRoutine(machine, "EditorNavigationCursorColumn");
+  assert.equal(result.a * 65536 + machine.runtime.cpu.h * 256 +
+    machine.runtime.cpu.l, width);
+  invokeRoutine(machine, "EditorEnsureViewport");
+  assert.equal(readVisualColumn(machine.memory, "EditorHorizontal"), width - 79);
+  assert.equal(machine.memory[symbol("EditorCursorScreenColumn")], 79);
+  for (const target of [width - 9, width - 1, width, width + 1]) {
+    let column = 0;
+    let expected = 0;
+    for (const byte of bytes) {
+      const next = byte === 9 ? Math.floor(column / 8) * 8 + 8 : column + 1;
+      if (next > target) break;
+      column = next;
+      expected++;
+    }
+    invokeRoutine(machine, "EditorNavigationOffsetForColumn", {
+      registers: { a: target >>> 16, d: (target >>> 8) & 255, e: target & 255 },
+    });
+    assert.equal(machine.runtime.cpu.h * 256 + machine.runtime.cpu.l, expected,
+      `offset at column ${target} in width ${width}`);
+  }
+  assert.deepEqual(bufferBytes(machine), Uint8Array.from(bytes));
+  assertUnusedTextCanary(machine);
+  assertCanaries(machine);
+}
+{
+  const machine = createMachine();
+  const wide = Buffer.concat([Buffer.alloc(8191, 9), Buffer.from("12345678")]);
+  const bytes = Buffer.concat([wide, Buffer.from("\r\nx\r\n"), wide]);
+  installBuffer(machine, bytes, wide.length);
+  invokeRoutine(machine, "EditorMoveDown");
+  assert.equal(readWord(machine.memory, symbol("EditorCursor")), wide.length + 3);
+  assert.equal(readVisualColumn(machine.memory, "EditorDesiredColumn"), 65536);
+  invokeRoutine(machine, "EditorMoveDown");
+  assert.equal(readWord(machine.memory, symbol("EditorCursor")), bytes.length);
+  invokeRoutine(machine, "EditorMoveUp");
+  invokeRoutine(machine, "EditorMoveUp");
+  assert.equal(readWord(machine.memory, symbol("EditorCursor")), wide.length);
+  invokeRoutine(machine, "EditorMoveLeft");
+  invokeRoutine(machine, "EditorMoveDown");
+  assert.equal(readVisualColumn(machine.memory, "EditorDesiredColumn"), 65535);
+  assertCanaries(machine);
+}
+for (const [tabCount, suffix] of [[8192, "TAIL"], [8191, "12345678TAIL"],
+  [symbol("EditorTextCapacity") - 4, "TAIL"]]) {
+  const machine = createMachine();
+  prepareDefaultFcb(machine);
+  const bytes = Buffer.concat([Buffer.alloc(tabCount, 9), Buffer.from(suffix)]);
+  installBuffer(machine, bytes, bytes.length);
+  navigationMeasurements[`wideRender${tabCount}`] = invokeRoutine(machine, "EditorRender");
+  const snapshot = machine.bdos.terminal.snapshot();
+  assert.equal(Buffer.from(snapshot.cells.slice(0, 80)).toString("ascii"),
+    `${" ".repeat(79 - suffix.length)}${suffix} `);
+  assert.equal(snapshot.cursorColumn, 79);
+  assert.equal(snapshot.cursorRow, 0);
+  assert.equal(readVisualColumn(machine.memory, "EditorHorizontal"), tabCount * 8 + suffix.length - 79);
+  // Moving back to the start must clear the high viewport byte as well.
+  writeWord(machine.memory, symbol("EditorCursor"), 0);
+  invokeRoutine(machine, "EditorEnsureViewport");
+  assert.equal(readVisualColumn(machine.memory, "EditorHorizontal"), 0);
+  assert.equal(machine.memory[symbol("EditorCursorScreenColumn")], 0);
+  assert.deepEqual(bufferBytes(machine), Uint8Array.from(bytes));
+  assertUnusedTextCanary(machine);
+  assertCanaries(machine);
+}
 {
   const machine = createMachine();
   installBuffer(machine, Buffer.from("A\r\nB", "ascii"), 1);

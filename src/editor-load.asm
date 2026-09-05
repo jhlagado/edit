@@ -54,6 +54,8 @@ EditorLoadClose:
             XOR  A
 EditorLoadReset:
             LD   HL,0
+            ; Adjacent high bytes of horizontal and desired columns.
+            LD   (EditorHorizontalHigh),HL
             LD   (EditorCursor),HL
             LD   (EditorTop),HL
             LD   (EditorHorizontal),HL

@@ -1,6 +1,6 @@
 {
   "name": "@jhlagado/edit",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "A small portable Z80 text editor for CP/M-compatible systems",
   "type": "module",
   "private": true,

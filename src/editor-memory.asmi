@@ -36,7 +36,14 @@ EditorRenderColumn   .equ EditorRenderPointer+2
 EditorRenderCount    .equ EditorRenderColumn+2
 EditorCursorScreenRow .equ EditorRenderCount+2
 EditorCursorScreenColumn .equ EditorCursorScreenRow+1
-EditorWorkspaceEnd   .equ EditorCursorScreenColumn+1
+; Visual columns need 19 bits at the full 47104-byte tab-only capacity.
+; Keep low words in their existing slots; byte offsets remain 16-bit.
+EditorHorizontalHigh .equ EditorCursorScreenColumn+1
+EditorDesiredColumnHigh .equ EditorHorizontalHigh+1
+EditorRenderColumnHigh .equ EditorDesiredColumnHigh+1
+EditorColumnHigh     .equ EditorRenderColumnHigh+1
+EditorTargetColumnHigh .equ EditorColumnHigh+1
+EditorWorkspaceEnd   .equ EditorTargetColumnHigh+1
 
 EditorFlagDirty        .equ 1
 EditorFlagConfirmQuit  .equ 2

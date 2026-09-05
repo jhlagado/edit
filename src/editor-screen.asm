@@ -59,19 +59,26 @@ EditorEnsureRowReady:
             LD   A,B
             LD   (EditorCursorScreenRow),A
             CALL EditorNavigationCursorColumn
+            OR   A
+            JR   NZ,EditorEnsureHorizontal
             LD   DE,80
             PUSH HL
             OR   A
             SBC  HL,DE
             POP  HL
             JR   C,EditorEnsureNoHorizontal
+EditorEnsureHorizontal:
             LD   DE,79
             OR   A
             SBC  HL,DE
             LD   (EditorHorizontal),HL
+            SBC  A,0
+            LD   (EditorHorizontalHigh),A
             LD   HL,79
             JR   EditorEnsureColumnReady
 EditorEnsureNoHorizontal:
+            XOR  A
+            LD   (EditorHorizontalHigh),A
             LD   DE,0
             LD   (EditorHorizontal),DE
 EditorEnsureColumnReady:
@@ -87,6 +94,8 @@ EditorRenderLine:
             LD   HL,0
             LD   (EditorRenderColumn),HL
             LD   (EditorRenderCount),HL
+            XOR  A
+            LD   (EditorRenderColumnHigh),A
 EditorRenderLineLoop:
             LD   HL,(EditorRenderPointer)
             PUSH HL
@@ -108,6 +117,8 @@ EditorRenderLineTab:
 EditorRenderTabLoop:
             LD   A,' '
             CALL EditorRenderCell
+            ; A tab spans at most eight cells: low-word equality also detects
+            ; its end across wrap. RenderCell carries into the high byte.
             LD   HL,(EditorRenderColumn)
             LD   DE,(EditorScratchB)
             OR   A
@@ -138,6 +149,12 @@ EditorRenderLineDone:
 .routine in A out A,carry,zero clobbers sign,parity,halfCarry,BC,DE,HL
 EditorRenderCell:
             LD   (EditorScratchC),A
+            LD   A,(EditorHorizontalHigh)
+            LD   D,A
+            LD   A,(EditorRenderColumnHigh)
+            CP   D
+            JR   C,EditorRenderCellAdvance
+            JR   NZ,EditorRenderCellVisible
             LD   HL,(EditorRenderColumn)
             LD   DE,(EditorHorizontal)
             PUSH HL
@@ -145,6 +162,7 @@ EditorRenderCell:
             SBC  HL,DE
             POP  HL
             JR   C,EditorRenderCellAdvance
+EditorRenderCellVisible:
             LD   DE,(EditorRenderCount)
             LD   A,E
             CP   80
@@ -158,6 +176,12 @@ EditorRenderCellAdvance:
             LD   HL,(EditorRenderColumn)
             INC  HL
             LD   (EditorRenderColumn),HL
+            LD   A,H
+            OR   L
+            RET  NZ
+            LD   A,(EditorRenderColumnHigh)
+            INC  A
+            LD   (EditorRenderColumnHigh),A
             RET
 
 .routine out A,carry,zero clobbers sign,parity,halfCarry,BC,DE,HL
