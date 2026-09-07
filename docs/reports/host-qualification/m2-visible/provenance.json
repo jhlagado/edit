@@ -1,0 +1,19 @@
+{
+  "editor": {
+    "physicalRecordsSha256": "b835fb81965957c584938a4a216d0c2c6385c2d5571691dce4c054ae9a172d0c",
+    "physicalBytes": 4096,
+    "artifactPath": "/Users/johnhardy/projects/edit/test/fixtures/editor-engine-milestone2.json",
+    "sha256": "28a001d1a8644de563f4abe01133f7ad4ec004de8649f64f9c85b1fd13b1ea45",
+    "bytes": 4050
+  },
+  "diskSha256": "561647ac3df9f6499bc30fac67c05dea869a66fb37b41f2eed9f27173658fbc2",
+  "nativeHostSha256": "df5d6782e8a60504b46b8bf58014839935a8f448b976bdc93102b6074d81c37b",
+  "captureHelperSha256": "2685bce9d9bcfa91241400c5521969a9ffbd22169cc4f3906aae19697fde74ca",
+  "qualifierSha256": "fa64a864bea465bdd47cfd19d039e69d0a12ea1ffd029d83ec794854d4c5f512",
+  "triptychHead": "5e2ff4d53a88dafb36125731f0dded913f539c7f",
+  "terminalVersion": "2.15",
+  "terminalBuild": "470.2",
+  "platform": "macOS-26.5.2-arm64-arm-64bit",
+  "machine": "arm64",
+  "pythonVersion": "3.9.6"
+}

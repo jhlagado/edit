@@ -1,0 +1,389 @@
+{
+  "format": "edit-host-qualification-v1",
+  "artifact": {
+    "path": "/Users/johnhardy/projects/edit/test/fixtures/editor-engine-milestone3.json",
+    "sha256": "6be83f6edb9ee92387c7b3817f473fbbc389a58ab1a20d9a2a6101e695fb77c4",
+    "bytes": 5513
+  },
+  "triptych": {
+    "root": "/Users/johnhardy/projects/triptych",
+    "head": "5e2ff4d53a88dafb36125731f0dded913f539c7f"
+  },
+  "diskSha256": "1eb581ba61677f80a25743d3569815251a9e8fa0ec9548615855406fab39b99d",
+  "browser": {
+    "version": "151.0.7922.34",
+    "headless": false,
+    "platform": "darwin",
+    "arch": "arm64"
+  },
+  "workload": "16KiB ordinary source; first edit then consecutive warm typing at start",
+  "boundaries": {
+    "start": "capturing real keyboard event on terminal",
+    "dom": "terminal text and cursor changed after real WASM serial output and DOM rendering",
+    "nextFrame": "following requestAnimationFrame opportunity; not verified physical display presentation"
+  },
+  "cold": {
+    "key": "x",
+    "startMs": 697.1999998092651,
+    "domMs": 13.300000190734863,
+    "nextFrameMs": 29,
+    "state": {
+      "text": "xordinary source line 0123456789                                                \nordinary source line 0123456789                                                 \nordinary source line 0123456789                                                 \nordinary source line 0123456789                                                 \nordinary source line 0123456789                                                 \nordinary source line 0123456789                                                 \nordinary source line 0123456789                                                 \nordinary source line 0123456789                                                 \nordinary source line 0123456789                                                 \nordinary source line 0123456789                                                 \nordinary source line 0123456789                                                 \nordinary source line 0123456789                                                 \nordinary source line 0123456789                                                 \nordinary source line 0123456789                                                 \nordinary source line 0123456789                                                 \nordinary source line 0123456789                                                 \nordinary source line 0123456789                                                 \nordinary source line 0123456789                                                 \nordinary source line 0123456789                                                 \nordinary source line 0123456789                                                 \nordinary source line 0123456789                                                 \nordinary source line 0123456789                                                 \nordinary source line 0123456789                                                 \nEDIT INPUT   .TXT *    ^S Save  ^Q Quit                                         ",
+      "row": "1",
+      "column": "2"
+    }
+  },
+  "samples": [
+    {
+      "key": "a",
+      "startMs": 732,
+      "domMs": 11.09999942779541,
+      "nextFrameMs": 27.299999237060547,
+      "state": {
+        "text": "xaordinary source line 0123456789                                               \nordinary source line 0123456789                                                 \nordinary source line 0123456789                                                 \nordinary source line 0123456789                                                 \nordinary source line 0123456789                                                 \nordinary source line 0123456789                                                 \nordinary source line 0123456789                                                 \nordinary source line 0123456789                                                 \nordinary source line 0123456789                                                 \nordinary source line 0123456789                                                 \nordinary source line 0123456789                                                 \nordinary source line 0123456789                                                 \nordinary source line 0123456789                                                 \nordinary source line 0123456789                                                 \nordinary source line 0123456789                                                 \nordinary source line 0123456789                                                 \nordinary source line 0123456789                                                 \nordinary source line 0123456789                                                 \nordinary source line 0123456789                                                 \nordinary source line 0123456789                                                 \nordinary source line 0123456789                                                 \nordinary source line 0123456789                                                 \nordinary source line 0123456789                                                 \nEDIT INPUT   .TXT *    ^S Save  ^Q Quit                                         ",
+        "row": "1",
+        "column": "3"
+      }
+    },
+    {
+      "key": "b",
+      "startMs": 761.3999996185303,
+      "domMs": 14.899999618530273,
+      "nextFrameMs": 31.300000190734863,
+      "state": {
+        "text": "xabordinary source line 0123456789                                              \nordinary source line 0123456789                                                 \nordinary source line 0123456789                                                 \nordinary source line 0123456789                                                 \nordinary source line 0123456789                                                 \nordinary source line 0123456789                                                 \nordinary source line 0123456789                                                 \nordinary source line 0123456789                                                 \nordinary source line 0123456789                                                 \nordinary source line 0123456789                                                 \nordinary source line 0123456789                                                 \nordinary source line 0123456789                                                 \nordinary source line 0123456789                                                 \nordinary source line 0123456789                                                 \nordinary source line 0123456789                                                 \nordinary source line 0123456789                                                 \nordinary source line 0123456789                                                 \nordinary source line 0123456789                                                 \nordinary source line 0123456789                                                 \nordinary source line 0123456789                                                 \nordinary source line 0123456789                                                 \nordinary source line 0123456789                                                 \nordinary source line 0123456789                                                 \nEDIT INPUT   .TXT *    ^S Save  ^Q Quit                                         ",
+        "row": "1",
+        "column": "4"
+      }
+    },
+    {
+      "key": "c",
+      "startMs": 794.5999994277954,
+      "domMs": 15.199999809265137,
+      "nextFrameMs": 31.5,
+      "state": {
+        "text": "xabcordinary source line 0123456789                                             \nordinary source line 0123456789                                                 \nordinary source line 0123456789                                                 \nordinary source line 0123456789                                                 \nordinary source line 0123456789                                                 \nordinary source line 0123456789                                                 \nordinary source line 0123456789                                                 \nordinary source line 0123456789                                                 \nordinary source line 0123456789                                                 \nordinary source line 0123456789                                                 \nordinary source line 0123456789                                                 \nordinary source line 0123456789                                                 \nordinary source line 0123456789                                                 \nordinary source line 0123456789                                                 \nordinary source line 0123456789                                                 \nordinary source line 0123456789                                                 \nordinary source line 0123456789                                                 \nordinary source line 0123456789                                                 \nordinary source line 0123456789                                                 \nordinary source line 0123456789                                                 \nordinary source line 0123456789                                                 \nordinary source line 0123456789                                                 \nordinary source line 0123456789                                                 \nEDIT INPUT   .TXT *    ^S Save  ^Q Quit                                         ",
+        "row": "1",
+        "column": "5"
+      }
+    },
+    {
+      "key": "d",
+      "startMs": 828.0999994277954,
+      "domMs": 15.100000381469727,
+      "nextFrameMs": 31.199999809265137,
+      "state": {
+        "text": "xabcdordinary source line 0123456789                                            \nordinary source line 0123456789                                                 \nordinary source line 0123456789                                                 \nordinary source line 0123456789                                                 \nordinary source line 0123456789                                                 \nordinary source line 0123456789                                                 \nordinary source line 0123456789                                                 \nordinary source line 0123456789                                                 \nordinary source line 0123456789                                                 \nordinary source line 0123456789                                                 \nordinary source line 0123456789                                                 \nordinary source line 0123456789                                                 \nordinary source line 0123456789                                                 \nordinary source line 0123456789                                                 \nordinary source line 0123456789                                                 \nordinary source line 0123456789                                                 \nordinary source line 0123456789                                                 \nordinary source line 0123456789                                                 \nordinary source line 0123456789                                                 \nordinary source line 0123456789                                                 \nordinary source line 0123456789                                                 \nordinary source line 0123456789                                                 \nordinary source line 0123456789                                                 \nEDIT INPUT   .TXT *    ^S Save  ^Q Quit                                         ",
+        "row": "1",
+        "column": "6"
+      }
+    },
+    {
+      "key": "e",
+      "startMs": 860.8999996185303,
+      "domMs": 15.399999618530273,
+      "nextFrameMs": 31.800000190734863,
+      "state": {
+        "text": "xabcdeordinary source line 0123456789                                           \nordinary source line 0123456789                                                 \nordinary source line 0123456789                                                 \nordinary source line 0123456789                                                 \nordinary source line 0123456789                                                 \nordinary source line 0123456789                                                 \nordinary source line 0123456789                                                 \nordinary source line 0123456789                                                 \nordinary source line 0123456789                                                 \nordinary source line 0123456789                                                 \nordinary source line 0123456789                                                 \nordinary source line 0123456789                                                 \nordinary source line 0123456789                                                 \nordinary source line 0123456789                                                 \nordinary source line 0123456789                                                 \nordinary source line 0123456789                                                 \nordinary source line 0123456789                                                 \nordinary source line 0123456789                                                 \nordinary source line 0123456789                                                 \nordinary source line 0123456789                                                 \nordinary source line 0123456789                                                 \nordinary source line 0123456789                                                 \nordinary source line 0123456789                                                 \nEDIT INPUT   .TXT *    ^S Save  ^Q Quit                                         ",
+        "row": "1",
+        "column": "7"
+      }
+    },
+    {
+      "key": "f",
+      "startMs": 894.0999994277954,
+      "domMs": 15.5,
+      "nextFrameMs": 32,
+      "state": {
+        "text": "xabcdefordinary source line 0123456789                                          \nordinary source line 0123456789                                                 \nordinary source line 0123456789                                                 \nordinary source line 0123456789                                                 \nordinary source line 0123456789                                                 \nordinary source line 0123456789                                                 \nordinary source line 0123456789                                                 \nordinary source line 0123456789                                                 \nordinary source line 0123456789                                                 \nordinary source line 0123456789                                                 \nordinary source line 0123456789                                                 \nordinary source line 0123456789                                                 \nordinary source line 0123456789                                                 \nordinary source line 0123456789                                                 \nordinary source line 0123456789                                                 \nordinary source line 0123456789                                                 \nordinary source line 0123456789                                                 \nordinary source line 0123456789                                                 \nordinary source line 0123456789                                                 \nordinary source line 0123456789                                                 \nordinary source line 0123456789                                                 \nordinary source line 0123456789                                                 \nordinary source line 0123456789                                                 \nEDIT INPUT   .TXT *    ^S Save  ^Q Quit                                         ",
+        "row": "1",
+        "column": "8"
+      }
+    },
+    {
+      "key": "g",
+      "startMs": 927.5999994277954,
+      "domMs": 15.5,
+      "nextFrameMs": 31.800000190734863,
+      "state": {
+        "text": "xabcdefgordinary source line 0123456789                                         \nordinary source line 0123456789                                                 \nordinary source line 0123456789                                                 \nordinary source line 0123456789                                                 \nordinary source line 0123456789                                                 \nordinary source line 0123456789                                                 \nordinary source line 0123456789                                                 \nordinary source line 0123456789                                                 \nordinary source line 0123456789                                                 \nordinary source line 0123456789                                                 \nordinary source line 0123456789                                                 \nordinary source line 0123456789                                                 \nordinary source line 0123456789                                                 \nordinary source line 0123456789                                                 \nordinary source line 0123456789                                                 \nordinary source line 0123456789                                                 \nordinary source line 0123456789                                                 \nordinary source line 0123456789                                                 \nordinary source line 0123456789                                                 \nordinary source line 0123456789                                                 \nordinary source line 0123456789                                                 \nordinary source line 0123456789                                                 \nordinary source line 0123456789                                                 \nEDIT INPUT   .TXT *    ^S Save  ^Q Quit                                         ",
+        "row": "1",
+        "column": "9"
+      }
+    },
+    {
+      "key": "h",
+      "startMs": 961.2999992370605,
+      "domMs": 15.100000381469727,
+      "nextFrameMs": 31.100000381469727,
+      "state": {
+        "text": "xabcdefghordinary source line 0123456789                                        \nordinary source line 0123456789                                                 \nordinary source line 0123456789                                                 \nordinary source line 0123456789                                                 \nordinary source line 0123456789                                                 \nordinary source line 0123456789                                                 \nordinary source line 0123456789                                                 \nordinary source line 0123456789                                                 \nordinary source line 0123456789                                                 \nordinary source line 0123456789                                                 \nordinary source line 0123456789                                                 \nordinary source line 0123456789                                                 \nordinary source line 0123456789                                                 \nordinary source line 0123456789                                                 \nordinary source line 0123456789                                                 \nordinary source line 0123456789                                                 \nordinary source line 0123456789                                                 \nordinary source line 0123456789                                                 \nordinary source line 0123456789                                                 \nordinary source line 0123456789                                                 \nordinary source line 0123456789                                                 \nordinary source line 0123456789                                                 \nordinary source line 0123456789                                                 \nEDIT INPUT   .TXT *    ^S Save  ^Q Quit                                         ",
+        "row": "1",
+        "column": "10"
+      }
+    },
+    {
+      "key": "i",
+      "startMs": 993.5,
+      "domMs": 16.399999618530273,
+      "nextFrameMs": 32.5,
+      "state": {
+        "text": "xabcdefghiordinary source line 0123456789                                       \nordinary source line 0123456789                                                 \nordinary source line 0123456789                                                 \nordinary source line 0123456789                                                 \nordinary source line 0123456789                                                 \nordinary source line 0123456789                                                 \nordinary source line 0123456789                                                 \nordinary source line 0123456789                                                 \nordinary source line 0123456789                                                 \nordinary source line 0123456789                                                 \nordinary source line 0123456789                                                 \nordinary source line 0123456789                                                 \nordinary source line 0123456789                                                 \nordinary source line 0123456789                                                 \nordinary source line 0123456789                                                 \nordinary source line 0123456789                                                 \nordinary source line 0123456789                                                 \nordinary source line 0123456789                                                 \nordinary source line 0123456789                                                 \nordinary source line 0123456789                                                 \nordinary source line 0123456789                                                 \nordinary source line 0123456789                                                 \nordinary source line 0123456789                                                 \nEDIT INPUT   .TXT *    ^S Save  ^Q Quit                                         ",
+        "row": "1",
+        "column": "11"
+      }
+    },
+    {
+      "key": "j",
+      "startMs": 1027.5,
+      "domMs": 15.5,
+      "nextFrameMs": 31.799999237060547,
+      "state": {
+        "text": "xabcdefghijordinary source line 0123456789                                      \nordinary source line 0123456789                                                 \nordinary source line 0123456789                                                 \nordinary source line 0123456789                                                 \nordinary source line 0123456789                                                 \nordinary source line 0123456789                                                 \nordinary source line 0123456789                                                 \nordinary source line 0123456789                                                 \nordinary source line 0123456789                                                 \nordinary source line 0123456789                                                 \nordinary source line 0123456789                                                 \nordinary source line 0123456789                                                 \nordinary source line 0123456789                                                 \nordinary source line 0123456789                                                 \nordinary source line 0123456789                                                 \nordinary source line 0123456789                                                 \nordinary source line 0123456789                                                 \nordinary source line 0123456789                                                 \nordinary source line 0123456789                                                 \nordinary source line 0123456789                                                 \nordinary source line 0123456789                                                 \nordinary source line 0123456789                                                 \nordinary source line 0123456789                                                 \nEDIT INPUT   .TXT *    ^S Save  ^Q Quit                                         ",
+        "row": "1",
+        "column": "12"
+      }
+    },
+    {
+      "key": "k",
+      "startMs": 1060.5999994277954,
+      "domMs": 15.699999809265137,
+      "nextFrameMs": 32,
+      "state": {
+        "text": "xabcdefghijkordinary source line 0123456789                                     \nordinary source line 0123456789                                                 \nordinary source line 0123456789                                                 \nordinary source line 0123456789                                                 \nordinary source line 0123456789                                                 \nordinary source line 0123456789                                                 \nordinary source line 0123456789                                                 \nordinary source line 0123456789                                                 \nordinary source line 0123456789                                                 \nordinary source line 0123456789                                                 \nordinary source line 0123456789                                                 \nordinary source line 0123456789                                                 \nordinary source line 0123456789                                                 \nordinary source line 0123456789                                                 \nordinary source line 0123456789                                                 \nordinary source line 0123456789                                                 \nordinary source line 0123456789                                                 \nordinary source line 0123456789                                                 \nordinary source line 0123456789                                                 \nordinary source line 0123456789                                                 \nordinary source line 0123456789                                                 \nordinary source line 0123456789                                                 \nordinary source line 0123456789                                                 \nEDIT INPUT   .TXT *    ^S Save  ^Q Quit                                         ",
+        "row": "1",
+        "column": "13"
+      }
+    },
+    {
+      "key": "l",
+      "startMs": 1093.8999996185303,
+      "domMs": 15.600000381469727,
+      "nextFrameMs": 31.899999618530273,
+      "state": {
+        "text": "xabcdefghijklordinary source line 0123456789                                    \nordinary source line 0123456789                                                 \nordinary source line 0123456789                                                 \nordinary source line 0123456789                                                 \nordinary source line 0123456789                                                 \nordinary source line 0123456789                                                 \nordinary source line 0123456789                                                 \nordinary source line 0123456789                                                 \nordinary source line 0123456789                                                 \nordinary source line 0123456789                                                 \nordinary source line 0123456789                                                 \nordinary source line 0123456789                                                 \nordinary source line 0123456789                                                 \nordinary source line 0123456789                                                 \nordinary source line 0123456789                                                 \nordinary source line 0123456789                                                 \nordinary source line 0123456789                                                 \nordinary source line 0123456789                                                 \nordinary source line 0123456789                                                 \nordinary source line 0123456789                                                 \nordinary source line 0123456789                                                 \nordinary source line 0123456789                                                 \nordinary source line 0123456789                                                 \nEDIT INPUT   .TXT *    ^S Save  ^Q Quit                                         ",
+        "row": "1",
+        "column": "14"
+      }
+    },
+    {
+      "key": "m",
+      "startMs": 1127,
+      "domMs": 16,
+      "nextFrameMs": 32.29999923706055,
+      "state": {
+        "text": "xabcdefghijklmordinary source line 0123456789                                   \nordinary source line 0123456789                                                 \nordinary source line 0123456789                                                 \nordinary source line 0123456789                                                 \nordinary source line 0123456789                                                 \nordinary source line 0123456789                                                 \nordinary source line 0123456789                                                 \nordinary source line 0123456789                                                 \nordinary source line 0123456789                                                 \nordinary source line 0123456789                                                 \nordinary source line 0123456789                                                 \nordinary source line 0123456789                                                 \nordinary source line 0123456789                                                 \nordinary source line 0123456789                                                 \nordinary source line 0123456789                                                 \nordinary source line 0123456789                                                 \nordinary source line 0123456789                                                 \nordinary source line 0123456789                                                 \nordinary source line 0123456789                                                 \nordinary source line 0123456789                                                 \nordinary source line 0123456789                                                 \nordinary source line 0123456789                                                 \nordinary source line 0123456789                                                 \nEDIT INPUT   .TXT *    ^S Save  ^Q Quit                                         ",
+        "row": "1",
+        "column": "15"
+      }
+    },
+    {
+      "key": "n",
+      "startMs": 1160.8999996185303,
+      "domMs": 15.399999618530273,
+      "nextFrameMs": 31.600000381469727,
+      "state": {
+        "text": "xabcdefghijklmnordinary source line 0123456789                                  \nordinary source line 0123456789                                                 \nordinary source line 0123456789                                                 \nordinary source line 0123456789                                                 \nordinary source line 0123456789                                                 \nordinary source line 0123456789                                                 \nordinary source line 0123456789                                                 \nordinary source line 0123456789                                                 \nordinary source line 0123456789                                                 \nordinary source line 0123456789                                                 \nordinary source line 0123456789                                                 \nordinary source line 0123456789                                                 \nordinary source line 0123456789                                                 \nordinary source line 0123456789                                                 \nordinary source line 0123456789                                                 \nordinary source line 0123456789                                                 \nordinary source line 0123456789                                                 \nordinary source line 0123456789                                                 \nordinary source line 0123456789                                                 \nordinary source line 0123456789                                                 \nordinary source line 0123456789                                                 \nordinary source line 0123456789                                                 \nordinary source line 0123456789                                                 \nEDIT INPUT   .TXT *    ^S Save  ^Q Quit                                         ",
+        "row": "1",
+        "column": "16"
+      }
+    },
+    {
+      "key": "o",
+      "startMs": 1193.5999994277954,
+      "domMs": 16.300000190734863,
+      "nextFrameMs": 32.40000057220459,
+      "state": {
+        "text": "xabcdefghijklmnoordinary source line 0123456789                                 \nordinary source line 0123456789                                                 \nordinary source line 0123456789                                                 \nordinary source line 0123456789                                                 \nordinary source line 0123456789                                                 \nordinary source line 0123456789                                                 \nordinary source line 0123456789                                                 \nordinary source line 0123456789                                                 \nordinary source line 0123456789                                                 \nordinary source line 0123456789                                                 \nordinary source line 0123456789                                                 \nordinary source line 0123456789                                                 \nordinary source line 0123456789                                                 \nordinary source line 0123456789                                                 \nordinary source line 0123456789                                                 \nordinary source line 0123456789                                                 \nordinary source line 0123456789                                                 \nordinary source line 0123456789                                                 \nordinary source line 0123456789                                                 \nordinary source line 0123456789                                                 \nordinary source line 0123456789                                                 \nordinary source line 0123456789                                                 \nordinary source line 0123456789                                                 \nEDIT INPUT   .TXT *    ^S Save  ^Q Quit                                         ",
+        "row": "1",
+        "column": "17"
+      }
+    },
+    {
+      "key": "p",
+      "startMs": 1227.1999998092651,
+      "domMs": 15.699999809265137,
+      "nextFrameMs": 32.09999942779541,
+      "state": {
+        "text": "xabcdefghijklmnopordinary source line 0123456789                                \nordinary source line 0123456789                                                 \nordinary source line 0123456789                                                 \nordinary source line 0123456789                                                 \nordinary source line 0123456789                                                 \nordinary source line 0123456789                                                 \nordinary source line 0123456789                                                 \nordinary source line 0123456789                                                 \nordinary source line 0123456789                                                 \nordinary source line 0123456789                                                 \nordinary source line 0123456789                                                 \nordinary source line 0123456789                                                 \nordinary source line 0123456789                                                 \nordinary source line 0123456789                                                 \nordinary source line 0123456789                                                 \nordinary source line 0123456789                                                 \nordinary source line 0123456789                                                 \nordinary source line 0123456789                                                 \nordinary source line 0123456789                                                 \nordinary source line 0123456789                                                 \nordinary source line 0123456789                                                 \nordinary source line 0123456789                                                 \nordinary source line 0123456789                                                 \nEDIT INPUT   .TXT *    ^S Save  ^Q Quit                                         ",
+        "row": "1",
+        "column": "18"
+      }
+    },
+    {
+      "key": "q",
+      "startMs": 1260.3999996185303,
+      "domMs": 15.600000381469727,
+      "nextFrameMs": 32.39999961853027,
+      "state": {
+        "text": "xabcdefghijklmnopqordinary source line 0123456789                               \nordinary source line 0123456789                                                 \nordinary source line 0123456789                                                 \nordinary source line 0123456789                                                 \nordinary source line 0123456789                                                 \nordinary source line 0123456789                                                 \nordinary source line 0123456789                                                 \nordinary source line 0123456789                                                 \nordinary source line 0123456789                                                 \nordinary source line 0123456789                                                 \nordinary source line 0123456789                                                 \nordinary source line 0123456789                                                 \nordinary source line 0123456789                                                 \nordinary source line 0123456789                                                 \nordinary source line 0123456789                                                 \nordinary source line 0123456789                                                 \nordinary source line 0123456789                                                 \nordinary source line 0123456789                                                 \nordinary source line 0123456789                                                 \nordinary source line 0123456789                                                 \nordinary source line 0123456789                                                 \nordinary source line 0123456789                                                 \nordinary source line 0123456789                                                 \nEDIT INPUT   .TXT *    ^S Save  ^Q Quit                                         ",
+        "row": "1",
+        "column": "19"
+      }
+    },
+    {
+      "key": "r",
+      "startMs": 1294,
+      "domMs": 15.799999237060547,
+      "nextFrameMs": 32,
+      "state": {
+        "text": "xabcdefghijklmnopqrordinary source line 0123456789                              \nordinary source line 0123456789                                                 \nordinary source line 0123456789                                                 \nordinary source line 0123456789                                                 \nordinary source line 0123456789                                                 \nordinary source line 0123456789                                                 \nordinary source line 0123456789                                                 \nordinary source line 0123456789                                                 \nordinary source line 0123456789                                                 \nordinary source line 0123456789                                                 \nordinary source line 0123456789                                                 \nordinary source line 0123456789                                                 \nordinary source line 0123456789                                                 \nordinary source line 0123456789                                                 \nordinary source line 0123456789                                                 \nordinary source line 0123456789                                                 \nordinary source line 0123456789                                                 \nordinary source line 0123456789                                                 \nordinary source line 0123456789                                                 \nordinary source line 0123456789                                                 \nordinary source line 0123456789                                                 \nordinary source line 0123456789                                                 \nordinary source line 0123456789                                                 \nEDIT INPUT   .TXT *    ^S Save  ^Q Quit                                         ",
+        "row": "1",
+        "column": "20"
+      }
+    },
+    {
+      "key": "s",
+      "startMs": 1329.6999998092651,
+      "domMs": 13.199999809265137,
+      "nextFrameMs": 29.59999942779541,
+      "state": {
+        "text": "xabcdefghijklmnopqrsordinary source line 0123456789                             \nordinary source line 0123456789                                                 \nordinary source line 0123456789                                                 \nordinary source line 0123456789                                                 \nordinary source line 0123456789                                                 \nordinary source line 0123456789                                                 \nordinary source line 0123456789                                                 \nordinary source line 0123456789                                                 \nordinary source line 0123456789                                                 \nordinary source line 0123456789                                                 \nordinary source line 0123456789                                                 \nordinary source line 0123456789                                                 \nordinary source line 0123456789                                                 \nordinary source line 0123456789                                                 \nordinary source line 0123456789                                                 \nordinary source line 0123456789                                                 \nordinary source line 0123456789                                                 \nordinary source line 0123456789                                                 \nordinary source line 0123456789                                                 \nordinary source line 0123456789                                                 \nordinary source line 0123456789                                                 \nordinary source line 0123456789                                                 \nordinary source line 0123456789                                                 \nEDIT INPUT   .TXT *    ^S Save  ^Q Quit                                         ",
+        "row": "1",
+        "column": "21"
+      }
+    },
+    {
+      "key": "t",
+      "startMs": 1360.5999994277954,
+      "domMs": 15.800000190734863,
+      "nextFrameMs": 32,
+      "state": {
+        "text": "xabcdefghijklmnopqrstordinary source line 0123456789                            \nordinary source line 0123456789                                                 \nordinary source line 0123456789                                                 \nordinary source line 0123456789                                                 \nordinary source line 0123456789                                                 \nordinary source line 0123456789                                                 \nordinary source line 0123456789                                                 \nordinary source line 0123456789                                                 \nordinary source line 0123456789                                                 \nordinary source line 0123456789                                                 \nordinary source line 0123456789                                                 \nordinary source line 0123456789                                                 \nordinary source line 0123456789                                                 \nordinary source line 0123456789                                                 \nordinary source line 0123456789                                                 \nordinary source line 0123456789                                                 \nordinary source line 0123456789                                                 \nordinary source line 0123456789                                                 \nordinary source line 0123456789                                                 \nordinary source line 0123456789                                                 \nordinary source line 0123456789                                                 \nordinary source line 0123456789                                                 \nordinary source line 0123456789                                                 \nEDIT INPUT   .TXT *    ^S Save  ^Q Quit                                         ",
+        "row": "1",
+        "column": "22"
+      }
+    },
+    {
+      "key": "u",
+      "startMs": 1393.5,
+      "domMs": 16,
+      "nextFrameMs": 32.59999942779541,
+      "state": {
+        "text": "xabcdefghijklmnopqrstuordinary source line 0123456789                           \nordinary source line 0123456789                                                 \nordinary source line 0123456789                                                 \nordinary source line 0123456789                                                 \nordinary source line 0123456789                                                 \nordinary source line 0123456789                                                 \nordinary source line 0123456789                                                 \nordinary source line 0123456789                                                 \nordinary source line 0123456789                                                 \nordinary source line 0123456789                                                 \nordinary source line 0123456789                                                 \nordinary source line 0123456789                                                 \nordinary source line 0123456789                                                 \nordinary source line 0123456789                                                 \nordinary source line 0123456789                                                 \nordinary source line 0123456789                                                 \nordinary source line 0123456789                                                 \nordinary source line 0123456789                                                 \nordinary source line 0123456789                                                 \nordinary source line 0123456789                                                 \nordinary source line 0123456789                                                 \nordinary source line 0123456789                                                 \nordinary source line 0123456789                                                 \nEDIT INPUT   .TXT *    ^S Save  ^Q Quit                                         ",
+        "row": "1",
+        "column": "23"
+      }
+    },
+    {
+      "key": "v",
+      "startMs": 1427,
+      "domMs": 15.799999237060547,
+      "nextFrameMs": 32.39999961853027,
+      "state": {
+        "text": "xabcdefghijklmnopqrstuvordinary source line 0123456789                          \nordinary source line 0123456789                                                 \nordinary source line 0123456789                                                 \nordinary source line 0123456789                                                 \nordinary source line 0123456789                                                 \nordinary source line 0123456789                                                 \nordinary source line 0123456789                                                 \nordinary source line 0123456789                                                 \nordinary source line 0123456789                                                 \nordinary source line 0123456789                                                 \nordinary source line 0123456789                                                 \nordinary source line 0123456789                                                 \nordinary source line 0123456789                                                 \nordinary source line 0123456789                                                 \nordinary source line 0123456789                                                 \nordinary source line 0123456789                                                 \nordinary source line 0123456789                                                 \nordinary source line 0123456789                                                 \nordinary source line 0123456789                                                 \nordinary source line 0123456789                                                 \nordinary source line 0123456789                                                 \nordinary source line 0123456789                                                 \nordinary source line 0123456789                                                 \nEDIT INPUT   .TXT *    ^S Save  ^Q Quit                                         ",
+        "row": "1",
+        "column": "24"
+      }
+    },
+    {
+      "key": "w",
+      "startMs": 1460.1999998092651,
+      "domMs": 16.09999942779541,
+      "nextFrameMs": 32.30000019073486,
+      "state": {
+        "text": "xabcdefghijklmnopqrstuvwordinary source line 0123456789                         \nordinary source line 0123456789                                                 \nordinary source line 0123456789                                                 \nordinary source line 0123456789                                                 \nordinary source line 0123456789                                                 \nordinary source line 0123456789                                                 \nordinary source line 0123456789                                                 \nordinary source line 0123456789                                                 \nordinary source line 0123456789                                                 \nordinary source line 0123456789                                                 \nordinary source line 0123456789                                                 \nordinary source line 0123456789                                                 \nordinary source line 0123456789                                                 \nordinary source line 0123456789                                                 \nordinary source line 0123456789                                                 \nordinary source line 0123456789                                                 \nordinary source line 0123456789                                                 \nordinary source line 0123456789                                                 \nordinary source line 0123456789                                                 \nordinary source line 0123456789                                                 \nordinary source line 0123456789                                                 \nordinary source line 0123456789                                                 \nordinary source line 0123456789                                                 \nEDIT INPUT   .TXT *    ^S Save  ^Q Quit                                         ",
+        "row": "1",
+        "column": "25"
+      }
+    },
+    {
+      "key": "x",
+      "startMs": 1493.8999996185303,
+      "domMs": 15.899999618530273,
+      "nextFrameMs": 31.899999618530273,
+      "state": {
+        "text": "xabcdefghijklmnopqrstuvwxordinary source line 0123456789                        \nordinary source line 0123456789                                                 \nordinary source line 0123456789                                                 \nordinary source line 0123456789                                                 \nordinary source line 0123456789                                                 \nordinary source line 0123456789                                                 \nordinary source line 0123456789                                                 \nordinary source line 0123456789                                                 \nordinary source line 0123456789                                                 \nordinary source line 0123456789                                                 \nordinary source line 0123456789                                                 \nordinary source line 0123456789                                                 \nordinary source line 0123456789                                                 \nordinary source line 0123456789                                                 \nordinary source line 0123456789                                                 \nordinary source line 0123456789                                                 \nordinary source line 0123456789                                                 \nordinary source line 0123456789                                                 \nordinary source line 0123456789                                                 \nordinary source line 0123456789                                                 \nordinary source line 0123456789                                                 \nordinary source line 0123456789                                                 \nordinary source line 0123456789                                                 \nEDIT INPUT   .TXT *    ^S Save  ^Q Quit                                         ",
+        "row": "1",
+        "column": "26"
+      }
+    },
+    {
+      "key": "y",
+      "startMs": 1526.8999996185303,
+      "domMs": 16,
+      "nextFrameMs": 32.60000038146973,
+      "state": {
+        "text": "xabcdefghijklmnopqrstuvwxyordinary source line 0123456789                       \nordinary source line 0123456789                                                 \nordinary source line 0123456789                                                 \nordinary source line 0123456789                                                 \nordinary source line 0123456789                                                 \nordinary source line 0123456789                                                 \nordinary source line 0123456789                                                 \nordinary source line 0123456789                                                 \nordinary source line 0123456789                                                 \nordinary source line 0123456789                                                 \nordinary source line 0123456789                                                 \nordinary source line 0123456789                                                 \nordinary source line 0123456789                                                 \nordinary source line 0123456789                                                 \nordinary source line 0123456789                                                 \nordinary source line 0123456789                                                 \nordinary source line 0123456789                                                 \nordinary source line 0123456789                                                 \nordinary source line 0123456789                                                 \nordinary source line 0123456789                                                 \nordinary source line 0123456789                                                 \nordinary source line 0123456789                                                 \nordinary source line 0123456789                                                 \nEDIT INPUT   .TXT *    ^S Save  ^Q Quit                                         ",
+        "row": "1",
+        "column": "27"
+      }
+    },
+    {
+      "key": "z",
+      "startMs": 1560.3999996185303,
+      "domMs": 15.899999618530273,
+      "nextFrameMs": 32.10000038146973,
+      "state": {
+        "text": "xabcdefghijklmnopqrstuvwxyzordinary source line 0123456789                      \nordinary source line 0123456789                                                 \nordinary source line 0123456789                                                 \nordinary source line 0123456789                                                 \nordinary source line 0123456789                                                 \nordinary source line 0123456789                                                 \nordinary source line 0123456789                                                 \nordinary source line 0123456789                                                 \nordinary source line 0123456789                                                 \nordinary source line 0123456789                                                 \nordinary source line 0123456789                                                 \nordinary source line 0123456789                                                 \nordinary source line 0123456789                                                 \nordinary source line 0123456789                                                 \nordinary source line 0123456789                                                 \nordinary source line 0123456789                                                 \nordinary source line 0123456789                                                 \nordinary source line 0123456789                                                 \nordinary source line 0123456789                                                 \nordinary source line 0123456789                                                 \nordinary source line 0123456789                                                 \nordinary source line 0123456789                                                 \nordinary source line 0123456789                                                 \nEDIT INPUT   .TXT *    ^S Save  ^Q Quit                                         ",
+        "row": "1",
+        "column": "28"
+      }
+    },
+    {
+      "key": "a",
+      "startMs": 1593.3999996185303,
+      "domMs": 16.300000190734863,
+      "nextFrameMs": 32.5,
+      "state": {
+        "text": "xabcdefghijklmnopqrstuvwxyzaordinary source line 0123456789                     \nordinary source line 0123456789                                                 \nordinary source line 0123456789                                                 \nordinary source line 0123456789                                                 \nordinary source line 0123456789                                                 \nordinary source line 0123456789                                                 \nordinary source line 0123456789                                                 \nordinary source line 0123456789                                                 \nordinary source line 0123456789                                                 \nordinary source line 0123456789                                                 \nordinary source line 0123456789                                                 \nordinary source line 0123456789                                                 \nordinary source line 0123456789                                                 \nordinary source line 0123456789                                                 \nordinary source line 0123456789                                                 \nordinary source line 0123456789                                                 \nordinary source line 0123456789                                                 \nordinary source line 0123456789                                                 \nordinary source line 0123456789                                                 \nordinary source line 0123456789                                                 \nordinary source line 0123456789                                                 \nordinary source line 0123456789                                                 \nordinary source line 0123456789                                                 \nEDIT INPUT   .TXT *    ^S Save  ^Q Quit                                         ",
+        "row": "1",
+        "column": "29"
+      }
+    },
+    {
+      "key": "b",
+      "startMs": 1626.6999998092651,
+      "domMs": 16.300000190734863,
+      "nextFrameMs": 32.59999942779541,
+      "state": {
+        "text": "xabcdefghijklmnopqrstuvwxyzabordinary source line 0123456789                    \nordinary source line 0123456789                                                 \nordinary source line 0123456789                                                 \nordinary source line 0123456789                                                 \nordinary source line 0123456789                                                 \nordinary source line 0123456789                                                 \nordinary source line 0123456789                                                 \nordinary source line 0123456789                                                 \nordinary source line 0123456789                                                 \nordinary source line 0123456789                                                 \nordinary source line 0123456789                                                 \nordinary source line 0123456789                                                 \nordinary source line 0123456789                                                 \nordinary source line 0123456789                                                 \nordinary source line 0123456789                                                 \nordinary source line 0123456789                                                 \nordinary source line 0123456789                                                 \nordinary source line 0123456789                                                 \nordinary source line 0123456789                                                 \nordinary source line 0123456789                                                 \nordinary source line 0123456789                                                 \nordinary source line 0123456789                                                 \nordinary source line 0123456789                                                 \nEDIT INPUT   .TXT *    ^S Save  ^Q Quit                                         ",
+        "row": "1",
+        "column": "30"
+      }
+    },
+    {
+      "key": "c",
+      "startMs": 1660.1999998092651,
+      "domMs": 16.09999942779541,
+      "nextFrameMs": 32.39999961853027,
+      "state": {
+        "text": "xabcdefghijklmnopqrstuvwxyzabcordinary source line 0123456789                   \nordinary source line 0123456789                                                 \nordinary source line 0123456789                                                 \nordinary source line 0123456789                                                 \nordinary source line 0123456789                                                 \nordinary source line 0123456789                                                 \nordinary source line 0123456789                                                 \nordinary source line 0123456789                                                 \nordinary source line 0123456789                                                 \nordinary source line 0123456789                                                 \nordinary source line 0123456789                                                 \nordinary source line 0123456789                                                 \nordinary source line 0123456789                                                 \nordinary source line 0123456789                                                 \nordinary source line 0123456789                                                 \nordinary source line 0123456789                                                 \nordinary source line 0123456789                                                 \nordinary source line 0123456789                                                 \nordinary source line 0123456789                                                 \nordinary source line 0123456789                                                 \nordinary source line 0123456789                                                 \nordinary source line 0123456789                                                 \nordinary source line 0123456789                                                 \nEDIT INPUT   .TXT *    ^S Save  ^Q Quit                                         ",
+        "row": "1",
+        "column": "31"
+      }
+    },
+    {
+      "key": "d",
+      "startMs": 1693.5,
+      "domMs": 16.199999809265137,
+      "nextFrameMs": 32.5,
+      "state": {
+        "text": "xabcdefghijklmnopqrstuvwxyzabcdordinary source line 0123456789                  \nordinary source line 0123456789                                                 \nordinary source line 0123456789                                                 \nordinary source line 0123456789                                                 \nordinary source line 0123456789                                                 \nordinary source line 0123456789                                                 \nordinary source line 0123456789                                                 \nordinary source line 0123456789                                                 \nordinary source line 0123456789                                                 \nordinary source line 0123456789                                                 \nordinary source line 0123456789                                                 \nordinary source line 0123456789                                                 \nordinary source line 0123456789                                                 \nordinary source line 0123456789                                                 \nordinary source line 0123456789                                                 \nordinary source line 0123456789                                                 \nordinary source line 0123456789                                                 \nordinary source line 0123456789                                                 \nordinary source line 0123456789                                                 \nordinary source line 0123456789                                                 \nordinary source line 0123456789                                                 \nordinary source line 0123456789                                                 \nordinary source line 0123456789                                                 \nEDIT INPUT   .TXT *    ^S Save  ^Q Quit                                         ",
+        "row": "1",
+        "column": "32"
+      }
+    }
+  ],
+  "summary": {
+    "dom": {
+      "medianMs": 15.749999523162842,
+      "p95Ms": 16.300000190734863
+    },
+    "nextFrame": {
+      "medianMs": 32,
+      "p95Ms": 32.59999942779541
+    }
+  },
+  "machine": {
+    "release": "25.5.0",
+    "cpu": "Apple M2",
+    "cpuCount": 8,
+    "totalMemory": 8589934592
+  },
+  "hostAssets": {
+    "app.js": "80f7597fc8be18d7a7d9f9c733f35100863080a360f2666b115acafedaa9ed78",
+    "terminal.js": "b0a33fb4422a773f456aea698c52d3aee710dfee088b542835beb7b332e4dcaa",
+    "triptych_host_wasm_bg.wasm": "fd03721ec578fccf1e96eb4af3ad4954ce5d163626983bcfd71d605cd8f2c75d"
+  }
+}

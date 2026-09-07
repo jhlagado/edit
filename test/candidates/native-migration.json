@@ -1,0 +1,119 @@
+{
+  "format": "edit-native-candidate-migration-v1",
+  "historicalDependencyRevision": "ac59b478b686b7cd1a3a340064e82d64fdc58589",
+  "method": "One-time expansion and conditional selection; old ATOM path versus direct native ATOM, exact bytes and symbol values checked. No AZM execution.",
+  "entries": [
+    {
+      "source": "test/candidates/buffer/contiguous.asm",
+      "bytes": 279,
+      "sha256": "e84490093b1df5e2c00a00eb176fa06a15ebb6adbd0c87db574885acacab4600",
+      "nativeSourceSha256": "03f832ade2be534f56d67ee77fd1ce71fae41661c5e749ca6e744ac4e23bc50d",
+      "symbolLedger": "test/candidates/buffer/contiguous.asm.symbols.json",
+      "verifiedSymbols": 33
+    },
+    {
+      "source": "test/candidates/buffer/gap.asm",
+      "bytes": 293,
+      "sha256": "16f6e3e51328391c8ca0a43d2d8313f6f8ba6a4b4d63e6c43230be13c59eb0fa",
+      "nativeSourceSha256": "3555c56f7eea038b47f4c8b19fe3aa15353dc609081415bfb99172b042dee5d5",
+      "symbolLedger": "test/candidates/buffer/gap.asm.symbols.json",
+      "verifiedSymbols": 30
+    },
+    {
+      "source": "test/candidates/search/dedicated.asm",
+      "bytes": 412,
+      "sha256": "fd20c9a48387e55aa6099f65a8743575d52a29fbc93148d0432909695bb6a7d4",
+      "nativeSourceSha256": "3aa14e7841e3a82a03797d2d241f4c1257e256bba53d45e0b146dc506eeb28f1",
+      "symbolLedger": "test/candidates/search/dedicated.asm.symbols.json",
+      "verifiedSymbols": 67
+    },
+    {
+      "source": "test/candidates/search/dma-staging.asm",
+      "bytes": 412,
+      "sha256": "de0cb2b7d2b250142a9992d21a57ae66ab8af14fc416d5b4c3517b6a44fa6fac",
+      "nativeSourceSha256": "3339caea8af5d1eaa93acfc03e89ab89c2aa1029e6e13d1005e3cfc075c59c90",
+      "symbolLedger": "test/candidates/search/dma-staging.asm.symbols.json",
+      "verifiedSymbols": 68
+    },
+    {
+      "source": "test/candidates/search/dma-rollback.asm",
+      "bytes": 412,
+      "sha256": "df8dcaaf4843705e38a9f59f22e95b19f438c80ddc555a06d9248002158b923c",
+      "nativeSourceSha256": "c22599fd578c51a4b51475fedfaf7a6cccd522f5a6272c60f95590fc14a296b4",
+      "symbolLedger": "test/candidates/search/dma-rollback.asm.symbols.json",
+      "verifiedSymbols": 68
+    },
+    {
+      "source": "test/candidates/search/scan-endpoint.asm",
+      "bytes": 212,
+      "sha256": "57732a366c9956497aba49e6cfa35357a53146214ce1caa0a53ef54c44da3066",
+      "nativeSourceSha256": "ab48bd4eac191524561b788d38d5431743a50c9a3d3ccec7faa0b932f43d5913",
+      "symbolLedger": "test/candidates/search/scan-endpoint.asm.symbols.json",
+      "verifiedSymbols": 36
+    },
+    {
+      "source": "test/candidates/search/scan-counted.asm",
+      "bytes": 205,
+      "sha256": "be973dbeb51ae6f5afc74e6b5ea73e13f7f0773999e5dd3ad4d786708755f40e",
+      "nativeSourceSha256": "9b6efde47b0e8e682412764ce8338da0bb20f2f3f2085843ca7f33be9d7061ca",
+      "symbolLedger": "test/candidates/search/scan-counted.asm.symbols.json",
+      "verifiedSymbols": 35
+    },
+    {
+      "source": "test/candidates/new-file/baseline.asm",
+      "bytes": 2840,
+      "sha256": "79767ec2f915c428ffd3311db2ab525db78f0df038bf2b7c651b404a267b2817",
+      "nativeSourceSha256": "f3bd1d1b16f87479dc39bdfbf2b2cbd9ba3cf8619c8a9b050342e0249833f9b3",
+      "symbolLedger": "test/candidates/new-file/baseline.asm.symbols.json",
+      "verifiedSymbols": 303
+    },
+    {
+      "source": "test/candidates/new-file/persistent.asm",
+      "bytes": 2879,
+      "sha256": "17e6e14be87daae39a9545fdb56e6103d96dad659e612abc0adacc95e5753d8a",
+      "nativeSourceSha256": "db2425f05b58a0efcdd81db0803bef6c304b744ee8096cbfb6c90cfd6c50db5c",
+      "symbolLedger": "test/candidates/new-file/persistent.asm.symbols.json",
+      "verifiedSymbols": 306
+    },
+    {
+      "source": "test/candidates/new-file/save-probe.asm",
+      "bytes": 2907,
+      "sha256": "7342a2767209655d2e31f03ed4234bbd545ece90205c7d168e508ae8a54e969f",
+      "nativeSourceSha256": "5c377fd74ac15425f94b93b18f8fc4aebfad7d155deb28c59bdefae4a1c72362",
+      "symbolLedger": "test/candidates/new-file/save-probe.asm.symbols.json",
+      "verifiedSymbols": 308
+    },
+    {
+      "source": "test/candidates/new-file/separate.asm",
+      "bytes": 2948,
+      "sha256": "899f5b121822a01600cf7abb09d1fb5a0a8ec9e28ab39f5c4195a7070669ab9d",
+      "nativeSourceSha256": "2487445d46e1a5fac761b7aa09ea6d777bd44eb73cfbff89eab569d143d54128",
+      "symbolLedger": "test/candidates/new-file/separate.asm.symbols.json",
+      "verifiedSymbols": 306
+    },
+    {
+      "source": "test/candidates/replace/baseline.asm",
+      "bytes": 2869,
+      "sha256": "69e0cdf360c4449038ef1bbed1c9e388c9933ff6e21a06e0964db772c57f6bbc",
+      "nativeSourceSha256": "2a91be00389f014abdeb273e561fd880dba6e998826edde6a1958b59c8e8aa4b",
+      "symbolLedger": "test/candidates/replace/baseline.asm.symbols.json",
+      "verifiedSymbols": 302
+    },
+    {
+      "source": "test/candidates/replace/single.asm",
+      "bytes": 3106,
+      "sha256": "c9d780fb3d94814c953770a4212113d35e70a944a198efd9036d0975ff5f8267",
+      "nativeSourceSha256": "ae19f21180da0069f9a9e3b4c5aefd1e8ca08039a4c91a6f803ccbd86f77040d",
+      "symbolLedger": "test/candidates/replace/single.asm.symbols.json",
+      "verifiedSymbols": 321
+    },
+    {
+      "source": "test/candidates/replace/all.asm",
+      "bytes": 3286,
+      "sha256": "6a43b905f2947fea7fd250084f6215360c0fea840308eccbf5dfc8ed1e97d53b",
+      "nativeSourceSha256": "81f9765d997b07451b296c18722e79225f9affe3e9d33101936f97e20037707d",
+      "symbolLedger": "test/candidates/replace/all.asm.symbols.json",
+      "verifiedSymbols": 333
+    }
+  ]
+}

@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
-import { mkdtemp, readFile, rm } from "node:fs/promises";
-import { tmpdir } from "node:os";
+import { logicalDocument, seedDocument } from "./support/editor-engine-harness.mjs";
+import { readFile } from "node:fs/promises";
 import { join } from "node:path";
 
 import {
@@ -23,23 +23,11 @@ const WORKSPACE_CANARY = 0xa5;
 const TEXT_CANARY = 0xc7;
 const HIGH_CANARY = 0x5a;
 
-const temporaryDirectory = await mkdtemp(
-  join(tmpdir(), "edit-proof-"),
-);
-let atomArtifacts;
-try {
-  atomArtifacts = await assembleProjectOwnedAtomArtifacts({
-    outputDirectory,
-    temporaryDirectory,
-    candidate: projectOwnedCandidates.find(
-      (candidate) => candidate.name === "editor.asm",
-    ),
-    base: 0x0100,
-    entryAddress: 0x0100,
-  });
-} finally {
-  await rm(temporaryDirectory, { recursive: true, force: true });
-}
+const atomArtifacts = await assembleProjectOwnedAtomArtifacts({
+  outputDirectory,
+  candidate: projectOwnedCandidates.find(candidate=>candidate.name==="editor.asm"),
+  base:0x100,entryAddress:0x100,
+});
 const binary = { kind: "bin", bytes: atomArtifacts.bytes };
 const debugMap = { kind: "d8m", json: atomArtifacts.debugMap };
 assert.equal(debugMap.kind, "d8m", "editor proof requires an Atom debug map");
@@ -331,8 +319,7 @@ function installBuffer(machine, bytes, cursor = 0) {
     memoryLayout.textStart,
     memoryLayout.textEnd,
   );
-  machine.memory.set(bytes, memoryLayout.textStart);
-  writeWord(machine.memory, symbol("EditorLength"), bytes.length);
+  seedDocument({ memory: machine.memory, symbol, artifact: { symbols } }, bytes);
   writeWord(machine.memory, symbol("EditorCursor"), cursor);
   writeWord(machine.memory, symbol("EditorTop"), 0);
   writeWord(machine.memory, symbol("EditorHorizontal"), 0);
@@ -376,14 +363,17 @@ function queryBlock(machine) {
 }
 
 function bufferBytes(machine) {
-  const length = readWord(machine.memory, symbol("EditorLength"));
-  return machine.memory.slice(
-    memoryLayout.textStart,
-    memoryLayout.textStart + length,
-  );
+  return logicalDocument({ memory: machine.memory, symbol, artifact: { symbols } });
 }
 
 function assertUnusedTextCanary(machine) {
+  if (symbols.EditorDocumentGapStart !== undefined) {
+    // Gap bytes may contain old text after relocation/deletion. They are not
+    // an untouched suffix. Assert the representation bounds/length here;
+    // outer canaries and gap rejection tests guard illegal writes separately.
+    bufferBytes(machine);
+    return;
+  }
   const length = readWord(machine.memory, symbol("EditorLength"));
   assert.ok(
     machine.memory

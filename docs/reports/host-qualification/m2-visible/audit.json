@@ -1,0 +1,314 @@
+{
+  "status": "passed",
+  "warmSamples": 30,
+  "samplesAudited": 31,
+  "captureFrames": 589,
+  "geometry": {
+    "width": 1160,
+    "height": 770,
+    "cursorX": 20,
+    "pitch": 14,
+    "cursorY": 78,
+    "cursorHeight": 28
+  },
+  "presentation": {
+    "medianMs": 50.71608333333333,
+    "p95Ms": 73.23420833333333,
+    "minMs": 37.115375,
+    "maxMs": 73.98670833333333
+  },
+  "captureInterval": {
+    "medianMs": 31.5786875,
+    "p95Ms": 35.22645833333333,
+    "minMs": 15.269833333333333,
+    "maxMs": 66.55520833333333
+  },
+  "callbackDelay": {
+    "medianMs": 178.06368750000001,
+    "p95Ms": 186.73283333333333,
+    "minMs": 162.24925,
+    "maxMs": 192.94970833333335
+  },
+  "provenanceSource": "provenance.json",
+  "provenance": {
+    "editor": {
+      "physicalRecordsSha256": "b835fb81965957c584938a4a216d0c2c6385c2d5571691dce4c054ae9a172d0c",
+      "physicalBytes": 4096,
+      "artifactPath": "/Users/johnhardy/projects/edit/test/fixtures/editor-engine-milestone2.json",
+      "sha256": "28a001d1a8644de563f4abe01133f7ad4ec004de8649f64f9c85b1fd13b1ea45",
+      "bytes": 4050
+    },
+    "diskSha256": "561647ac3df9f6499bc30fac67c05dea869a66fb37b41f2eed9f27173658fbc2",
+    "nativeHostSha256": "df5d6782e8a60504b46b8bf58014839935a8f448b976bdc93102b6074d81c37b",
+    "captureHelperSha256": "2685bce9d9bcfa91241400c5521969a9ffbd22169cc4f3906aae19697fde74ca",
+    "qualifierSha256": "fa64a864bea465bdd47cfd19d039e69d0a12ea1ffd029d83ec794854d4c5f512",
+    "triptychHead": "5e2ff4d53a88dafb36125731f0dded913f539c7f",
+    "terminalVersion": "2.15",
+    "terminalBuild": "470.2",
+    "platform": "macOS-26.5.2-arm64-arm-64bit",
+    "machine": "arm64",
+    "pythonVersion": "3.9.6"
+  },
+  "cleanup": {
+    "dedicatedWindowId": 426121,
+    "errors": [],
+    "bridgeStop": {
+      "stopped": true,
+      "nativeReturnCode": 143
+    },
+    "dedicatedWindowClosed": true,
+    "captureStopped": true,
+    "captureReturnCode": -15
+  },
+  "samples": [
+    {
+      "sample": 0,
+      "cursorColumn": 2,
+      "reference": "frame-00039.png",
+      "firstMatchingFrame": "frame-00031.png",
+      "decodedPixelsSha256": "8910823161ddb85d48b17d50b089b2099e07149b76410f12714bb6a63f11eef5",
+      "visibleCursorAndPixelsVerified": true
+    },
+    {
+      "sample": 1,
+      "cursorColumn": 3,
+      "reference": "frame-00057.png",
+      "firstMatchingFrame": "frame-00049.png",
+      "decodedPixelsSha256": "ac3c64750632558c2c297d9c4b7f291e358528942f223d893b0cce7402b04b9d",
+      "visibleCursorAndPixelsVerified": true
+    },
+    {
+      "sample": 2,
+      "cursorColumn": 4,
+      "reference": "frame-00075.png",
+      "firstMatchingFrame": "frame-00067.png",
+      "decodedPixelsSha256": "58e389e6194642ff27b51c3cc0d763a042d35c6d7323a7aa8402eb6c4d0b2c87",
+      "visibleCursorAndPixelsVerified": true
+    },
+    {
+      "sample": 3,
+      "cursorColumn": 5,
+      "reference": "frame-00094.png",
+      "firstMatchingFrame": "frame-00085.png",
+      "decodedPixelsSha256": "cc594223837cba402f2e1ca262d44116d1f9a51dc54410a96765c53cd1bc4974",
+      "visibleCursorAndPixelsVerified": true
+    },
+    {
+      "sample": 4,
+      "cursorColumn": 6,
+      "reference": "frame-00112.png",
+      "firstMatchingFrame": "frame-00104.png",
+      "decodedPixelsSha256": "fb2886a5f3072ce2a36fa2e8e3b7c08c5b59357abdeb80a160d1821872f5cf6a",
+      "visibleCursorAndPixelsVerified": true
+    },
+    {
+      "sample": 5,
+      "cursorColumn": 7,
+      "reference": "frame-00131.png",
+      "firstMatchingFrame": "frame-00122.png",
+      "decodedPixelsSha256": "4321a63dab0a56ec417589e77fe4dca743be8a8dcef3e6b4241e5badf5849ed3",
+      "visibleCursorAndPixelsVerified": true
+    },
+    {
+      "sample": 6,
+      "cursorColumn": 8,
+      "reference": "frame-00149.png",
+      "firstMatchingFrame": "frame-00141.png",
+      "decodedPixelsSha256": "4da93d9ee973d323b9eed5c87d05581f59a5ef883f70c7c0447db490b1d4a76a",
+      "visibleCursorAndPixelsVerified": true
+    },
+    {
+      "sample": 7,
+      "cursorColumn": 9,
+      "reference": "frame-00167.png",
+      "firstMatchingFrame": "frame-00159.png",
+      "decodedPixelsSha256": "c435facfbcb4f5ae28305d9a681b548812d23ce03dd61ee22d11095c7c1eefd1",
+      "visibleCursorAndPixelsVerified": true
+    },
+    {
+      "sample": 8,
+      "cursorColumn": 10,
+      "reference": "frame-00185.png",
+      "firstMatchingFrame": "frame-00178.png",
+      "decodedPixelsSha256": "773521481dd5daa0d0d5d9d047608e9c27d636c45bd9aa27b5a27ced14c477c9",
+      "visibleCursorAndPixelsVerified": true
+    },
+    {
+      "sample": 9,
+      "cursorColumn": 11,
+      "reference": "frame-00203.png",
+      "firstMatchingFrame": "frame-00195.png",
+      "decodedPixelsSha256": "15512b7b0658a2f4f590eb8a2ccb383eeed2e1369aef646c9bf1b59c9474dcf0",
+      "visibleCursorAndPixelsVerified": true
+    },
+    {
+      "sample": 10,
+      "cursorColumn": 12,
+      "reference": "frame-00222.png",
+      "firstMatchingFrame": "frame-00214.png",
+      "decodedPixelsSha256": "375214f4332faa94d10c749061022cd9e6f14af4da53b6ef3905b2ab790c30a9",
+      "visibleCursorAndPixelsVerified": true
+    },
+    {
+      "sample": 11,
+      "cursorColumn": 13,
+      "reference": "frame-00240.png",
+      "firstMatchingFrame": "frame-00232.png",
+      "decodedPixelsSha256": "38cec7c0b9c972de3517fe8a0cb3dbbedf391a19a81a9842905c0edb802c5210",
+      "visibleCursorAndPixelsVerified": true
+    },
+    {
+      "sample": 12,
+      "cursorColumn": 14,
+      "reference": "frame-00258.png",
+      "firstMatchingFrame": "frame-00250.png",
+      "decodedPixelsSha256": "1f8eac3ef6662774a7ebdc27d7dc45217f929835a6cc232105095d60e31a92db",
+      "visibleCursorAndPixelsVerified": true
+    },
+    {
+      "sample": 13,
+      "cursorColumn": 15,
+      "reference": "frame-00277.png",
+      "firstMatchingFrame": "frame-00268.png",
+      "decodedPixelsSha256": "094a502b6fe9636294ee559fb2dd047ead53e280cfae5cebe3edc07eb6c50543",
+      "visibleCursorAndPixelsVerified": true
+    },
+    {
+      "sample": 14,
+      "cursorColumn": 16,
+      "reference": "frame-00295.png",
+      "firstMatchingFrame": "frame-00287.png",
+      "decodedPixelsSha256": "8b768d4f090e2b4a96eceb1adf4404cc7f028921a2348eca087cea2cfcaf39c1",
+      "visibleCursorAndPixelsVerified": true
+    },
+    {
+      "sample": 15,
+      "cursorColumn": 17,
+      "reference": "frame-00312.png",
+      "firstMatchingFrame": "frame-00305.png",
+      "decodedPixelsSha256": "a9e5bf0547e9008b653b4f307669843f517e654c0b2b9300b3811143151fc30f",
+      "visibleCursorAndPixelsVerified": true
+    },
+    {
+      "sample": 16,
+      "cursorColumn": 18,
+      "reference": "frame-00330.png",
+      "firstMatchingFrame": "frame-00323.png",
+      "decodedPixelsSha256": "5a9947910a4d634fe0ac20fb113ec13d9983c1d9d7448ebdd7d29b64efd08b87",
+      "visibleCursorAndPixelsVerified": true
+    },
+    {
+      "sample": 17,
+      "cursorColumn": 19,
+      "reference": "frame-00348.png",
+      "firstMatchingFrame": "frame-00340.png",
+      "decodedPixelsSha256": "fb73d9b7d8000c2daec6f1373e59ee0b26e2945b2306fa3bf1e879765dc18791",
+      "visibleCursorAndPixelsVerified": true
+    },
+    {
+      "sample": 18,
+      "cursorColumn": 20,
+      "reference": "frame-00365.png",
+      "firstMatchingFrame": "frame-00358.png",
+      "decodedPixelsSha256": "ed6abba46c4aa786df6dd234f523d64b0d6e1ee39d458742e6dfd63d564b4cd8",
+      "visibleCursorAndPixelsVerified": true
+    },
+    {
+      "sample": 19,
+      "cursorColumn": 21,
+      "reference": "frame-00383.png",
+      "firstMatchingFrame": "frame-00376.png",
+      "decodedPixelsSha256": "0e4525b5e73129be4ff9dad2167f9028181b1b00de5ef55688d0c2938108fc5b",
+      "visibleCursorAndPixelsVerified": true
+    },
+    {
+      "sample": 20,
+      "cursorColumn": 22,
+      "reference": "frame-00401.png",
+      "firstMatchingFrame": "frame-00393.png",
+      "decodedPixelsSha256": "6b11360eacc753a0dacf35bef29db07dffd8f973076d69c69f0f138104685b08",
+      "visibleCursorAndPixelsVerified": true
+    },
+    {
+      "sample": 21,
+      "cursorColumn": 23,
+      "reference": "frame-00420.png",
+      "firstMatchingFrame": "frame-00411.png",
+      "decodedPixelsSha256": "5b57fc6ed1db7894d008a8d47dfb62ca446b9997e442eae498bba3e277bcfd12",
+      "visibleCursorAndPixelsVerified": true
+    },
+    {
+      "sample": 22,
+      "cursorColumn": 24,
+      "reference": "frame-00438.png",
+      "firstMatchingFrame": "frame-00431.png",
+      "decodedPixelsSha256": "116953396992a0517e014197bfb0de057664ff9104b92e2169b58a060325a9ab",
+      "visibleCursorAndPixelsVerified": true
+    },
+    {
+      "sample": 23,
+      "cursorColumn": 25,
+      "reference": "frame-00458.png",
+      "firstMatchingFrame": "frame-00448.png",
+      "decodedPixelsSha256": "84fddff2a73d2675256c751c8564153808a471fda805bb6caa6b7ce0e5e69f6f",
+      "visibleCursorAndPixelsVerified": true
+    },
+    {
+      "sample": 24,
+      "cursorColumn": 26,
+      "reference": "frame-00476.png",
+      "firstMatchingFrame": "frame-00468.png",
+      "decodedPixelsSha256": "c90507c4a25a4ed9df380cba4ad44958ba059022ce04066f99bbfb8acb0b443f",
+      "visibleCursorAndPixelsVerified": true
+    },
+    {
+      "sample": 25,
+      "cursorColumn": 27,
+      "reference": "frame-00495.png",
+      "firstMatchingFrame": "frame-00486.png",
+      "decodedPixelsSha256": "3f4902cdce9fea26a2781c8cdd708d3fc80527207377b89ac71a51e384b45cf9",
+      "visibleCursorAndPixelsVerified": true
+    },
+    {
+      "sample": 26,
+      "cursorColumn": 28,
+      "reference": "frame-00513.png",
+      "firstMatchingFrame": "frame-00505.png",
+      "decodedPixelsSha256": "2bce30bc082a86046c5d3f322eff330c0fd80780f5a1e4148dcf942475c3236a",
+      "visibleCursorAndPixelsVerified": true
+    },
+    {
+      "sample": 27,
+      "cursorColumn": 29,
+      "reference": "frame-00532.png",
+      "firstMatchingFrame": "frame-00523.png",
+      "decodedPixelsSha256": "de2576c49e680efdb27c290b55b1699ccc21e0b1a73767066ac8fd5d054a0e51",
+      "visibleCursorAndPixelsVerified": true
+    },
+    {
+      "sample": 28,
+      "cursorColumn": 30,
+      "reference": "frame-00550.png",
+      "firstMatchingFrame": "frame-00542.png",
+      "decodedPixelsSha256": "59c99494906a6b308aa95d53f9a632be40c4c329571d915a935fc90492ac9c81",
+      "visibleCursorAndPixelsVerified": true
+    },
+    {
+      "sample": 29,
+      "cursorColumn": 31,
+      "reference": "frame-00568.png",
+      "firstMatchingFrame": "frame-00560.png",
+      "decodedPixelsSha256": "78c1f2f4021a25777ce592823c2f8092ed89f50367b8d5b47321992502320ad0",
+      "visibleCursorAndPixelsVerified": true
+    },
+    {
+      "sample": 30,
+      "cursorColumn": 32,
+      "reference": "frame-00587.png",
+      "firstMatchingFrame": "frame-00579.png",
+      "decodedPixelsSha256": "39a7461fff860c7ffe78fbe452f625d561a9508db2a1d5416e0ac668a5312cd3",
+      "visibleCursorAndPixelsVerified": true
+    }
+  ],
+  "boundary": "First matching captured WindowServer frame; physical display scanout is unmeasured. Capture censoring and observer load remain."
+}

@@ -1,175 +1,210 @@
 ; Bounded forward literal search with one committed query per execution.
 
-EditorSearchCodeStart:
-.routine out A,carry,zero clobbers sign,parity,halfCarry,BC,DE,HL,IXH,IXL,IYH,IYL
-EditorSearchBegin:
-            LD   HL,EditorQueryLength
-            LD   DE,EditorDma
-            LD   BC,EditorQueryCapacity+1
+; EditorSearchCodeStart
+SEACODST:
+;@ROUTINE out A,carry,zero clobbers sign,parity,halfCarry,BC,DE,HL,IXH,IXL,IYH,IYL
+; EditorSearchBegin
+SEABEG:
+            LD   HL,QUELEN
+            LD   DE,DMA
+            LD   BC,QUECAP+1
             LDIR
-            LD   HL,EditorQueryLength
-            LD   DE,EditorSearchPrompt
-            CALL EditorLiteralInput
-            JR   C,EditorSearchCancel
-            LD   A,(EditorQueryLength)
+            LD   HL,QUELEN
+            LD   DE,SEAPRO
+            CALL LITINP
+            JR   C,SEACAN
+            LD   A,(QUELEN)
             OR   A
-            JP   NZ,EditorSearchInitial
-EditorSearchCancel:
-            LD   HL,EditorDma
-            LD   DE,EditorQueryLength
-            LD   BC,EditorQueryCapacity+1
+            JP   NZ,SEAACC
+; EditorSearchCancel
+SEACAN:
+            LD   HL,DMA
+            LD   DE,QUELEN
+            LD   BC,QUECAP+1
             LDIR
-EditorReadyReturn:
+; EditorReadyReturn
+REARET:
             XOR  A
-            LD   (EditorStatus),A
+            LD   (STATUS),A
             RET
 
 ; Read one bounded literal into the length byte and contiguous payload at HL.
 ; DE selects its reverse-video prompt. Escape returns carry set; Return returns
 ; carry clear. Unsupported controls ring locally and leave the literal intact.
-.routine in DE,HL out A,carry,zero clobbers sign,parity,halfCarry,BC,DE,HL
-EditorLiteralInput:
-            LD   (EditorRenderPointer),HL
-            LD   (EditorRenderColumn),DE
-EditorLiteralInputRender:
-            LD   DE,(EditorRenderColumn)
-            CALL EditorRenderLiteral
-EditorLiteralInputRead:
-            CALL EditorReadByte
+;@ROUTINE in DE,HL out A,carry,zero clobbers sign,parity,halfCarry,BC,DE,HL
+; EditorLiteralInput
+LITINP:
+            XOR  A
+            LD   (DISSTAVA),A
+            LD   (RENPOI),HL
+            LD   (RENCOL),DE
+; EditorLiteralInputRender
+LITINPR1:
+            LD   DE,(RENCOL)
+            CALL RENLIT
+; EditorLiteralInputRead
+LITINPRE:
+            CALL READBYTE
             CP   27
-            JR   Z,EditorLiteralInputCancel
+            JR   Z,LITINPCA
             CP   13
             RET  Z
             CP   8
-            JR   Z,EditorLiteralInputDelete
+            JR   Z,LITINPDE
             CP   9
-            JR   Z,EditorLiteralInputAppend
+            JR   Z,LITINPAP
             CP   32
-            JR   C,EditorLiteralInputRing
+            JR   C,LITINPRI
             CP   127
-            JR   C,EditorLiteralInputAppend
-            JR   Z,EditorLiteralInputDelete
-EditorLiteralInputRing:
+            JR   C,LITINPAP
+            JR   Z,LITINPDE
+; EditorLiteralInputRing
+LITINPRI:
             LD   A,7
-            CALL EditorOutputByte
-            JR   EditorLiteralInputRead
-EditorLiteralInputDelete:
-            LD   HL,(EditorRenderPointer)
+            CALL OUTBYT
+            JR   LITINPRE
+; EditorLiteralInputDelete
+LITINPDE:
+            LD   HL,(RENPOI)
             LD   A,(HL)
             OR   A
-            JR   Z,EditorLiteralInputRing
+            JR   Z,LITINPRI
             DEC  (HL)
-            JR   EditorLiteralInputRender
-EditorLiteralInputAppend:
+            JR   LITINPR1
+; EditorLiteralInputAppend
+LITINPAP:
             LD   C,A
-            LD   HL,(EditorRenderPointer)
+            LD   HL,(RENPOI)
             LD   A,(HL)
-            CP   EditorQueryCapacity
-            JR   NC,EditorLiteralInputRing
+            CP   QUECAP
+            JR   NC,LITINPRI
             INC  (HL)
             INC  HL
             LD   E,A
             LD   D,0
             ADD  HL,DE
             LD   (HL),C
-            JR   EditorLiteralInputRender
-EditorLiteralInputCancel:
+            JR   LITINPR1
+; EditorLiteralInputCancel
+LITINPCA:
             SCF
             RET
 
-.routine in DE out A,carry,zero clobbers sign,parity,halfCarry,BC,DE,HL
-EditorRenderLiteral:
-            CALL EditorStatusBegin
-            LD   HL,(EditorRenderPointer)
+; EditorSearchAccepted
+SEAACC:
+            LD   A,OPFIND
+            JP   SESEXE
+
+;@ROUTINE in DE out A,carry,zero clobbers sign,parity,halfCarry,BC,DE,HL
+; EditorRenderLiteral
+RENLIT:
+            CALL STABEG
+            LD   HL,(RENPOI)
             LD   A,(HL)
             OR   A
-            JR   Z,EditorRenderLiteralFill
+            JR   Z,RENLITFI
             LD   B,A
             INC  HL
-EditorRenderLiteralLoop:
+; EditorRenderLiteralLoop
+RENLITLO:
             LD   A,(HL)
             CP   9
-            JR   NZ,EditorRenderLiteralByte
+            JR   NZ,RENLITBY
             LD   A,'>'
-EditorRenderLiteralByte:
+; EditorRenderLiteralByte
+RENLITBY:
             PUSH HL
             PUSH BC
-            CALL EditorStatusByte
+            CALL STABYT
             POP  BC
             POP  HL
             INC  HL
-            DJNZ EditorRenderLiteralLoop
-EditorRenderLiteralFill:
-            LD   HL,(EditorRenderCount)
+            DJNZ RENLITLO
+; EditorRenderLiteralFill
+RENLITFI:
+            LD   HL,(RENCOU)
             LD   H,L
             LD   L,23
-            LD   (EditorCursorScreenRow),HL
-            JP   EditorStatusFill
+            LD   (CURSCRRO),HL
+            JP   STAFIL
 
-.routine out A,carry,zero clobbers sign,parity,halfCarry,BC,DE,HL,IXH,IXL,IYH,IYL
-EditorSearchInitial:
-            LD   HL,(EditorCursor)
-            JR   EditorSearchCheckQuery
+;@ROUTINE out A,carry,zero clobbers sign,parity,halfCarry,BC,DE,HL,IXH,IXL,IYH,IYL
+; EditorSearchInitial
+SEAINI:
+            LD   HL,(CURSOR)
+            JR   SEACHEQU
 
-.routine out A,carry,zero clobbers sign,parity,halfCarry,BC,DE,HL
-EditorSearchRepeat:
-            LD   HL,(EditorCursor)
+;@ROUTINE out A,carry,zero clobbers sign,parity,halfCarry,BC,DE,HL
+; EditorSearchRepeat
+SEAREP:
+            LD   HL,(CURSOR)
             INC  HL
-EditorSearchCheckQuery:
-            LD   A,(EditorQueryLength)
+; EditorSearchCheckQuery
+SEACHEQU:
+            LD   A,(QUELEN)
             OR   A
-            JR   Z,EditorSearchNoQuery
+            JR   Z,SEANOQUE
             LD   C,A
 
-EditorSearchStart:
-            LD   A,EditorStatusFound
-            LD   (EditorStatus),A
-            LD   DE,(EditorLength)
-            LD   (EditorScratchA),DE
-            JR   EditorSearchNormalize
+; EditorSearchStart
+SEASTA:
+            LD   A,STAFOU
+            LD   (STATUS),A
+            LD   DE,(LENGTH)
+            LD   (SCRATCHA),DE
+            JR   SEANOR
 
-EditorSearchAdvance:
-            LD   HL,(EditorScratchB)
+; EditorSearchAdvance
+SEAADV:
+            LD   HL,(SCRATCHB)
             INC  HL
-            LD   DE,(EditorLength)
-EditorSearchNormalize:
+            LD   DE,(LENGTH)
+; EditorSearchNormalize
+SEANOR:
             PUSH HL
             OR   A
             SBC  HL,DE
             POP  HL
-            JR   C,EditorSearchStartReady
+            JR   C,SEASTARE
             SBC  HL,HL
-            LD   A,EditorStatusWrapped
-            LD   (EditorStatus),A
-EditorSearchStartReady:
-            LD   (EditorScratchB),HL
+            LD   A,STAWRA
+            LD   (STATUS),A
+; EditorSearchStartReady
+SEASTARE:
+            LD   (SCRATCHB),HL
 
-EditorSearchLoop:
-            LD   HL,(EditorScratchA)
+; EditorSearchLoop
+SEALOO:
+            LD   HL,(SCRATCHA)
             LD   A,H
             OR   L
-            JR   Z,EditorSearchNotFound
+            JR   Z,SEANOTFO
             DEC  HL
-            LD   (EditorScratchA),HL
-            LD   HL,(EditorScratchB)
-            CALL EditorReplaceMatchAt
-            JR   NZ,EditorSearchAdvance
-EditorSearchFound:
-            LD   HL,(EditorScratchB)
-            LD   (EditorCursor),HL
-            LD   HL,EditorFlags
+            LD   (SCRATCHA),HL
+            LD   HL,(SCRATCHB)
+            CALL REPMATAT
+            JR   NZ,SEAADV
+; EditorSearchFound
+SEAFOU:
+            LD   HL,(SCRATCHB)
+            LD   (CURSOR),HL
+            LD   HL,FLAGS
             RES  2,(HL)
-            LD   A,(EditorStatus)
+            LD   A,(STATUS)
             OR   A
             RET
 
-EditorSearchNoQuery:
-            LD   A,EditorStatusNoSearch
-            JR   EditorSearchFailure
-EditorSearchNotFound:
-            LD   A,EditorStatusNotFound
-EditorSearchFailure:
-            LD   (EditorStatus),A
+; EditorSearchNoQuery
+SEANOQUE:
+            LD   A,STANOSEA
+            JR   SEAFAI
+; EditorSearchNotFound
+SEANOTFO:
+            LD   A,STANOTFO
+; EditorSearchFailure
+SEAFAI:
+            LD   (STATUS),A
             SCF
             RET
-EditorSearchCodeEnd:
+; EditorSearchCodeEnd
+SEACODEN:

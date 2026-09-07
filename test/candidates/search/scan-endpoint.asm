@@ -1,159 +1,160 @@
+; Native ATOM historical experiment: search/scan-endpoint
+; Historical debugger names are recorded in scan-endpoint.asm.symbols.json.
 ; Two-segment endpoint scan alternative. It stops at the saved start address.
 
-CandidateTextBase         .equ $2000
-CandidateTextLength       .equ $1EC8
-CandidateCursor           .equ $1ECA
-CandidateStatus           .equ $1ED3
-CandidateScratchStart     .equ $1ED7
-CandidateScratchScan      .equ $1ED9
-CandidateScratchFlag      .equ $1EDB
-CandidateCommittedLength  .equ $1EE4
-CandidateCommittedBuffer  .equ CandidateCommittedLength+1
-CandidateBellCount        .equ $F000
-CandidatePromptCursor     .equ $F001
-CandidateStatusFound      .equ 1
-CandidateStatusWrapped    .equ 2
-CandidateStatusMissing    .equ 3
-CandidateStatusNoQuery    .equ 4
+CANDIDAZ EQU $2000
+CANDID10 EQU $1EC8
+CANDIDA5 EQU $1ECA
+CANDIDAU EQU $1ED3
+CANDIDAG EQU $1ED7
+CANDIDAF EQU $1ED9
+CANDIDAE EQU $1EDB
+CANDIDA4 EQU $1EE4
+CANDIDA3 EQU CANDIDA4+1
+CANDIDAT EQU $F000
+CANDIDA9 EQU $F001
+CANDIDAV EQU 1
+CANDIDAY EQU 2
+CANDIDAW EQU 3
+CANDIDAX EQU 4
 
-            .org $0100
-CandidateCodeStart:
-.routine out A,carry,zero clobbers sign,parity,halfCarry,HL
-CandidateRing:
-            LD   HL,CandidateBellCount
+            ORG $0100
+CANDIDA2:
+;@ROUTINE out A,carry,zero clobbers sign,parity,halfCarry,HL
+CANDIDAB:
+            LD   HL,CANDIDAT
             INC  (HL)
             RET
 
-.routine out A,carry,zero clobbers sign,parity,halfCarry,HL
-CandidateReset:
+;@ROUTINE out A,carry,zero clobbers sign,parity,halfCarry,HL
+CANDIDAA:
             XOR  A
-            LD   (CandidateCommittedLength),A
-            LD   (CandidateStatus),A
-            LD   (CandidateBellCount),A
+            LD   (CANDIDA4),A
+            LD   (CANDIDAU),A
+            LD   (CANDIDAT),A
             LD   HL,0
-            LD   (CandidateCursor),HL
+            LD   (CANDIDA5),HL
             RET
 
-CandidateScanCodeStart:
-.routine out A,carry,zero clobbers sign,parity,halfCarry,BC,DE,HL,IXH,IXL,IYH,IYL
-CandidateSearchInitial:
-            LD   A,(CandidateCommittedLength)
+CANDIDAD:
+;@ROUTINE out A,carry,zero clobbers sign,parity,halfCarry,BC,DE,HL,IXH,IXL,IYH,IYL
+CANDIDAK:
+            LD   A,(CANDIDA4)
             OR   A
-            JR   Z,CandidateSearchNoQuery
-            LD   HL,(CandidateCursor)
-            JR   CandidateSearchStart
+            JR   Z,CANDIDAM
+            LD   HL,(CANDIDA5)
+            JR   CANDIDAP
 
-.routine out A,carry,zero clobbers sign,parity,halfCarry,BC,DE,HL
-CandidateSearchRepeat:
-            LD   A,(CandidateCommittedLength)
+;@ROUTINE out A,carry,zero clobbers sign,parity,halfCarry,BC,DE,HL
+CANDIDAO:
+            LD   A,(CANDIDA4)
             OR   A
-            JR   Z,CandidateSearchNoQuery
-            LD   HL,(CandidateCursor)
+            JR   Z,CANDIDAM
+            LD   HL,(CANDIDA5)
             INC  HL
 
-CandidateSearchStart:
+CANDIDAP:
             XOR  A
-            LD   (CandidateScratchFlag),A
-            LD   DE,(CandidateTextLength)
+            LD   (CANDIDAE),A
+            LD   DE,(CANDID10)
             PUSH HL
             OR   A
             SBC  HL,DE
             POP  HL
-            JR   C,CandidateSearchStartReady
-            LD   (CandidateScratchStart),DE
+            JR   C,CANDIDAQ
+            LD   (CANDIDAG),DE
             LD   HL,0
             LD   A,1
-            LD   (CandidateScratchFlag),A
-            JR   CandidateSearchLoop
-CandidateSearchStartReady:
-            LD   (CandidateScratchStart),HL
+            LD   (CANDIDAE),A
+            JR   CANDIDAL
+CANDIDAQ:
+            LD   (CANDIDAG),HL
 
-CandidateSearchLoop:
-            LD   A,(CandidateScratchFlag)
+CANDIDAL:
+            LD   A,(CANDIDAE)
             OR   A
-            JR   Z,CandidateSearchBeforeWrap
-            LD   DE,(CandidateScratchStart)
+            JR   Z,CANDIDAH
+            LD   DE,(CANDIDAG)
             PUSH HL
             OR   A
             SBC  HL,DE
             POP  HL
-            JR   Z,CandidateSearchNotFound
-            JR   CandidateSearchTry
-CandidateSearchBeforeWrap:
-            LD   DE,(CandidateTextLength)
+            JR   Z,CANDIDAN
+            JR   CANDIDAS
+CANDIDAH:
+            LD   DE,(CANDID10)
             PUSH HL
             OR   A
             SBC  HL,DE
             POP  HL
-            JR   C,CandidateSearchTry
+            JR   C,CANDIDAS
             LD   HL,0
             LD   A,1
-            LD   (CandidateScratchFlag),A
-            JR   CandidateSearchLoop
+            LD   (CANDIDAE),A
+            JR   CANDIDAL
 
-CandidateSearchTry:
-            LD   (CandidateScratchScan),HL
-            CALL CandidateMatch
-            JR   Z,CandidateSearchFound
-            LD   HL,(CandidateScratchScan)
+CANDIDAS:
+            LD   (CANDIDAF),HL
+            CALL CANDIDA6
+            JR   Z,CANDIDAJ
+            LD   HL,(CANDIDAF)
             INC  HL
-            JR   CandidateSearchLoop
+            JR   CANDIDAL
 
-CandidateSearchFound:
-            LD   HL,(CandidateScratchScan)
-            LD   (CandidateCursor),HL
-            LD   A,(CandidateScratchFlag)
+CANDIDAJ:
+            LD   HL,(CANDIDAF)
+            LD   (CANDIDA5),HL
+            LD   A,(CANDIDAE)
             OR   A
-            LD   A,CandidateStatusFound
-            JR   Z,CandidateSearchStatus
-            LD   A,CandidateStatusWrapped
-CandidateSearchStatus:
-            LD   (CandidateStatus),A
+            LD   A,CANDIDAV
+            JR   Z,CANDIDAR
+            LD   A,CANDIDAY
+CANDIDAR:
+            LD   (CANDIDAU),A
             OR   A
             RET
 
-CandidateSearchNoQuery:
-            LD   A,CandidateStatusNoQuery
-            JR   CandidateSearchFailure
-CandidateSearchNotFound:
-            LD   A,CandidateStatusMissing
-CandidateSearchFailure:
-            LD   (CandidateStatus),A
-            CALL CandidateRing
+CANDIDAM:
+            LD   A,CANDIDAX
+            JR   CANDIDAI
+CANDIDAN:
+            LD   A,CANDIDAW
+CANDIDAI:
+            LD   (CANDIDAU),A
+            CALL CANDIDAB
             SCF
             RET
 
-.routine in HL out A,carry,zero clobbers sign,parity,halfCarry,BC,DE,HL
-CandidateMatch:
-            LD   (CandidateScratchScan),HL
-            LD   A,(CandidateCommittedLength)
+;@ROUTINE in HL out A,carry,zero clobbers sign,parity,halfCarry,BC,DE,HL
+CANDIDA6:
+            LD   (CANDIDAF),HL
+            LD   A,(CANDIDA4)
             LD   E,A
             LD   D,0
             ADD  HL,DE
-            LD   DE,(CandidateTextLength)
+            LD   DE,(CANDID10)
             OR   A
             SBC  HL,DE
-            JR   C,CandidateMatchFits
-            JR   Z,CandidateMatchFits
+            JR   C,CANDIDA7
+            JR   Z,CANDIDA7
             LD   A,1
             OR   A
             RET
-CandidateMatchFits:
-            LD   HL,(CandidateScratchScan)
-            LD   DE,CandidateTextBase
+CANDIDA7:
+            LD   HL,(CANDIDAF)
+            LD   DE,CANDIDAZ
             ADD  HL,DE
-            LD   DE,CandidateCommittedBuffer
-            LD   A,(CandidateCommittedLength)
+            LD   DE,CANDIDA3
+            LD   A,(CANDIDA4)
             LD   B,A
-CandidateMatchLoop:
+CANDIDA8:
             LD   A,(DE)
             CP   (HL)
             RET  NZ
             INC  DE
             INC  HL
-            DJNZ CandidateMatchLoop
+            DJNZ CANDIDA8
             XOR  A
             RET
-CandidateScanCodeEnd:
-CandidateCodeEnd:
-            .end
+CANDIDAC:
+CANDIDA1:

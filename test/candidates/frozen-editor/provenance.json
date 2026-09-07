@@ -1,0 +1,56 @@
+{
+  "purpose": "Historical measurement dependencies; not production source",
+  "sourceRevision": "ac59b478b686b7cd1a3a340064e82d64fdc58589",
+  "files": [
+    {
+      "file": "editor-bdos.asm",
+      "source": "src/editor-bdos.asm",
+      "sha256": "d1e527b32b612cfacc48e79fdda1cc177245d21b1c26462d0208d5065121d793"
+    },
+    {
+      "file": "editor-buffer.asm",
+      "source": "src/editor-buffer.asm",
+      "sha256": "90eeb041b045bc70b731503f3583c3946e1fb8ebc619973ef6be524190382f24"
+    },
+    {
+      "file": "editor-command.asm",
+      "source": "src/editor-command.asm",
+      "sha256": "ddcba1e4e55588bd1cb71749c0a497ad69c27be86a4802313a29bdc08208b891"
+    },
+    {
+      "file": "editor-load.asm",
+      "source": "src/editor-load.asm",
+      "sha256": "44da537d8171bbc9570f5cd16b419b05f00512c6183df3bb90a6f9ea16b14cb8"
+    },
+    {
+      "file": "editor-main.asm",
+      "source": "src/editor-main.asm",
+      "sha256": "c3087e1ff1efe6d6a33bf7a8bafc2e93b8daa1d0417ef90c7fc0dd17fe0777ff"
+    },
+    {
+      "file": "editor-memory.asmi",
+      "source": "src/editor-memory.asmi",
+      "sha256": "09ffca11fa543b17cd65acd96a592c1c8381d00d0ea564e0e16c3dde77da1056"
+    },
+    {
+      "file": "editor-navigation.asm",
+      "source": "src/editor-navigation.asm",
+      "sha256": "eaedeef7e8abd5978da7f678c1983bbec9350c8376803178c1dbd62239168d79"
+    },
+    {
+      "file": "editor-save.asm",
+      "source": "src/editor-save.asm",
+      "sha256": "e92c145e517dc789aec49d780de09e05967431202ebe4c3a12ffa2f76fd61628"
+    },
+    {
+      "file": "editor-screen.asm",
+      "source": "src/editor-screen.asm",
+      "sha256": "a6f05926b4a006f1ecc70383b0792e360e412afbef4c5b72f0b282ad579471ce"
+    },
+    {
+      "file": "editor-search.asm",
+      "source": "src/editor-search.asm",
+      "sha256": "da95e564198c4e7e091cb80a7c5c4b3d9a7202874e9c0b8e15a0ba537403b085"
+    }
+  ]
+}

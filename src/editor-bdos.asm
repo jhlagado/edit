@@ -1,11 +1,13 @@
 ; CP/M BDOS and FCB helpers. IX and IY are not standardized by CP/M, so the
 ; wrapper preserves both around every guest operating-system call.
 
-CpmBdos .equ $0005
+CpmBdos EQU $0005
 
-EditorBdosCodeStart:
-.routine in C,DE out A,carry,zero clobbers sign,parity,halfCarry,BC,DE,HL
-EditorCallBdos:
+; EditorBdosCodeStart
+BDOCODST:
+;@ROUTINE in C,DE out A,carry,zero clobbers sign,parity,halfCarry,BC,DE,HL
+; EditorCallBdos
+CALLBDOS:
             PUSH IX
             PUSH IY
             CALL CpmBdos
@@ -13,30 +15,36 @@ EditorCallBdos:
             POP  IX
             RET
 
-.routine in DE,HL out A,HL,carry,zero clobbers sign,parity,halfCarry,BC,DE
-EditorBuildFcb:
+;@ROUTINE in DE,HL out A,HL,carry,zero clobbers sign,parity,halfCarry,BC,DE
+; EditorBuildFcb
+BUILDFCB:
             LD   BC,12
             LDIR
             XOR  A
             LD   B,24
-EditorClearFcbTail:
+; EditorClearFcbTail
+CLEFCBTA:
             LD   (DE),A
             INC  DE
-            DJNZ EditorClearFcbTail
+            DJNZ CLEFCBTA
             RET
 
-.routine in DE out A clobbers carry,zero,sign,parity,halfCarry,BC,DE,HL
-EditorSetDma:
+;@ROUTINE in DE out A clobbers carry,zero,sign,parity,halfCarry,BC,DE,HL
+; EditorSetDma
+SETDMA:
             LD   C,26
-            JR   EditorCallBdos
+            JR   CALLBDOS
 
-.routine in C out A clobbers carry,zero,sign,parity,halfCarry,BC,DE,HL
-EditorTransactionCall:
-            LD   DE,EditorTransactionFcb
-            JR   EditorCallBdos
+;@ROUTINE in C out A clobbers carry,zero,sign,parity,halfCarry,BC,DE,HL
+; EditorTransactionCall
+TRACAL:
+            LD   DE,TRAFCB
+            JR   CALLBDOS
 
-.routine in C out A clobbers carry,zero,sign,parity,halfCarry,BC,DE,HL
-EditorSelectedCall:
-            LD   DE,EditorFcb
-            JR   EditorCallBdos
-EditorBdosCodeEnd:
+;@ROUTINE in C out A clobbers carry,zero,sign,parity,halfCarry,BC,DE,HL
+; EditorSelectedCall
+SELCAL:
+            LD   DE,FCB
+            JR   CALLBDOS
+; EditorBdosCodeEnd
+BDOCODEN:

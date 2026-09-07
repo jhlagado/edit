@@ -3,6 +3,8 @@ import { readFile, readdir } from "node:fs/promises";
 import { join } from "node:path";
 
 const forbidden = [
+  ["translate", "AzmSourceToAtom"].join(""),
+  ["project", "LegacyFixtureSyntaxToAtom"].join(""),
   ["@jhlagado", "azm"].join("/"),
   ["azm", "strict", "sidecar"].join("-"),
   ["compile", "Azm"].join(""),
@@ -19,6 +21,7 @@ async function check(path) {
     }
     return;
   }
+  if (/\.asmi$/i.test(path)) failures.push(`${path}: obsolete source-fragment extension`);
   const source = await readFile(path, "utf8").catch(() => undefined);
   if (source === undefined) return;
   for (const token of forbidden) {

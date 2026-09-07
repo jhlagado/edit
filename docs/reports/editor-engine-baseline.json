@@ -1,0 +1,1859 @@
+{
+  "format": "edit-engine-command-measurements-v1",
+  "mode": "baseline",
+  "runtime": {
+    "node": "v24.18.0",
+    "pinnedRuntime": "git+https://github.com/jhlagado/debug80-runtime.git#0024be1d868473568984fcde5a8323e575e595bf",
+    "runtimeSourceSha256": "e2118827a1bc0aecd677dd3b1898505f8bd7f765668aa69db01b840871116987",
+    "cpuSourceSha256": "03aaa9647338663ac335bd2ec736b81c613b681b822b846abbffaf9684a6fd40"
+  },
+  "accounting": {
+    "cpu": "Executed editor Z80 instructions/T-states; fake BDOS execution costs excluded.",
+    "instructionUnit": "One runtime.step; repeated block instructions may be one step with full repeated T-states.",
+    "textReadBytes": "All CPU memory-read callbacks inside fixed text arena; repeated reads counted repeatedly.",
+    "textCopyReadBytes": "Subset during LDI/LDD/LDIR/LDDR; includes text-to-text shifts and text-to-DMA copies.",
+    "textScalarReadBytes": "Other text-arena reads; scan/read activity, not unique bytes or high-level scan invocations.",
+    "storage": "Successful128-byte fake BDOS records plus calls; no physical latency/durability implied.",
+    "setup": "Entry/load/render and fixture cursor/layout are excluded from command boundary and separately recorded.",
+    "boundary": "First EditorMainLoop before input through EditorMainLoop after final command/render; no uncounted redraw inside boundary.",
+    "hostLatency": "Not measured; no inferred keystroke wall latency."
+  },
+  "artifacts": {
+    "baseline": {
+      "sha256": "73265438a4f2df9a3f507f1bdcd49c48ebabe46cbcdb96e58dc0ee39f8b6a905",
+      "provenance": {
+        "sourceHead": "74fc0328f35e814216031d21bf5aba715fb47232",
+        "dirtyState": [
+          "D AGENTS.md",
+          "?? docs/design/",
+          "?? docs/plans/"
+        ],
+        "assembler": {
+          "name": "atom-z80",
+          "revision": "802b5c2d320bec777f427755ff2d7338e3b80a05"
+        },
+        "sourceSha256": {
+          "editor-bdos.asm": "d1e527b32b612cfacc48e79fdda1cc177245d21b1c26462d0208d5065121d793",
+          "editor-bdos.asmi": "aa880b6dccf1b6ca720a9b95360ebd7b78c6299d384ced1f3b3a6ab0c819e2e0",
+          "editor-buffer.asm": "90eeb041b045bc70b731503f3583c3946e1fb8ebc619973ef6be524190382f24",
+          "editor-command.asm": "ddcba1e4e55588bd1cb71749c0a497ad69c27be86a4802313a29bdc08208b891",
+          "editor-load.asm": "2d99faa2c72f92994f7ed724613157d2ae9778b75cd9b5a5aad01e47b3e30588",
+          "editor-main.asm": "c3087e1ff1efe6d6a33bf7a8bafc2e93b8daa1d0417ef90c7fc0dd17fe0777ff",
+          "editor-memory.asmi": "f87c0ab64b406a5336b584c77613614aaf42b6c3d390d393a143afc33831095c",
+          "editor-navigation.asm": "777aeb06e2f8f80da3fd4b3f2a3d522028d465b4b4926b16b5a828c90d2ab90e",
+          "editor-replace.asm": "a6f5b991c6e59a7e0845d7619017e25b76f8fafe8325df8d338efbc3c0cf7352",
+          "editor-replace.asmi": "e71f759c1cce555c507da5e40f5ef7d83c222fc7aeb6f084740daf9bf7ee5ac8",
+          "editor-save.asm": "e92c145e517dc789aec49d780de09e05967431202ebe4c3a12ffa2f76fd61628",
+          "editor-screen.asm": "4cdee0c1f9183c18de87407c14c91e0f24fc743f65b886ca1c6b68a9b0964cf0",
+          "editor-search.asm": "da95e564198c4e7e091cb80a7c5c4b3d9a7202874e9c0b8e15a0ba537403b085",
+          "editor.asm": "5778758946266562eb6c55773e1ac487ba74ae743db28caa2fff8f026c93acd3"
+        }
+      },
+      "accounts": {
+        "artifactBytes": 3107,
+        "entryBytes": 3,
+        "codeBytes": 2902,
+        "immutableBytes": 202,
+        "workspaceBytes": 297,
+        "workspaceCapacity": 512,
+        "textCapacity": 47104,
+        "reservedStackBytes": 3072,
+        "codeRoom": 4317
+      }
+    }
+  },
+  "workloads": [
+    {
+      "name": "typing-512-beginning",
+      "description": "Eight complete successive printable-key commands; fixture cursor placement and initial layout excluded, reported separately.",
+      "input": {
+        "bytes": 512,
+        "sha256": "917d049c72b4748a6003a0811ef19dcdfe401cf1ab8138f4e0eb02d3f6023de4",
+        "cursor": 0,
+        "commandBytes": [
+          97,
+          98,
+          99,
+          100,
+          101,
+          102,
+          103,
+          104
+        ]
+      },
+      "baseline": {
+        "setup": {
+          "entry": {
+            "boundary": "EditorEntry -> EditorMainLoop (load + initial render)",
+            "instructions": 52882,
+            "tStates": 529635,
+            "textReadBytes": 460,
+            "textCopyReadBytes": 0,
+            "textScalarReadBytes": 460,
+            "textWriteBytes": 512,
+            "terminalBytes": 591,
+            "recordsRead": 4,
+            "recordsWritten": 0,
+            "bdosCalls": {
+              "6": 591,
+              "15": 1,
+              "16": 1,
+              "20": 5,
+              "26": 1
+            },
+            "minimumSp": 58348,
+            "stackBytesBelowStart": 1298,
+            "stackDepthFromPrivateTop": 20,
+            "returnPc": 2873,
+            "finalSp": 58366
+          },
+          "fixtureLayout": {
+            "boundary": "EditorRender entry -> RET (semantic only; no implied render)",
+            "instructions": 31942,
+            "tStates": 343586,
+            "textReadBytes": 460,
+            "textCopyReadBytes": 0,
+            "textScalarReadBytes": 460,
+            "textWriteBytes": 0,
+            "terminalBytes": 591,
+            "recordsRead": 0,
+            "recordsWritten": 0,
+            "bdosCalls": {
+              "6": 591
+            },
+            "minimumSp": 58094,
+            "stackBytesBelowStart": 16,
+            "stackDepthFromPrivateTop": 274,
+            "returnPc": 64,
+            "finalSp": 58112,
+            "a": 0,
+            "carry": false,
+            "hl": 80
+          }
+        },
+        "metrics": {
+          "boundary": "EditorMainLoop -> EditorMainLoop (dispatch + command + render)",
+          "instructions": 261164,
+          "tStates": 2891424,
+          "textReadBytes": 7920,
+          "textCopyReadBytes": 4096,
+          "textScalarReadBytes": 3824,
+          "textWriteBytes": 4104,
+          "terminalBytes": 4764,
+          "recordsRead": 0,
+          "recordsWritten": 0,
+          "bdosCalls": {
+            "6": 4772
+          },
+          "minimumSp": 58348,
+          "stackBytesBelowStart": 18,
+          "stackDepthFromPrivateTop": 20,
+          "returnPc": 2873,
+          "finalSp": 58366
+        },
+        "snapshot": {
+          "length": 520,
+          "cursor": 8,
+          "top": 0,
+          "horizontal": 0,
+          "desiredColumn": 0,
+          "flags": 1,
+          "status": 0,
+          "query": [],
+          "cursorRow": 0,
+          "cursorColumn": 8,
+          "bellCount": 0,
+          "textSha256": "72d1529f84e2429069a0a785b49b5dc6128facbdc9d99bea56e7ff0b83d5ae2f",
+          "cellsSha256": "c8e109f110d624409d22ad3a016d8d13d46580db5a18fb9050f0a37c76670a4f",
+          "attributesSha256": "5063b76bb0b06bcc0badc22aed36ee3e66d8b4391c1814c1b09d43d93e703272",
+          "files": {
+            "INPUT.NU": {
+              "bytes": 512,
+              "sha256": "917d049c72b4748a6003a0811ef19dcdfe401cf1ab8138f4e0eb02d3f6023de4"
+            }
+          }
+        }
+      }
+    },
+    {
+      "name": "typing-512-middle",
+      "description": "Eight complete successive printable-key commands; fixture cursor placement and initial layout excluded, reported separately.",
+      "input": {
+        "bytes": 512,
+        "sha256": "917d049c72b4748a6003a0811ef19dcdfe401cf1ab8138f4e0eb02d3f6023de4",
+        "cursor": 256,
+        "commandBytes": [
+          97,
+          98,
+          99,
+          100,
+          101,
+          102,
+          103,
+          104
+        ]
+      },
+      "baseline": {
+        "setup": {
+          "entry": {
+            "boundary": "EditorEntry -> EditorMainLoop (load + initial render)",
+            "instructions": 52882,
+            "tStates": 529635,
+            "textReadBytes": 460,
+            "textCopyReadBytes": 0,
+            "textScalarReadBytes": 460,
+            "textWriteBytes": 512,
+            "terminalBytes": 591,
+            "recordsRead": 4,
+            "recordsWritten": 0,
+            "bdosCalls": {
+              "6": 591,
+              "15": 1,
+              "16": 1,
+              "20": 5,
+              "26": 1
+            },
+            "minimumSp": 58348,
+            "stackBytesBelowStart": 1298,
+            "stackDepthFromPrivateTop": 20,
+            "returnPc": 2873,
+            "finalSp": 58366
+          },
+          "fixtureLayout": {
+            "boundary": "EditorRender entry -> RET (semantic only; no implied render)",
+            "instructions": 37156,
+            "tStates": 394491,
+            "textReadBytes": 742,
+            "textCopyReadBytes": 0,
+            "textScalarReadBytes": 742,
+            "textWriteBytes": 0,
+            "terminalBytes": 593,
+            "recordsRead": 0,
+            "recordsWritten": 0,
+            "bdosCalls": {
+              "6": 593
+            },
+            "minimumSp": 58094,
+            "stackBytesBelowStart": 16,
+            "stackDepthFromPrivateTop": 274,
+            "returnPc": 64,
+            "finalSp": 58112,
+            "a": 0,
+            "carry": false,
+            "hl": 80
+          }
+        },
+        "metrics": {
+          "boundary": "EditorMainLoop -> EditorMainLoop (dispatch + command + render)",
+          "instructions": 302870,
+          "tStates": 3255746,
+          "textReadBytes": 8128,
+          "textCopyReadBytes": 2048,
+          "textScalarReadBytes": 6080,
+          "textWriteBytes": 2056,
+          "terminalBytes": 4780,
+          "recordsRead": 0,
+          "recordsWritten": 0,
+          "bdosCalls": {
+            "6": 4788
+          },
+          "minimumSp": 58348,
+          "stackBytesBelowStart": 18,
+          "stackDepthFromPrivateTop": 20,
+          "returnPc": 2873,
+          "finalSp": 58366
+        },
+        "snapshot": {
+          "length": 520,
+          "cursor": 264,
+          "top": 0,
+          "horizontal": 0,
+          "desiredColumn": 0,
+          "flags": 1,
+          "status": 0,
+          "query": [],
+          "cursorRow": 13,
+          "cursorColumn": 20,
+          "bellCount": 0,
+          "textSha256": "b5e1a557747405bd5877e12b113f079d786228c43727dde47822f6bc21cc8025",
+          "cellsSha256": "214156925f7022561049e200d5e0d877edf19e14d3b32b5d75bcc0b41088fea0",
+          "attributesSha256": "5063b76bb0b06bcc0badc22aed36ee3e66d8b4391c1814c1b09d43d93e703272",
+          "files": {
+            "INPUT.NU": {
+              "bytes": 512,
+              "sha256": "917d049c72b4748a6003a0811ef19dcdfe401cf1ab8138f4e0eb02d3f6023de4"
+            }
+          }
+        }
+      }
+    },
+    {
+      "name": "typing-512-end",
+      "description": "Eight complete successive printable-key commands; fixture cursor placement and initial layout excluded, reported separately.",
+      "input": {
+        "bytes": 512,
+        "sha256": "917d049c72b4748a6003a0811ef19dcdfe401cf1ab8138f4e0eb02d3f6023de4",
+        "cursor": 512,
+        "commandBytes": [
+          97,
+          98,
+          99,
+          100,
+          101,
+          102,
+          103,
+          104
+        ]
+      },
+      "baseline": {
+        "setup": {
+          "entry": {
+            "boundary": "EditorEntry -> EditorMainLoop (load + initial render)",
+            "instructions": 52882,
+            "tStates": 529635,
+            "textReadBytes": 460,
+            "textCopyReadBytes": 0,
+            "textScalarReadBytes": 460,
+            "textWriteBytes": 512,
+            "terminalBytes": 591,
+            "recordsRead": 4,
+            "recordsWritten": 0,
+            "bdosCalls": {
+              "6": 591,
+              "15": 1,
+              "16": 1,
+              "20": 5,
+              "26": 1
+            },
+            "minimumSp": 58348,
+            "stackBytesBelowStart": 1298,
+            "stackDepthFromPrivateTop": 20,
+            "returnPc": 2873,
+            "finalSp": 58366
+          },
+          "fixtureLayout": {
+            "boundary": "EditorRender entry -> RET (semantic only; no implied render)",
+            "instructions": 66226,
+            "tStates": 678672,
+            "textReadBytes": 2374,
+            "textCopyReadBytes": 0,
+            "textScalarReadBytes": 2374,
+            "textWriteBytes": 0,
+            "terminalBytes": 588,
+            "recordsRead": 0,
+            "recordsWritten": 0,
+            "bdosCalls": {
+              "6": 588
+            },
+            "minimumSp": 58094,
+            "stackBytesBelowStart": 16,
+            "stackDepthFromPrivateTop": 274,
+            "returnPc": 64,
+            "finalSp": 58112,
+            "a": 0,
+            "carry": false,
+            "hl": 80
+          }
+        },
+        "metrics": {
+          "boundary": "EditorMainLoop -> EditorMainLoop (dispatch + command + render)",
+          "instructions": 338066,
+          "tStates": 3552710,
+          "textReadBytes": 8000,
+          "textCopyReadBytes": 0,
+          "textScalarReadBytes": 8000,
+          "textWriteBytes": 8,
+          "terminalBytes": 4740,
+          "recordsRead": 0,
+          "recordsWritten": 0,
+          "bdosCalls": {
+            "6": 4748
+          },
+          "minimumSp": 58348,
+          "stackBytesBelowStart": 18,
+          "stackDepthFromPrivateTop": 20,
+          "returnPc": 2873,
+          "finalSp": 58366
+        },
+        "snapshot": {
+          "length": 520,
+          "cursor": 520,
+          "top": 58,
+          "horizontal": 0,
+          "desiredColumn": 0,
+          "flags": 1,
+          "status": 0,
+          "query": [],
+          "cursorRow": 22,
+          "cursorColumn": 44,
+          "bellCount": 0,
+          "textSha256": "d8b9df1cff6920cfdb973464d5d969b5870bad92b28139f9801734c7de81edae",
+          "cellsSha256": "b2cc780dc3d3451c3480aeb0eff29b42ba8fc2c52976b3ce392ef23058064840",
+          "attributesSha256": "5063b76bb0b06bcc0badc22aed36ee3e66d8b4391c1814c1b09d43d93e703272",
+          "files": {
+            "INPUT.NU": {
+              "bytes": 512,
+              "sha256": "917d049c72b4748a6003a0811ef19dcdfe401cf1ab8138f4e0eb02d3f6023de4"
+            }
+          }
+        }
+      }
+    },
+    {
+      "name": "typing-16384-beginning",
+      "description": "Eight complete successive printable-key commands; fixture cursor placement and initial layout excluded, reported separately.",
+      "input": {
+        "bytes": 16384,
+        "sha256": "4e254d699f41affe505ae6d1ae6c02b1f835fb9f6cbabd7d2d8d0fb2606404c6",
+        "cursor": 0,
+        "commandBytes": [
+          97,
+          98,
+          99,
+          100,
+          101,
+          102,
+          103,
+          104
+        ]
+      },
+      "baseline": {
+        "setup": {
+          "entry": {
+            "boundary": "EditorEntry -> EditorMainLoop (load + initial render)",
+            "instructions": 686334,
+            "tStates": 6150621,
+            "textReadBytes": 460,
+            "textCopyReadBytes": 0,
+            "textScalarReadBytes": 460,
+            "textWriteBytes": 16384,
+            "terminalBytes": 591,
+            "recordsRead": 128,
+            "recordsWritten": 0,
+            "bdosCalls": {
+              "6": 591,
+              "15": 1,
+              "16": 1,
+              "20": 129,
+              "26": 1
+            },
+            "minimumSp": 58348,
+            "stackBytesBelowStart": 1298,
+            "stackDepthFromPrivateTop": 20,
+            "returnPc": 2873,
+            "finalSp": 58366
+          },
+          "fixtureLayout": {
+            "boundary": "EditorRender entry -> RET (semantic only; no implied render)",
+            "instructions": 31942,
+            "tStates": 343586,
+            "textReadBytes": 460,
+            "textCopyReadBytes": 0,
+            "textScalarReadBytes": 460,
+            "textWriteBytes": 0,
+            "terminalBytes": 591,
+            "recordsRead": 0,
+            "recordsWritten": 0,
+            "bdosCalls": {
+              "6": 591
+            },
+            "minimumSp": 58094,
+            "stackBytesBelowStart": 16,
+            "stackDepthFromPrivateTop": 274,
+            "returnPc": 64,
+            "finalSp": 58112,
+            "a": 0,
+            "carry": false,
+            "hl": 80
+          }
+        },
+        "metrics": {
+          "boundary": "EditorMainLoop -> EditorMainLoop (dispatch + command + render)",
+          "instructions": 261164,
+          "tStates": 5557920,
+          "textReadBytes": 134896,
+          "textCopyReadBytes": 131072,
+          "textScalarReadBytes": 3824,
+          "textWriteBytes": 131080,
+          "terminalBytes": 4764,
+          "recordsRead": 0,
+          "recordsWritten": 0,
+          "bdosCalls": {
+            "6": 4772
+          },
+          "minimumSp": 58348,
+          "stackBytesBelowStart": 18,
+          "stackDepthFromPrivateTop": 20,
+          "returnPc": 2873,
+          "finalSp": 58366
+        },
+        "snapshot": {
+          "length": 16392,
+          "cursor": 8,
+          "top": 0,
+          "horizontal": 0,
+          "desiredColumn": 0,
+          "flags": 1,
+          "status": 0,
+          "query": [],
+          "cursorRow": 0,
+          "cursorColumn": 8,
+          "bellCount": 0,
+          "textSha256": "8a0508a460a0d8fb6fdf733badcaf68d305dd1456eaeda6073cc49426f665e9a",
+          "cellsSha256": "c8e109f110d624409d22ad3a016d8d13d46580db5a18fb9050f0a37c76670a4f",
+          "attributesSha256": "5063b76bb0b06bcc0badc22aed36ee3e66d8b4391c1814c1b09d43d93e703272",
+          "files": {
+            "INPUT.NU": {
+              "bytes": 16384,
+              "sha256": "4e254d699f41affe505ae6d1ae6c02b1f835fb9f6cbabd7d2d8d0fb2606404c6"
+            }
+          }
+        }
+      }
+    },
+    {
+      "name": "typing-16384-middle",
+      "description": "Eight complete successive printable-key commands; fixture cursor placement and initial layout excluded, reported separately.",
+      "input": {
+        "bytes": 16384,
+        "sha256": "4e254d699f41affe505ae6d1ae6c02b1f835fb9f6cbabd7d2d8d0fb2606404c6",
+        "cursor": 8192,
+        "commandBytes": [
+          97,
+          98,
+          99,
+          100,
+          101,
+          102,
+          103,
+          104
+        ]
+      },
+      "baseline": {
+        "setup": {
+          "entry": {
+            "boundary": "EditorEntry -> EditorMainLoop (load + initial render)",
+            "instructions": 686334,
+            "tStates": 6150621,
+            "textReadBytes": 460,
+            "textCopyReadBytes": 0,
+            "textScalarReadBytes": 460,
+            "textWriteBytes": 16384,
+            "terminalBytes": 591,
+            "recordsRead": 128,
+            "recordsWritten": 0,
+            "bdosCalls": {
+              "6": 591,
+              "15": 1,
+              "16": 1,
+              "20": 129,
+              "26": 1
+            },
+            "minimumSp": 58348,
+            "stackBytesBelowStart": 1298,
+            "stackDepthFromPrivateTop": 20,
+            "returnPc": 2873,
+            "finalSp": 58366
+          },
+          "fixtureLayout": {
+            "boundary": "EditorRender entry -> RET (semantic only; no implied render)",
+            "instructions": 3345597,
+            "tStates": 32807569,
+            "textReadBytes": 187414,
+            "textCopyReadBytes": 0,
+            "textScalarReadBytes": 187414,
+            "textWriteBytes": 0,
+            "terminalBytes": 592,
+            "recordsRead": 0,
+            "recordsWritten": 0,
+            "bdosCalls": {
+              "6": 592
+            },
+            "minimumSp": 58094,
+            "stackBytesBelowStart": 16,
+            "stackDepthFromPrivateTop": 274,
+            "returnPc": 64,
+            "finalSp": 58112,
+            "a": 0,
+            "carry": false,
+            "hl": 80
+          }
+        },
+        "metrics": {
+          "boundary": "EditorMainLoop -> EditorMainLoop (dispatch + command + render)",
+          "instructions": 322036,
+          "tStates": 4777532,
+          "textReadBytes": 72768,
+          "textCopyReadBytes": 65536,
+          "textScalarReadBytes": 7232,
+          "textWriteBytes": 65544,
+          "terminalBytes": 4774,
+          "recordsRead": 0,
+          "recordsWritten": 0,
+          "bdosCalls": {
+            "6": 4782
+          },
+          "minimumSp": 58348,
+          "stackBytesBelowStart": 18,
+          "stackDepthFromPrivateTop": 20,
+          "returnPc": 2873,
+          "finalSp": 58366
+        },
+        "snapshot": {
+          "length": 16392,
+          "cursor": 8200,
+          "top": 7772,
+          "horizontal": 0,
+          "desiredColumn": 0,
+          "flags": 1,
+          "status": 0,
+          "query": [],
+          "cursorRow": 22,
+          "cursorColumn": 10,
+          "bellCount": 0,
+          "textSha256": "cbc6499bd602b995314a9887cb93bce13f9ee58cb2be177a758c8096a3c5ac58",
+          "cellsSha256": "3bbc855487d50fa57ef8ad20e31ab53dabec24bcccb6ff8f1098551ce5a4a22d",
+          "attributesSha256": "5063b76bb0b06bcc0badc22aed36ee3e66d8b4391c1814c1b09d43d93e703272",
+          "files": {
+            "INPUT.NU": {
+              "bytes": 16384,
+              "sha256": "4e254d699f41affe505ae6d1ae6c02b1f835fb9f6cbabd7d2d8d0fb2606404c6"
+            }
+          }
+        }
+      }
+    },
+    {
+      "name": "typing-16384-end",
+      "description": "Eight complete successive printable-key commands; fixture cursor placement and initial layout excluded, reported separately.",
+      "input": {
+        "bytes": 16384,
+        "sha256": "4e254d699f41affe505ae6d1ae6c02b1f835fb9f6cbabd7d2d8d0fb2606404c6",
+        "cursor": 16384,
+        "commandBytes": [
+          97,
+          98,
+          99,
+          100,
+          101,
+          102,
+          103,
+          104
+        ]
+      },
+      "baseline": {
+        "setup": {
+          "entry": {
+            "boundary": "EditorEntry -> EditorMainLoop (load + initial render)",
+            "instructions": 686334,
+            "tStates": 6150621,
+            "textReadBytes": 460,
+            "textCopyReadBytes": 0,
+            "textScalarReadBytes": 460,
+            "textWriteBytes": 16384,
+            "terminalBytes": 591,
+            "recordsRead": 128,
+            "recordsWritten": 0,
+            "bdosCalls": {
+              "6": 591,
+              "15": 1,
+              "16": 1,
+              "20": 129,
+              "26": 1
+            },
+            "minimumSp": 58348,
+            "stackBytesBelowStart": 1298,
+            "stackDepthFromPrivateTop": 20,
+            "returnPc": 2873,
+            "finalSp": 58366
+          },
+          "fixtureLayout": {
+            "boundary": "EditorRender entry -> RET (semantic only; no implied render)",
+            "instructions": 6823684,
+            "tStates": 66881000,
+            "textReadBytes": 383702,
+            "textCopyReadBytes": 0,
+            "textScalarReadBytes": 383702,
+            "textWriteBytes": 0,
+            "terminalBytes": 568,
+            "recordsRead": 0,
+            "recordsWritten": 0,
+            "bdosCalls": {
+              "6": 568
+            },
+            "minimumSp": 58094,
+            "stackBytesBelowStart": 16,
+            "stackDepthFromPrivateTop": 274,
+            "returnPc": 64,
+            "finalSp": 58112,
+            "a": 0,
+            "carry": false,
+            "hl": 80
+          }
+        },
+        "metrics": {
+          "boundary": "EditorMainLoop -> EditorMainLoop (dispatch + command + render)",
+          "instructions": 316706,
+          "tStates": 3336438,
+          "textReadBytes": 7360,
+          "textCopyReadBytes": 0,
+          "textScalarReadBytes": 7360,
+          "textWriteBytes": 8,
+          "terminalBytes": 4580,
+          "recordsRead": 0,
+          "recordsWritten": 0,
+          "bdosCalls": {
+            "6": 4588
+          },
+          "minimumSp": 58348,
+          "stackBytesBelowStart": 18,
+          "stackDepthFromPrivateTop": 20,
+          "returnPc": 2873,
+          "finalSp": 58366
+        },
+        "snapshot": {
+          "length": 16392,
+          "cursor": 16392,
+          "top": 15950,
+          "horizontal": 0,
+          "desiredColumn": 0,
+          "flags": 1,
+          "status": 0,
+          "query": [],
+          "cursorRow": 22,
+          "cursorColumn": 24,
+          "bellCount": 0,
+          "textSha256": "507aa98f7f6fcfe14ca4e5412067178bdc744c469bd984fd6814e1ea87ce7f08",
+          "cellsSha256": "a440050addff281008eb69965676213e9679cc2719b1a820eefa493ffd8ff78d",
+          "attributesSha256": "5063b76bb0b06bcc0badc22aed36ee3e66d8b4391c1814c1b09d43d93e703272",
+          "files": {
+            "INPUT.NU": {
+              "bytes": 16384,
+              "sha256": "4e254d699f41affe505ae6d1ae6c02b1f835fb9f6cbabd7d2d8d0fb2606404c6"
+            }
+          }
+        }
+      }
+    },
+    {
+      "name": "typing-47072-beginning",
+      "description": "Eight complete successive printable-key commands; fixture cursor placement and initial layout excluded, reported separately.",
+      "input": {
+        "bytes": 47072,
+        "sha256": "38ea3517636ec3ec0aabc0b356f5acc6bfda3a0dc09726882ac1a9e3e6660fe2",
+        "cursor": 0,
+        "commandBytes": [
+          97,
+          98,
+          99,
+          100,
+          101,
+          102,
+          103,
+          104
+        ]
+      },
+      "baseline": {
+        "setup": {
+          "entry": {
+            "boundary": "EditorEntry -> EditorMainLoop (load + initial render)",
+            "instructions": 1911095,
+            "tStates": 17018585,
+            "textReadBytes": 460,
+            "textCopyReadBytes": 0,
+            "textScalarReadBytes": 460,
+            "textWriteBytes": 47072,
+            "terminalBytes": 591,
+            "recordsRead": 368,
+            "recordsWritten": 0,
+            "bdosCalls": {
+              "6": 591,
+              "15": 1,
+              "16": 1,
+              "20": 368,
+              "26": 1
+            },
+            "minimumSp": 58348,
+            "stackBytesBelowStart": 1298,
+            "stackDepthFromPrivateTop": 20,
+            "returnPc": 2873,
+            "finalSp": 58366
+          },
+          "fixtureLayout": {
+            "boundary": "EditorRender entry -> RET (semantic only; no implied render)",
+            "instructions": 31942,
+            "tStates": 343586,
+            "textReadBytes": 460,
+            "textCopyReadBytes": 0,
+            "textScalarReadBytes": 460,
+            "textWriteBytes": 0,
+            "terminalBytes": 591,
+            "recordsRead": 0,
+            "recordsWritten": 0,
+            "bdosCalls": {
+              "6": 591
+            },
+            "minimumSp": 58094,
+            "stackBytesBelowStart": 16,
+            "stackDepthFromPrivateTop": 274,
+            "returnPc": 64,
+            "finalSp": 58112,
+            "a": 0,
+            "carry": false,
+            "hl": 80
+          }
+        },
+        "metrics": {
+          "boundary": "EditorMainLoop -> EditorMainLoop (dispatch + command + render)",
+          "instructions": 261164,
+          "tStates": 10713504,
+          "textReadBytes": 380400,
+          "textCopyReadBytes": 376576,
+          "textScalarReadBytes": 3824,
+          "textWriteBytes": 376584,
+          "terminalBytes": 4764,
+          "recordsRead": 0,
+          "recordsWritten": 0,
+          "bdosCalls": {
+            "6": 4772
+          },
+          "minimumSp": 58348,
+          "stackBytesBelowStart": 18,
+          "stackDepthFromPrivateTop": 20,
+          "returnPc": 2873,
+          "finalSp": 58366
+        },
+        "snapshot": {
+          "length": 47080,
+          "cursor": 8,
+          "top": 0,
+          "horizontal": 0,
+          "desiredColumn": 0,
+          "flags": 1,
+          "status": 0,
+          "query": [],
+          "cursorRow": 0,
+          "cursorColumn": 8,
+          "bellCount": 0,
+          "textSha256": "3f6a24ead25fd9b96a2a20b6fd879f750b6d407c8cbc9832baf2c14e73fbdbff",
+          "cellsSha256": "c8e109f110d624409d22ad3a016d8d13d46580db5a18fb9050f0a37c76670a4f",
+          "attributesSha256": "5063b76bb0b06bcc0badc22aed36ee3e66d8b4391c1814c1b09d43d93e703272",
+          "files": {
+            "INPUT.NU": {
+              "bytes": 47104,
+              "sha256": "39d353fa174b01e9620d6a06bd191a822cdcf05281e0669ea442719724f3fe7d"
+            }
+          }
+        }
+      }
+    },
+    {
+      "name": "typing-47072-middle",
+      "description": "Eight complete successive printable-key commands; fixture cursor placement and initial layout excluded, reported separately.",
+      "input": {
+        "bytes": 47072,
+        "sha256": "38ea3517636ec3ec0aabc0b356f5acc6bfda3a0dc09726882ac1a9e3e6660fe2",
+        "cursor": 23536,
+        "commandBytes": [
+          97,
+          98,
+          99,
+          100,
+          101,
+          102,
+          103,
+          104
+        ]
+      },
+      "baseline": {
+        "setup": {
+          "entry": {
+            "boundary": "EditorEntry -> EditorMainLoop (load + initial render)",
+            "instructions": 1911095,
+            "tStates": 17018585,
+            "textReadBytes": 460,
+            "textCopyReadBytes": 0,
+            "textScalarReadBytes": 460,
+            "textWriteBytes": 47072,
+            "terminalBytes": 591,
+            "recordsRead": 368,
+            "recordsWritten": 0,
+            "bdosCalls": {
+              "6": 591,
+              "15": 1,
+              "16": 1,
+              "20": 368,
+              "26": 1
+            },
+            "minimumSp": 58348,
+            "stackBytesBelowStart": 1298,
+            "stackDepthFromPrivateTop": 20,
+            "returnPc": 2873,
+            "finalSp": 58366
+          },
+          "fixtureLayout": {
+            "boundary": "EditorRender entry -> RET (semantic only; no implied render)",
+            "instructions": 9861207,
+            "tStates": 96640965,
+            "textReadBytes": 554998,
+            "textCopyReadBytes": 0,
+            "textScalarReadBytes": 554998,
+            "textWriteBytes": 0,
+            "terminalBytes": 593,
+            "recordsRead": 0,
+            "recordsWritten": 0,
+            "bdosCalls": {
+              "6": 593
+            },
+            "minimumSp": 58094,
+            "stackBytesBelowStart": 16,
+            "stackDepthFromPrivateTop": 274,
+            "returnPc": 64,
+            "finalSp": 58112,
+            "a": 0,
+            "carry": false,
+            "hl": 80
+          }
+        },
+        "metrics": {
+          "boundary": "EditorMainLoop -> EditorMainLoop (dispatch + command + render)",
+          "instructions": 339640,
+          "tStates": 7524460,
+          "textReadBytes": 196288,
+          "textCopyReadBytes": 188288,
+          "textScalarReadBytes": 8000,
+          "textWriteBytes": 188296,
+          "terminalBytes": 4780,
+          "recordsRead": 0,
+          "recordsWritten": 0,
+          "bdosCalls": {
+            "6": 4788
+          },
+          "minimumSp": 58348,
+          "stackBytesBelowStart": 18,
+          "stackDepthFromPrivateTop": 20,
+          "returnPc": 2873,
+          "finalSp": 58366
+        },
+        "snapshot": {
+          "length": 47080,
+          "cursor": 23544,
+          "top": 23084,
+          "horizontal": 0,
+          "desiredColumn": 0,
+          "flags": 1,
+          "status": 0,
+          "query": [],
+          "cursorRow": 22,
+          "cursorColumn": 42,
+          "bellCount": 0,
+          "textSha256": "51d6e1b8da958fca8f021de2ad2c8ecb2f4e0f523bee5c850ece36b954380d78",
+          "cellsSha256": "60e7bb9cae9886a285c21c21acf49bcbb0bd82cda5ddfd0f5981a239a29e62c6",
+          "attributesSha256": "5063b76bb0b06bcc0badc22aed36ee3e66d8b4391c1814c1b09d43d93e703272",
+          "files": {
+            "INPUT.NU": {
+              "bytes": 47104,
+              "sha256": "39d353fa174b01e9620d6a06bd191a822cdcf05281e0669ea442719724f3fe7d"
+            }
+          }
+        }
+      }
+    },
+    {
+      "name": "typing-47072-end",
+      "description": "Eight complete successive printable-key commands; fixture cursor placement and initial layout excluded, reported separately.",
+      "input": {
+        "bytes": 47072,
+        "sha256": "38ea3517636ec3ec0aabc0b356f5acc6bfda3a0dc09726882ac1a9e3e6660fe2",
+        "cursor": 47072,
+        "commandBytes": [
+          97,
+          98,
+          99,
+          100,
+          101,
+          102,
+          103,
+          104
+        ]
+      },
+      "baseline": {
+        "setup": {
+          "entry": {
+            "boundary": "EditorEntry -> EditorMainLoop (load + initial render)",
+            "instructions": 1911095,
+            "tStates": 17018585,
+            "textReadBytes": 460,
+            "textCopyReadBytes": 0,
+            "textScalarReadBytes": 460,
+            "textWriteBytes": 47072,
+            "terminalBytes": 591,
+            "recordsRead": 368,
+            "recordsWritten": 0,
+            "bdosCalls": {
+              "6": 591,
+              "15": 1,
+              "16": 1,
+              "20": 368,
+              "26": 1
+            },
+            "minimumSp": 58348,
+            "stackBytesBelowStart": 1298,
+            "stackDepthFromPrivateTop": 20,
+            "returnPc": 2873,
+            "finalSp": 58366
+          },
+          "fixtureLayout": {
+            "boundary": "EditorRender entry -> RET (semantic only; no implied render)",
+            "instructions": 19875975,
+            "tStates": 194755302,
+            "textReadBytes": 1120094,
+            "textCopyReadBytes": 0,
+            "textScalarReadBytes": 1120094,
+            "textWriteBytes": 0,
+            "terminalBytes": 574,
+            "recordsRead": 0,
+            "recordsWritten": 0,
+            "bdosCalls": {
+              "6": 574
+            },
+            "minimumSp": 58094,
+            "stackBytesBelowStart": 16,
+            "stackDepthFromPrivateTop": 274,
+            "returnPc": 64,
+            "finalSp": 58112,
+            "a": 0,
+            "carry": false,
+            "hl": 80
+          }
+        },
+        "metrics": {
+          "boundary": "EditorMainLoop -> EditorMainLoop (dispatch + command + render)",
+          "instructions": 323110,
+          "tStates": 3401290,
+          "textReadBytes": 7552,
+          "textCopyReadBytes": 0,
+          "textScalarReadBytes": 7552,
+          "textWriteBytes": 8,
+          "terminalBytes": 4628,
+          "recordsRead": 0,
+          "recordsWritten": 0,
+          "bdosCalls": {
+            "6": 4636
+          },
+          "minimumSp": 58348,
+          "stackBytesBelowStart": 18,
+          "stackDepthFromPrivateTop": 20,
+          "returnPc": 2873,
+          "finalSp": 58366
+        },
+        "snapshot": {
+          "length": 47080,
+          "cursor": 47080,
+          "top": 46632,
+          "horizontal": 0,
+          "desiredColumn": 0,
+          "flags": 1,
+          "status": 0,
+          "query": [],
+          "cursorRow": 22,
+          "cursorColumn": 30,
+          "bellCount": 0,
+          "textSha256": "85f1c7598e768ee6c2b768067bbf9674f82f1bdd12756038c28d148874bb462c",
+          "cellsSha256": "79a065e37a87d03a85ba0a3c619dab9d742eb485ba8c5ed5a425c1a6efe3c06d",
+          "attributesSha256": "5063b76bb0b06bcc0badc22aed36ee3e66d8b4391c1814c1b09d43d93e703272",
+          "files": {
+            "INPUT.NU": {
+              "bytes": 47104,
+              "sha256": "39d353fa174b01e9620d6a06bd191a822cdcf05281e0669ea442719724f3fe7d"
+            }
+          }
+        }
+      }
+    },
+    {
+      "name": "far-jump-search-and-type-16384",
+      "description": "Complete forward-search prompt/scan to far target followed by eight complete typing commands.",
+      "input": {
+        "bytes": 16384,
+        "sha256": "0bb777fabfc87ecede173265d0010f027385aa65c098c32d96013212ef694e20",
+        "cursor": 0,
+        "commandBytes": [
+          6,
+          84,
+          65,
+          82,
+          71,
+          69,
+          84,
+          13,
+          97,
+          98,
+          99,
+          100,
+          101,
+          102,
+          103,
+          104
+        ]
+      },
+      "baseline": {
+        "setup": {
+          "entry": {
+            "boundary": "EditorEntry -> EditorMainLoop (load + initial render)",
+            "instructions": 686330,
+            "tStates": 6150598,
+            "textReadBytes": 460,
+            "textCopyReadBytes": 0,
+            "textScalarReadBytes": 460,
+            "textWriteBytes": 16384,
+            "terminalBytes": 591,
+            "recordsRead": 128,
+            "recordsWritten": 0,
+            "bdosCalls": {
+              "6": 591,
+              "15": 1,
+              "16": 1,
+              "20": 129,
+              "26": 1
+            },
+            "minimumSp": 58348,
+            "stackBytesBelowStart": 1298,
+            "stackDepthFromPrivateTop": 20,
+            "returnPc": 2873,
+            "finalSp": 58366
+          }
+        },
+        "metrics": {
+          "boundary": "EditorMainLoop -> EditorMainLoop (dispatch + command + render)",
+          "instructions": 7670243,
+          "tStates": 76091220,
+          "textReadBytes": 407376,
+          "textCopyReadBytes": 48,
+          "textScalarReadBytes": 407328,
+          "textWriteBytes": 56,
+          "terminalBytes": 5749,
+          "recordsRead": 0,
+          "recordsWritten": 0,
+          "bdosCalls": {
+            "6": 5765
+          },
+          "minimumSp": 58344,
+          "stackBytesBelowStart": 22,
+          "stackDepthFromPrivateTop": 24,
+          "returnPc": 2873,
+          "finalSp": 58366
+        },
+        "snapshot": {
+          "length": 16392,
+          "cursor": 16386,
+          "top": 15962,
+          "horizontal": 0,
+          "desiredColumn": 0,
+          "flags": 1,
+          "status": 0,
+          "query": [
+            84,
+            65,
+            82,
+            71,
+            69,
+            84
+          ],
+          "cursorRow": 22,
+          "cursorColumn": 8,
+          "bellCount": 0,
+          "textSha256": "6c735bed71c6892dff4164b74cf78db2496e7927fceb51ce9e4151961f6697b4",
+          "cellsSha256": "bf09146838d6408fe03163c3da27a5220f92fb0a93b6faac73548bc3c80a8373",
+          "attributesSha256": "5063b76bb0b06bcc0badc22aed36ee3e66d8b4391c1814c1b09d43d93e703272",
+          "files": {
+            "INPUT.NU": {
+              "bytes": 16384,
+              "sha256": "0bb777fabfc87ecede173265d0010f027385aa65c098c32d96013212ef694e20"
+            }
+          }
+        }
+      }
+    },
+    {
+      "name": "alternating-far-jumps-16384",
+      "description": "Two distant jumps through real committed-search commands, each followed by one insertion; includes prompt/scan/render.",
+      "input": {
+        "bytes": 16384,
+        "sha256": "bc30cf9a03e7978f6f2a216ffe7ed96d4a5fa0c4c18603a5bb2337fe2743a4f9",
+        "cursor": 0,
+        "commandBytes": [
+          6,
+          84,
+          65,
+          82,
+          71,
+          69,
+          84,
+          13,
+          120,
+          6,
+          79,
+          82,
+          73,
+          71,
+          73,
+          78,
+          13,
+          121
+        ]
+      },
+      "baseline": {
+        "setup": {
+          "entry": {
+            "boundary": "EditorEntry -> EditorMainLoop (load + initial render)",
+            "instructions": 684051,
+            "tStates": 6126285,
+            "textReadBytes": 425,
+            "textCopyReadBytes": 0,
+            "textScalarReadBytes": 425,
+            "textWriteBytes": 16384,
+            "terminalBytes": 556,
+            "recordsRead": 128,
+            "recordsWritten": 0,
+            "bdosCalls": {
+              "6": 556,
+              "15": 1,
+              "16": 1,
+              "20": 129,
+              "26": 1
+            },
+            "minimumSp": 58348,
+            "stackBytesBelowStart": 1298,
+            "stackDepthFromPrivateTop": 20,
+            "returnPc": 2873,
+            "finalSp": 58366
+          }
+        },
+        "metrics": {
+          "boundary": "EditorMainLoop -> EditorMainLoop (dispatch + command + render)",
+          "instructions": 8025422,
+          "tStates": 80111508,
+          "textReadBytes": 419755,
+          "textCopyReadBytes": 12,
+          "textScalarReadBytes": 419743,
+          "textWriteBytes": 14,
+          "terminalBytes": 3636,
+          "recordsRead": 0,
+          "recordsWritten": 0,
+          "bdosCalls": {
+            "6": 3654
+          },
+          "minimumSp": 58344,
+          "stackBytesBelowStart": 22,
+          "stackDepthFromPrivateTop": 24,
+          "returnPc": 2873,
+          "finalSp": 58366
+        },
+        "snapshot": {
+          "length": 16386,
+          "cursor": 16380,
+          "top": 15969,
+          "horizontal": 0,
+          "desiredColumn": 0,
+          "flags": 1,
+          "status": 0,
+          "query": [
+            84,
+            65,
+            82,
+            71,
+            69,
+            84,
+            79,
+            82,
+            73,
+            71,
+            73,
+            78
+          ],
+          "cursorRow": 22,
+          "cursorColumn": 2,
+          "bellCount": 1,
+          "textSha256": "b57effee1a3aadcc750d00bf90b7a374cc982cc14ed75de0e33f96831e67a244",
+          "cellsSha256": "2597ee19db091817862dedff65e8f03711c053ab14161c833279cb8652ed0724",
+          "attributesSha256": "5063b76bb0b06bcc0badc22aed36ee3e66d8b4391c1814c1b09d43d93e703272",
+          "files": {
+            "INPUT.NU": {
+              "bytes": 16384,
+              "sha256": "bc30cf9a03e7978f6f2a216ffe7ed96d4a5fa0c4c18603a5bb2337fe2743a4f9"
+            }
+          }
+        }
+      }
+    },
+    {
+      "name": "long-printable-16384",
+      "description": "One complete insertion in a long printable line; horizontal-follow rendering included.",
+      "input": {
+        "bytes": 16384,
+        "sha256": "1536c422c31cc98834759d7085cda394a3510a03d78188248986a6b1a7207d03",
+        "cursor": 8192,
+        "commandBytes": [
+          121
+        ]
+      },
+      "baseline": {
+        "setup": {
+          "entry": {
+            "boundary": "EditorEntry -> EditorMainLoop (load + initial render)",
+            "instructions": 1497837,
+            "tStates": 14480334,
+            "textReadBytes": 16384,
+            "textCopyReadBytes": 0,
+            "textScalarReadBytes": 16384,
+            "textWriteBytes": 16384,
+            "terminalBytes": 234,
+            "recordsRead": 128,
+            "recordsWritten": 0,
+            "bdosCalls": {
+              "6": 234,
+              "15": 1,
+              "16": 1,
+              "20": 129,
+              "26": 1
+            },
+            "minimumSp": 58348,
+            "stackBytesBelowStart": 1298,
+            "stackDepthFromPrivateTop": 20,
+            "returnPc": 2873,
+            "finalSp": 58366
+          },
+          "fixtureLayout": {
+            "boundary": "EditorRender entry -> RET (semantic only; no implied render)",
+            "instructions": 1364718,
+            "tStates": 13703546,
+            "textReadBytes": 40960,
+            "textCopyReadBytes": 0,
+            "textScalarReadBytes": 40960,
+            "textWriteBytes": 0,
+            "terminalBytes": 235,
+            "recordsRead": 0,
+            "recordsWritten": 0,
+            "bdosCalls": {
+              "6": 235
+            },
+            "minimumSp": 58094,
+            "stackBytesBelowStart": 16,
+            "stackDepthFromPrivateTop": 274,
+            "returnPc": 64,
+            "finalSp": 58112,
+            "a": 0,
+            "carry": false,
+            "hl": 80
+          }
+        },
+        "metrics": {
+          "boundary": "EditorMainLoop -> EditorMainLoop (dispatch + command + render)",
+          "instructions": 1364936,
+          "tStates": 13877745,
+          "textReadBytes": 49156,
+          "textCopyReadBytes": 8192,
+          "textScalarReadBytes": 40964,
+          "textWriteBytes": 8193,
+          "terminalBytes": 235,
+          "recordsRead": 0,
+          "recordsWritten": 0,
+          "bdosCalls": {
+            "6": 236
+          },
+          "minimumSp": 58348,
+          "stackBytesBelowStart": 18,
+          "stackDepthFromPrivateTop": 20,
+          "returnPc": 2873,
+          "finalSp": 58366
+        },
+        "snapshot": {
+          "length": 16385,
+          "cursor": 8193,
+          "top": 0,
+          "horizontal": 8114,
+          "desiredColumn": 0,
+          "flags": 1,
+          "status": 0,
+          "query": [],
+          "cursorRow": 0,
+          "cursorColumn": 79,
+          "bellCount": 0,
+          "textSha256": "94147bf071c2a4d556d26197ea1b5a44b131198aa52c76bf510ac05be9bf2d0d",
+          "cellsSha256": "2d5fa9430af38b09d7de083da046e70280d60262ba6d968ec0965a53b7cd9a65",
+          "attributesSha256": "5063b76bb0b06bcc0badc22aed36ee3e66d8b4391c1814c1b09d43d93e703272",
+          "files": {
+            "INPUT.NU": {
+              "bytes": 16384,
+              "sha256": "1536c422c31cc98834759d7085cda394a3510a03d78188248986a6b1a7207d03"
+            }
+          }
+        }
+      }
+    },
+    {
+      "name": "long-tabs-8193",
+      "description": "One complete insertion beyond visual column65535; tab expansion and horizontal-follow included.",
+      "input": {
+        "bytes": 8193,
+        "sha256": "f369397aea7bea003542150c9444fa6dfaa5e17c0547e52e947d5aa278682bd2",
+        "cursor": 8193,
+        "commandBytes": [
+          120
+        ]
+      },
+      "baseline": {
+        "setup": {
+          "entry": {
+            "boundary": "EditorEntry -> EditorMainLoop (load + initial render)",
+            "instructions": 2587194,
+            "tStates": 27335924,
+            "textReadBytes": 8193,
+            "textCopyReadBytes": 0,
+            "textScalarReadBytes": 8193,
+            "textWriteBytes": 8193,
+            "terminalBytes": 234,
+            "recordsRead": 65,
+            "recordsWritten": 0,
+            "bdosCalls": {
+              "6": 234,
+              "15": 1,
+              "16": 1,
+              "20": 65,
+              "26": 1
+            },
+            "minimumSp": 58348,
+            "stackBytesBelowStart": 1298,
+            "stackDepthFromPrivateTop": 20,
+            "returnPc": 2873,
+            "finalSp": 58366
+          },
+          "fixtureLayout": {
+            "boundary": "EditorRender entry -> RET (semantic only; no implied render)",
+            "instructions": 2643951,
+            "tStates": 27973063,
+            "textReadBytes": 32772,
+            "textCopyReadBytes": 0,
+            "textScalarReadBytes": 32772,
+            "textWriteBytes": 0,
+            "terminalBytes": 234,
+            "recordsRead": 0,
+            "recordsWritten": 0,
+            "bdosCalls": {
+              "6": 234
+            },
+            "minimumSp": 58094,
+            "stackBytesBelowStart": 16,
+            "stackDepthFromPrivateTop": 274,
+            "returnPc": 64,
+            "finalSp": 58112,
+            "a": 0,
+            "carry": false,
+            "hl": 80
+          }
+        },
+        "metrics": {
+          "boundary": "EditorMainLoop -> EditorMainLoop (dispatch + command + render)",
+          "instructions": 2644161,
+          "tStates": 27975162,
+          "textReadBytes": 32776,
+          "textCopyReadBytes": 0,
+          "textScalarReadBytes": 32776,
+          "textWriteBytes": 1,
+          "terminalBytes": 234,
+          "recordsRead": 0,
+          "recordsWritten": 0,
+          "bdosCalls": {
+            "6": 235
+          },
+          "minimumSp": 58348,
+          "stackBytesBelowStart": 18,
+          "stackDepthFromPrivateTop": 20,
+          "returnPc": 2873,
+          "finalSp": 58366
+        },
+        "snapshot": {
+          "length": 8194,
+          "cursor": 8194,
+          "top": 0,
+          "horizontal": 65466,
+          "desiredColumn": 0,
+          "flags": 1,
+          "status": 0,
+          "query": [],
+          "cursorRow": 0,
+          "cursorColumn": 79,
+          "bellCount": 0,
+          "textSha256": "d732eef57cf5d842a659b29254e4efc5af04525d71b8350ea7ffdd0b9caee94b",
+          "cellsSha256": "883dc438d41458519c9cdb840f34efd38d4b4bc37432883e991fc14d1d11410a",
+          "attributesSha256": "5063b76bb0b06bcc0badc22aed36ee3e66d8b4391c1814c1b09d43d93e703272",
+          "files": {
+            "INPUT.NU": {
+              "bytes": 8320,
+              "sha256": "90ba892e9d43ff7cee9abee3f8ea1ea6acbfa8d4cdd9adc984dac776ea009d3d"
+            }
+          }
+        }
+      }
+    },
+    {
+      "name": "search-no-match-16384",
+      "description": "Complete query entry, failed full wrap, bell and final render.",
+      "input": {
+        "bytes": 16384,
+        "sha256": "4e254d699f41affe505ae6d1ae6c02b1f835fb9f6cbabd7d2d8d0fb2606404c6",
+        "cursor": 0,
+        "commandBytes": [
+          6,
+          77,
+          73,
+          83,
+          83,
+          73,
+          78,
+          71,
+          13
+        ]
+      },
+      "baseline": {
+        "setup": {
+          "entry": {
+            "boundary": "EditorEntry -> EditorMainLoop (load + initial render)",
+            "instructions": 686334,
+            "tStates": 6150621,
+            "textReadBytes": 460,
+            "textCopyReadBytes": 0,
+            "textScalarReadBytes": 460,
+            "textWriteBytes": 16384,
+            "terminalBytes": 591,
+            "recordsRead": 128,
+            "recordsWritten": 0,
+            "bdosCalls": {
+              "6": 591,
+              "15": 1,
+              "16": 1,
+              "20": 129,
+              "26": 1
+            },
+            "minimumSp": 58348,
+            "stackBytesBelowStart": 1298,
+            "stackDepthFromPrivateTop": 20,
+            "returnPc": 2873,
+            "finalSp": 58366
+          }
+        },
+        "metrics": {
+          "boundary": "EditorMainLoop -> EditorMainLoop (dispatch + command + render)",
+          "instructions": 573558,
+          "tStates": 6339615,
+          "textReadBytes": 16838,
+          "textCopyReadBytes": 0,
+          "textScalarReadBytes": 16838,
+          "textWriteBytes": 0,
+          "terminalBytes": 1413,
+          "recordsRead": 0,
+          "recordsWritten": 0,
+          "bdosCalls": {
+            "6": 1422
+          },
+          "minimumSp": 58344,
+          "stackBytesBelowStart": 22,
+          "stackDepthFromPrivateTop": 24,
+          "returnPc": 2873,
+          "finalSp": 58366
+        },
+        "snapshot": {
+          "length": 16384,
+          "cursor": 0,
+          "top": 0,
+          "horizontal": 0,
+          "desiredColumn": 0,
+          "flags": 0,
+          "status": 135,
+          "query": [
+            77,
+            73,
+            83,
+            83,
+            73,
+            78,
+            71
+          ],
+          "cursorRow": 0,
+          "cursorColumn": 0,
+          "bellCount": 1,
+          "textSha256": "4e254d699f41affe505ae6d1ae6c02b1f835fb9f6cbabd7d2d8d0fb2606404c6",
+          "cellsSha256": "ff29a6c157c25863b8e0a1ca36a9c56494067101d1391bce782689c968d17fbf",
+          "attributesSha256": "5063b76bb0b06bcc0badc22aed36ee3e66d8b4391c1814c1b09d43d93e703272",
+          "files": {
+            "INPUT.NU": {
+              "bytes": 16384,
+              "sha256": "4e254d699f41affe505ae6d1ae6c02b1f835fb9f6cbabd7d2d8d0fb2606404c6"
+            }
+          }
+        }
+      }
+    },
+    {
+      "name": "save-16384",
+      "description": "Complete Save key, recoverable file transaction and final render; fake BDOS work counted separately.",
+      "input": {
+        "bytes": 16384,
+        "sha256": "4e254d699f41affe505ae6d1ae6c02b1f835fb9f6cbabd7d2d8d0fb2606404c6",
+        "cursor": 0,
+        "commandBytes": [
+          19
+        ]
+      },
+      "baseline": {
+        "setup": {
+          "entry": {
+            "boundary": "EditorEntry -> EditorMainLoop (load + initial render)",
+            "instructions": 686334,
+            "tStates": 6150621,
+            "textReadBytes": 460,
+            "textCopyReadBytes": 0,
+            "textScalarReadBytes": 460,
+            "textWriteBytes": 16384,
+            "terminalBytes": 591,
+            "recordsRead": 128,
+            "recordsWritten": 0,
+            "bdosCalls": {
+              "6": 591,
+              "15": 1,
+              "16": 1,
+              "20": 129,
+              "26": 1
+            },
+            "minimumSp": 58348,
+            "stackBytesBelowStart": 1298,
+            "stackDepthFromPrivateTop": 20,
+            "returnPc": 2873,
+            "finalSp": 58366
+          }
+        },
+        "metrics": {
+          "boundary": "EditorMainLoop -> EditorMainLoop (dispatch + command + render)",
+          "instructions": 37130,
+          "tStates": 408741,
+          "textReadBytes": 460,
+          "textCopyReadBytes": 0,
+          "textScalarReadBytes": 460,
+          "textWriteBytes": 0,
+          "terminalBytes": 591,
+          "recordsRead": 0,
+          "recordsWritten": 128,
+          "bdosCalls": {
+            "6": 592,
+            "15": 2,
+            "16": 1,
+            "19": 1,
+            "21": 128,
+            "22": 1,
+            "23": 2,
+            "26": 128
+          },
+          "minimumSp": 58348,
+          "stackBytesBelowStart": 18,
+          "stackDepthFromPrivateTop": 20,
+          "returnPc": 2873,
+          "finalSp": 58366
+        },
+        "snapshot": {
+          "length": 16384,
+          "cursor": 0,
+          "top": 0,
+          "horizontal": 0,
+          "desiredColumn": 0,
+          "flags": 0,
+          "status": 1,
+          "query": [],
+          "cursorRow": 0,
+          "cursorColumn": 0,
+          "bellCount": 0,
+          "textSha256": "4e254d699f41affe505ae6d1ae6c02b1f835fb9f6cbabd7d2d8d0fb2606404c6",
+          "cellsSha256": "9fc77041dd7bb0d9263fe523673152a4907d9dc3f316ecec62046db7b28b3dc3",
+          "attributesSha256": "5063b76bb0b06bcc0badc22aed36ee3e66d8b4391c1814c1b09d43d93e703272",
+          "files": {
+            "INPUT.NU": {
+              "bytes": 16384,
+              "sha256": "4e254d699f41affe505ae6d1ae6c02b1f835fb9f6cbabd7d2d8d0fb2606404c6"
+            }
+          }
+        }
+      }
+    },
+    {
+      "name": "save-47072",
+      "description": "Complete Save key, recoverable file transaction and final render; fake BDOS work counted separately.",
+      "input": {
+        "bytes": 47072,
+        "sha256": "38ea3517636ec3ec0aabc0b356f5acc6bfda3a0dc09726882ac1a9e3e6660fe2",
+        "cursor": 0,
+        "commandBytes": [
+          19
+        ]
+      },
+      "baseline": {
+        "setup": {
+          "entry": {
+            "boundary": "EditorEntry -> EditorMainLoop (load + initial render)",
+            "instructions": 1911095,
+            "tStates": 17018585,
+            "textReadBytes": 460,
+            "textCopyReadBytes": 0,
+            "textScalarReadBytes": 460,
+            "textWriteBytes": 47072,
+            "terminalBytes": 591,
+            "recordsRead": 368,
+            "recordsWritten": 0,
+            "bdosCalls": {
+              "6": 591,
+              "15": 1,
+              "16": 1,
+              "20": 368,
+              "26": 1
+            },
+            "minimumSp": 58348,
+            "stackBytesBelowStart": 1298,
+            "stackDepthFromPrivateTop": 20,
+            "returnPc": 2873,
+            "finalSp": 58366
+          }
+        },
+        "metrics": {
+          "boundary": "EditorMainLoop -> EditorMainLoop (dispatch + command + render)",
+          "instructions": 45528,
+          "tStates": 519437,
+          "textReadBytes": 556,
+          "textCopyReadBytes": 96,
+          "textScalarReadBytes": 460,
+          "textWriteBytes": 0,
+          "terminalBytes": 591,
+          "recordsRead": 0,
+          "recordsWritten": 368,
+          "bdosCalls": {
+            "6": 592,
+            "15": 2,
+            "16": 1,
+            "19": 1,
+            "21": 368,
+            "22": 1,
+            "23": 2,
+            "26": 368
+          },
+          "minimumSp": 58348,
+          "stackBytesBelowStart": 18,
+          "stackDepthFromPrivateTop": 20,
+          "returnPc": 2873,
+          "finalSp": 58366
+        },
+        "snapshot": {
+          "length": 47072,
+          "cursor": 0,
+          "top": 0,
+          "horizontal": 0,
+          "desiredColumn": 0,
+          "flags": 0,
+          "status": 1,
+          "query": [],
+          "cursorRow": 0,
+          "cursorColumn": 0,
+          "bellCount": 0,
+          "textSha256": "38ea3517636ec3ec0aabc0b356f5acc6bfda3a0dc09726882ac1a9e3e6660fe2",
+          "cellsSha256": "9fc77041dd7bb0d9263fe523673152a4907d9dc3f316ecec62046db7b28b3dc3",
+          "attributesSha256": "5063b76bb0b06bcc0badc22aed36ee3e66d8b4391c1814c1b09d43d93e703272",
+          "files": {
+            "INPUT.NU": {
+              "bytes": 47104,
+              "sha256": "39d353fa174b01e9620d6a06bd191a822cdcf05281e0669ea442719724f3fe7d"
+            }
+          }
+        }
+      }
+    },
+    {
+      "name": "capacity-reject-47104",
+      "description": "Complete CRLF insertion rejection at full capacity, bell and render.",
+      "input": {
+        "bytes": 47104,
+        "sha256": "f0e14e0aa0727fe85abbf12a50a36171f44fb8b28fdbaee3f34d6f4f5cfdc297",
+        "cursor": 0,
+        "commandBytes": [
+          13
+        ]
+      },
+      "baseline": {
+        "setup": {
+          "entry": {
+            "boundary": "EditorEntry -> EditorMainLoop (load + initial render)",
+            "instructions": 1912378,
+            "tStates": 17029994,
+            "textReadBytes": 460,
+            "textCopyReadBytes": 0,
+            "textScalarReadBytes": 460,
+            "textWriteBytes": 47104,
+            "terminalBytes": 591,
+            "recordsRead": 368,
+            "recordsWritten": 0,
+            "bdosCalls": {
+              "6": 591,
+              "15": 1,
+              "16": 1,
+              "20": 369,
+              "26": 1
+            },
+            "minimumSp": 58348,
+            "stackBytesBelowStart": 1298,
+            "stackDepthFromPrivateTop": 20,
+            "returnPc": 2873,
+            "finalSp": 58366
+          }
+        },
+        "metrics": {
+          "boundary": "EditorMainLoop -> EditorMainLoop (dispatch + command + render)",
+          "instructions": 32026,
+          "tStates": 344396,
+          "textReadBytes": 460,
+          "textCopyReadBytes": 0,
+          "textScalarReadBytes": 460,
+          "textWriteBytes": 0,
+          "terminalBytes": 592,
+          "recordsRead": 0,
+          "recordsWritten": 0,
+          "bdosCalls": {
+            "6": 593
+          },
+          "minimumSp": 58348,
+          "stackBytesBelowStart": 18,
+          "stackDepthFromPrivateTop": 20,
+          "returnPc": 2873,
+          "finalSp": 58366
+        },
+        "snapshot": {
+          "length": 47104,
+          "cursor": 0,
+          "top": 0,
+          "horizontal": 0,
+          "desiredColumn": 0,
+          "flags": 0,
+          "status": 2,
+          "query": [],
+          "cursorRow": 0,
+          "cursorColumn": 0,
+          "bellCount": 1,
+          "textSha256": "f0e14e0aa0727fe85abbf12a50a36171f44fb8b28fdbaee3f34d6f4f5cfdc297",
+          "cellsSha256": "4258cb826ce8bb1cd733f7bff2fc15f03bdf7f641663c6a276af36fcc1c6a305",
+          "attributesSha256": "5063b76bb0b06bcc0badc22aed36ee3e66d8b4391c1814c1b09d43d93e703272",
+          "files": {
+            "INPUT.NU": {
+              "bytes": 47104,
+              "sha256": "f0e14e0aa0727fe85abbf12a50a36171f44fb8b28fdbaee3f34d6f4f5cfdc297"
+            }
+          }
+        }
+      }
+    }
+  ]
+}

@@ -2,7 +2,7 @@
 
 Status: active implementation contract
 
-Date: 2026-08-26
+Date: 2026-08-26. Engine implementation notes updated 2026-09-08.
 
 ## Purpose and authority
 
@@ -121,7 +121,7 @@ account is not a saving.
 The measured implementation uses a persistent new-buffer bit in the existing
 flags byte and shares the ordinary save transaction. The executable comparison
 and retained figures are recorded in
-[`new-file-measurement.md`](../reports/new-file-measurement.md).
+[`new-file-measurement.md`](reports/new-file-measurement.md).
 
 ## Text-file model
 
@@ -285,7 +285,7 @@ call, and the snapshot is dead before any later load or save may overwrite the
 DMA record. The scan keeps a word count of candidate starts and tests exactly
 the text length in one ring. The independent accounts and execution comparison
 are recorded in
-[`search-measurement.md`](../reports/search-measurement.md).
+[`search-measurement.md`](reports/search-measurement.md).
 
 ## Literal replacement increment
 
@@ -414,12 +414,17 @@ are measured independently:
 2. a movable gap represented by separate pre-gap and post-gap spans; and
 3. line descriptors over a text arena with bounded descriptor storage.
 
-The measured selection is the contiguous byte sequence. The executable
-comparison and retained figures are recorded in
-`docs/reports/buffer-measurement.md`. The implementation may share
-or compress routines after integration, but it must retain the contiguous
-representation and the external capacity unless a new complete measurement
-supersedes that result.
+The original measured selection was the contiguous byte sequence. Its
+comparison remains in `docs/reports/buffer-measurement.md`. The subsequent
+[engine plan](plans/editor-engine-milestones.md) authorizes a measured change
+of representation: milestone 2 introduced gap storage, and milestone 3 adds
+incremental display and bounded layout caches. Their complete-command
+[gap](reports/editor-engine-gap-measurements.md) and
+[display](reports/editor-engine-display-measurements.md) reports supersede the
+original internal storage selection for the development candidate. The
+external text capacity, command, terminal-state and file contracts remain in
+force. Historical candidate sections below retain the original experiments;
+they do not describe the current engine's physical representation.
 
 Each prototype must implement or price the complete candidate-specific path:
 middle insertion, backward and forward deletion, left and right movement,
@@ -536,7 +541,7 @@ CP/M acceptance, runtime and terminal tests, Extension Host integration, full
 repository tests, typechecking, lint, formatting, link checks, and diff checks.
 
 The production Z80 proof coverage and measurements are recorded in
-[`editor-proof.md`](../reports/editor-proof.md).
+[`editor-proof.md`](reports/editor-proof.md).
 
 The retained search implementation contains a three-byte entry jump, 2,653
 bytes of code, and 184 bytes of immutable data. The complete `EDIT.COM` is

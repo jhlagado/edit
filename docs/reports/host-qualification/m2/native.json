@@ -1,0 +1,198 @@
+{
+  "format": "edit-native-pty-qualification-v1",
+  "boundary": "monotonic clock immediately before PTY input write through receipt of final ANSI cursor-position bytes; excludes terminal drawing",
+  "diskSha256": "561647ac3df9f6499bc30fac67c05dea869a66fb37b41f2eed9f27173658fbc2",
+  "hostSha256": "df5d6782e8a60504b46b8bf58014839935a8f448b976bdc93102b6074d81c37b",
+  "cold": {
+    "key": "x",
+    "outputArrivalMs": 9.846334,
+    "terminalBytes": 868,
+    "outputSha256": "7fc2dac54017363350b09c666a264099bea06d7d98affb68ae0a63c2de67bc9b"
+  },
+  "samples": [
+    {
+      "key": "a",
+      "outputArrivalMs": 9.515417,
+      "terminalBytes": 869,
+      "outputSha256": "ea744709c33c3bcfe665abf101c7baddcc1a0f3873d9f5e32b1f840742e48645"
+    },
+    {
+      "key": "b",
+      "outputArrivalMs": 8.512,
+      "terminalBytes": 870,
+      "outputSha256": "148d9d888d383da49bd36626ecefeb59cdd7f49038505b21844e64f75aa863ca"
+    },
+    {
+      "key": "c",
+      "outputArrivalMs": 9.220042,
+      "terminalBytes": 871,
+      "outputSha256": "6dc6d4a04fe7a9c34803b866fc59a3bf5a3a0033f34f7d9aefde1e8cc94245c4"
+    },
+    {
+      "key": "d",
+      "outputArrivalMs": 8.289916,
+      "terminalBytes": 872,
+      "outputSha256": "4cc4624d6d159fc9285a8dd9759157120fd4c4b0503b378b9c22d992828ac6ee"
+    },
+    {
+      "key": "e",
+      "outputArrivalMs": 7.972917,
+      "terminalBytes": 873,
+      "outputSha256": "9ee5bd29788cf78c760b764b27f3809af244cbc4128dfeb066ce4daa87247d98"
+    },
+    {
+      "key": "f",
+      "outputArrivalMs": 8.629125,
+      "terminalBytes": 874,
+      "outputSha256": "f08ef7f262980e8b2d7977a4fc432948b4c80519b75e6be5f602a6489b637fa6"
+    },
+    {
+      "key": "g",
+      "outputArrivalMs": 8.098208,
+      "terminalBytes": 875,
+      "outputSha256": "13280b065517e65499d01e4cb201a00b525138c7fd1779b40ab0f372b7371e1f"
+    },
+    {
+      "key": "h",
+      "outputArrivalMs": 8.069584,
+      "terminalBytes": 877,
+      "outputSha256": "c58b12fd5e491a6d521c6dafa86565923596288954bcc113749b14a7c5553cbd"
+    },
+    {
+      "key": "i",
+      "outputArrivalMs": 12.321958,
+      "terminalBytes": 878,
+      "outputSha256": "ddc78ff19e6e63bbde506cab4416c4c5d833af1bffc1bb6d93818c28c155123c"
+    },
+    {
+      "key": "j",
+      "outputArrivalMs": 9.368417,
+      "terminalBytes": 879,
+      "outputSha256": "93e58c24b6d0ff6f19b94068aefd1cfac74f859391b3d624ee900724cddb9855"
+    },
+    {
+      "key": "k",
+      "outputArrivalMs": 8.352208,
+      "terminalBytes": 880,
+      "outputSha256": "81a29431c1c948f0abca9df0270e45b053593cf0768817e62e4882d47ee3eb55"
+    },
+    {
+      "key": "l",
+      "outputArrivalMs": 8.976625,
+      "terminalBytes": 881,
+      "outputSha256": "b813a7ed3051e00e99f7220402e3a761edc44ad2c87c107d72272151caf6f8ce"
+    },
+    {
+      "key": "m",
+      "outputArrivalMs": 9.069625,
+      "terminalBytes": 882,
+      "outputSha256": "c4d9ffd44a29951d41668a63d7a44cb40aede1d400a9f0d95f6b9480a44b8621"
+    },
+    {
+      "key": "n",
+      "outputArrivalMs": 9.773667,
+      "terminalBytes": 883,
+      "outputSha256": "d94992117a818884cb93c13a01d7d1a31933f57f77e67aef3bc0ddccef3e4fc8"
+    },
+    {
+      "key": "o",
+      "outputArrivalMs": 9.798666,
+      "terminalBytes": 884,
+      "outputSha256": "1911469d6a7b8088b00ff6a44da351d46cadc9a5e84f0eca14bb9f497d5dc758"
+    },
+    {
+      "key": "p",
+      "outputArrivalMs": 8.663333,
+      "terminalBytes": 885,
+      "outputSha256": "780bf0635145057f49cbd375875159ca1abb75059efd7deaf4ea3b9a75a93051"
+    },
+    {
+      "key": "q",
+      "outputArrivalMs": 8.785375,
+      "terminalBytes": 886,
+      "outputSha256": "0b6cd186cd4b9f50f563e47a8de257ce9d995127657d2299d10156894fdc2a8b"
+    },
+    {
+      "key": "r",
+      "outputArrivalMs": 9.382125,
+      "terminalBytes": 887,
+      "outputSha256": "601a3819c7fc141648e0f4b7b0b877107cb3e64b2d41f55758687d96957354b0"
+    },
+    {
+      "key": "s",
+      "outputArrivalMs": 8.740375,
+      "terminalBytes": 888,
+      "outputSha256": "c9f52a65ba8c17114caa820bba790945b34db8ee1141537c0acacd8c4c3e076e"
+    },
+    {
+      "key": "t",
+      "outputArrivalMs": 9.308875,
+      "terminalBytes": 889,
+      "outputSha256": "0a16f561c673c05dfe33c886ca6f5c43b7f118ffd55b706b25a1ea83f478e9f6"
+    },
+    {
+      "key": "u",
+      "outputArrivalMs": 8.616833,
+      "terminalBytes": 890,
+      "outputSha256": "4b0965f717bcf8dfdd4c42cc52ad25ad1b1de2acc18cc5cf61e8d72009d7cf16"
+    },
+    {
+      "key": "v",
+      "outputArrivalMs": 8.946875,
+      "terminalBytes": 891,
+      "outputSha256": "6c6290aaf2f2216c733d6b2bcfb33f561c720773ab22ec1a2f00487310eae366"
+    },
+    {
+      "key": "w",
+      "outputArrivalMs": 8.194292,
+      "terminalBytes": 892,
+      "outputSha256": "59a533b3dc6ed572c82d70a1d33a447b7e2c120f011e90853a3a68c1687a17b3"
+    },
+    {
+      "key": "x",
+      "outputArrivalMs": 8.176167,
+      "terminalBytes": 893,
+      "outputSha256": "24383cce9ec22b63e43ea2957022db8eea4dc43f548e4d9e42ea37b430ac2f29"
+    },
+    {
+      "key": "y",
+      "outputArrivalMs": 8.35375,
+      "terminalBytes": 894,
+      "outputSha256": "da98bef621ecf33d1340b8d2f5b815c66f75d56ec20032abd5cca6a501ffe02d"
+    },
+    {
+      "key": "z",
+      "outputArrivalMs": 8.17975,
+      "terminalBytes": 895,
+      "outputSha256": "a20d5980328e30e3189856960c625b452c0f622ba828e0810a7e53bf5603a4ee"
+    },
+    {
+      "key": "a",
+      "outputArrivalMs": 8.899375,
+      "terminalBytes": 896,
+      "outputSha256": "39747fc207a9062001c30edb8bb79f484566c8bb35a7f2edf6104a85f3ff02b7"
+    },
+    {
+      "key": "b",
+      "outputArrivalMs": 9.546292,
+      "terminalBytes": 897,
+      "outputSha256": "a59ad0e1588c7c8852d61a04e7aba1a5d304de37fe65ddf736394f62f326a5bf"
+    },
+    {
+      "key": "c",
+      "outputArrivalMs": 9.049083,
+      "terminalBytes": 898,
+      "outputSha256": "92fc502f6f06aa7c5aa8809f20b646db7164d20153ece120851ae2d50236535f"
+    },
+    {
+      "key": "d",
+      "outputArrivalMs": 9.337792,
+      "terminalBytes": 899,
+      "outputSha256": "e296d1ace51b867338b769f00ac8a1d3dba6c04de6508c575c6bca3da918ea96"
+    }
+  ],
+  "summary": {
+    "medianMs": 8.842375,
+    "p95Ms": 9.798666
+  }
+}

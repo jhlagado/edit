@@ -1,0 +1,198 @@
+{
+  "format": "edit-native-pty-qualification-v1",
+  "boundary": "monotonic clock immediately before PTY input write through receipt of final ANSI cursor-position bytes; excludes terminal drawing",
+  "diskSha256": "1eb581ba61677f80a25743d3569815251a9e8fa0ec9548615855406fab39b99d",
+  "hostSha256": "df5d6782e8a60504b46b8bf58014839935a8f448b976bdc93102b6074d81c37b",
+  "cold": {
+    "key": "x",
+    "outputArrivalMs": 2.68725,
+    "terminalBytes": 142,
+    "outputSha256": "fcfd5a83a166028254bb83ccc852aed050b76febe377315a3e72a99df0065b8f"
+  },
+  "samples": [
+    {
+      "key": "a",
+      "outputArrivalMs": 0.648084,
+      "terminalBytes": 48,
+      "outputSha256": "71cbe4aa898501a1fd6ea2eaee38bcd78ffebf475e3e155221eb4f0942d3a3dd"
+    },
+    {
+      "key": "b",
+      "outputArrivalMs": 0.658125,
+      "terminalBytes": 49,
+      "outputSha256": "c2ab929746633b0ac08e3805eec06db805adc81611739a2206225ee76380ca3f"
+    },
+    {
+      "key": "c",
+      "outputArrivalMs": 0.652458,
+      "terminalBytes": 50,
+      "outputSha256": "cf60652fa1de68bf0ff4c1df23cc600228e81a155a63716bf7cdbefe33562300"
+    },
+    {
+      "key": "d",
+      "outputArrivalMs": 0.673209,
+      "terminalBytes": 51,
+      "outputSha256": "2af53744a6458e46262f9037b8d672b7ec87c66c50c219511c3db2cc1ffecc81"
+    },
+    {
+      "key": "e",
+      "outputArrivalMs": 0.691541,
+      "terminalBytes": 52,
+      "outputSha256": "d9c61e9865b7f3225f1a65f762e375ff8b0a202a4302c248bec89ba9a080480c"
+    },
+    {
+      "key": "f",
+      "outputArrivalMs": 0.693167,
+      "terminalBytes": 53,
+      "outputSha256": "87b8de2160c36c0da501efb88e529046e749636a9f2dbea81e25bf393e6bfc95"
+    },
+    {
+      "key": "g",
+      "outputArrivalMs": 0.718666,
+      "terminalBytes": 54,
+      "outputSha256": "96302825fb411c44e414802950844970cf1ffa890bb8e09c400fdd1f185573a1"
+    },
+    {
+      "key": "h",
+      "outputArrivalMs": 0.723292,
+      "terminalBytes": 56,
+      "outputSha256": "c0df5bd6f2ab34563e6ab981fc7a5fd3a36974fd4ce83f2d96487a06ec7f9944"
+    },
+    {
+      "key": "i",
+      "outputArrivalMs": 0.749791,
+      "terminalBytes": 57,
+      "outputSha256": "99a8867f9aeea57b4cc87a7b48a0a8bc184614446d24508880fc70e6b3dd54fa"
+    },
+    {
+      "key": "j",
+      "outputArrivalMs": 0.757041,
+      "terminalBytes": 58,
+      "outputSha256": "a6c037ab71bf49d1bd3b18951d90be68422a84bb1c485f576f4166eeee76cbdc"
+    },
+    {
+      "key": "k",
+      "outputArrivalMs": 0.8015,
+      "terminalBytes": 59,
+      "outputSha256": "4edad05af776ee6a0db7f54c18ba151b4e19668d2d732f12767c2ea5673d4909"
+    },
+    {
+      "key": "l",
+      "outputArrivalMs": 0.817333,
+      "terminalBytes": 60,
+      "outputSha256": "f8ac1dd28737d7c4c07eaa8d7473e37bc45abc1947740a2e3cd95b88b5fa49c7"
+    },
+    {
+      "key": "m",
+      "outputArrivalMs": 0.809708,
+      "terminalBytes": 61,
+      "outputSha256": "d43bb52074f9f15f237b21f208d4c8f49aa48db0e297ad080cf002bfbe113f77"
+    },
+    {
+      "key": "n",
+      "outputArrivalMs": 0.896083,
+      "terminalBytes": 62,
+      "outputSha256": "c0674d8aceb105e548211e896477d9fe9265e977b25a196f269b2f919a441ad3"
+    },
+    {
+      "key": "o",
+      "outputArrivalMs": 0.817917,
+      "terminalBytes": 63,
+      "outputSha256": "09264a40d0edb8b7f5d797a6ff56a5b841437c0d2b21018f7621bfcec79a3461"
+    },
+    {
+      "key": "p",
+      "outputArrivalMs": 0.8365,
+      "terminalBytes": 64,
+      "outputSha256": "d3d787dba9dddd80fe8b716ea4683749b7bf207f82eb4b543ae13bb8fb40c671"
+    },
+    {
+      "key": "q",
+      "outputArrivalMs": 0.837917,
+      "terminalBytes": 65,
+      "outputSha256": "e6ee317b3dd7e492bf5c2fdc3fd19b19354eb7bddc1d26df8c45ad89aaf45c83"
+    },
+    {
+      "key": "r",
+      "outputArrivalMs": 0.859542,
+      "terminalBytes": 66,
+      "outputSha256": "402175ae0e7ea25bf89009dd4eb2ad5215321241697014957719a5111814bf91"
+    },
+    {
+      "key": "s",
+      "outputArrivalMs": 0.878375,
+      "terminalBytes": 67,
+      "outputSha256": "999a673f0032ba67a57f9b385cb56c1f49781e6bcb07243e387e56c3023ed2a9"
+    },
+    {
+      "key": "t",
+      "outputArrivalMs": 0.898,
+      "terminalBytes": 68,
+      "outputSha256": "8becbde08c49cca98ae9ed5a60d5e722f59f2dbe7732bdd9e65a974f037bc9ab"
+    },
+    {
+      "key": "u",
+      "outputArrivalMs": 0.901834,
+      "terminalBytes": 69,
+      "outputSha256": "af620f42f6e8a4e5a76429d03bab8630b199b3e0804d7e0078c94f62868d0bf5"
+    },
+    {
+      "key": "v",
+      "outputArrivalMs": 0.91425,
+      "terminalBytes": 70,
+      "outputSha256": "9792ca4ead4b94a3d7c29d0a4db35e0b71eae0169e6497942797ab7f0f00e5f9"
+    },
+    {
+      "key": "w",
+      "outputArrivalMs": 0.937167,
+      "terminalBytes": 71,
+      "outputSha256": "89a5cd258c153e850d139d191c6ef2ff1add731c692a899fcbe1240450f7ee02"
+    },
+    {
+      "key": "x",
+      "outputArrivalMs": 0.929209,
+      "terminalBytes": 72,
+      "outputSha256": "4bd69016d72733c3212a043c841150d725c975430a119798be0f75a5127ea535"
+    },
+    {
+      "key": "y",
+      "outputArrivalMs": 0.951375,
+      "terminalBytes": 73,
+      "outputSha256": "339126dcbce83ab879d574624f51458de693453213f43c51e9c94c7e6cbe17e2"
+    },
+    {
+      "key": "z",
+      "outputArrivalMs": 0.963333,
+      "terminalBytes": 74,
+      "outputSha256": "bc0845452e6644ea8ca6a0adee6029fcef17e87e346381dad1623da3007a2e0f"
+    },
+    {
+      "key": "a",
+      "outputArrivalMs": 0.974542,
+      "terminalBytes": 75,
+      "outputSha256": "800b00b53fd5f5d577534dc269575dd038b48707804d8be57c5e9ace2da5738a"
+    },
+    {
+      "key": "b",
+      "outputArrivalMs": 0.989208,
+      "terminalBytes": 76,
+      "outputSha256": "f8a3746d56397f0dd1cd0525b330e7019ae3e67a7a01e71ddedb7454c2896a73"
+    },
+    {
+      "key": "c",
+      "outputArrivalMs": 1.013042,
+      "terminalBytes": 77,
+      "outputSha256": "c8cf97e0020e2571a90c415d46a955cfc828df92f4ee9cb894cd4226142c46b8"
+    },
+    {
+      "key": "d",
+      "outputArrivalMs": 1.018042,
+      "terminalBytes": 78,
+      "outputSha256": "441d8da58b3be49a0a88ed4ec9d82b3f4860cdf19d54964161c5dbeb13dd662b"
+    }
+  ],
+  "summary": {
+    "medianMs": 0.8372085,
+    "p95Ms": 1.013042
+  }
+}

@@ -6,14 +6,9 @@ import { createZ80Runtime } from "@jhlagado/debug80-runtime/z80/runtime";
 import { assembleEditorCandidate } from "../test/support/editor-candidate-assembly.mjs";
 
 const scriptDirectory = dirname(fileURLToPath(import.meta.url));
-const repositoryRoot = resolve(scriptDirectory, "..");
 const candidateDirectory = resolve(
   scriptDirectory,
   "../test/candidates/replace",
-);
-const interfaceSource = resolve(
-  scriptDirectory,
-  "../src/editor-bdos.asmi",
 );
 const RETURN_ADDRESS = 0x0040;
 const CALLER_SP = 0xe300;
@@ -37,8 +32,6 @@ async function assemble(name) {
   return assembleEditorCandidate({
     name,
     source: resolve(candidateDirectory, `${name}.asm`),
-    interfaceSource,
-    includeRoots: [candidateDirectory, repositoryRoot],
   });
 }
 

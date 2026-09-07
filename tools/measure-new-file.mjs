@@ -7,15 +7,6 @@ import { assembleEditorCandidate } from "../test/support/editor-candidate-assemb
 
 const scriptDirectory = dirname(fileURLToPath(import.meta.url));
 const candidateDirectory = join(scriptDirectory, "../test/candidates/new-file");
-const repositoryRoot = resolve(scriptDirectory, "..");
-const interfaceSource = resolve(
-  scriptDirectory,
-  "../src/editor-bdos.asmi",
-);
-const replaceInterfaceSource = resolve(
-  scriptDirectory,
-  "../src/editor-replace.asmi",
-);
 const RETURN_ADDRESS = 0x0040;
 const CALLER_SP = 0xe300;
 
@@ -50,8 +41,6 @@ async function assemble(name, source) {
   return assembleEditorCandidate({
     name,
     source,
-    interfaceSources: [interfaceSource, replaceInterfaceSource],
-    includeRoots: [candidateDirectory, repositoryRoot],
   });
 }
 

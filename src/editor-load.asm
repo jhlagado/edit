@@ -1,144 +1,149 @@
 ; Sequential text-file loader and validator.
 
-EditorLoadCodeStart:
-.routine out A,carry,zero clobbers sign,parity,halfCarry,BC,DE,HL
-EditorLoadFile:
+; EditorLoadCodeStart
+LOACODST:
+;@ROUTINE out A,carry,zero clobbers sign,parity,halfCarry,BC,DE,HL
+; EditorLoadFile
+LOADFILE:
             XOR  A
-            LD   (EditorLoadPendingCr),A
-            LD   HL,0
-            LD   (EditorLength),HL
+            LD   (LOAPENCR),A
+            CALL DOCRES
             LD   C,15
-            CALL EditorSelectedCall
+            CALL SELCAL
             INC  A
-            JR   Z,EditorLoadNotFound
-            LD   DE,EditorDma
-            CALL EditorSetDma
-EditorLoadRecord:
+            JR   Z,LOANOTFO
+            LD   DE,DMA
+            CALL SETDMA
+; EditorLoadRecord
+LOAREC:
             LD   C,20
-            CALL EditorSelectedCall
+            CALL SELCAL
             OR   A
-            JR   Z,EditorLoadScanRecord
+            JR   Z,LOASCARE
             DEC  A
-            JR   Z,EditorLoadPhysicalEof
-            JR   EditorLoadStorage
-EditorLoadScanRecord:
-            LD   HL,EditorDma
+            JR   Z,LOAPHYEO
+            JR   LOASTO
+; EditorLoadScanRecord
+LOASCARE:
+            LD   HL,DMA
             LD   B,128
-EditorLoadByte:
+; EditorLoadByte
+LOADBYTE:
             LD   A,(HL)
             CP   $1A
-            JR   Z,EditorLoadTextEof
-            CALL EditorLoadValidateByte
-            JR   C,EditorLoadTextError
+            JR   Z,LOATEXEO
+            CALL LOAVALBY
+            JR   C,LOATEXER
             PUSH HL
-            CALL EditorLoadAppend
+            CALL LOAAPP
             POP  HL
-            JR   C,EditorLoadCapacity
+            JR   C,LOACAP
             INC  HL
-            DJNZ EditorLoadByte
-            JR   EditorLoadRecord
-EditorLoadTextEof:
-            LD   A,(EditorLoadPendingCr)
+            DJNZ LOADBYTE
+            JR   LOAREC
+; EditorLoadTextEof
+LOATEXEO:
+            LD   A,(LOAPENCR)
             OR   A
-            JR   NZ,EditorLoadTextError
-            JR   EditorLoadClose
-EditorLoadPhysicalEof:
-            LD   A,(EditorLoadPendingCr)
+            JR   NZ,LOATEXER
+            JR   LOACLO
+; EditorLoadPhysicalEof
+LOAPHYEO:
+            LD   A,(LOAPENCR)
             OR   A
-            JR   NZ,EditorLoadTextError
-EditorLoadClose:
+            JR   NZ,LOATEXER
+; EditorLoadClose
+LOACLO:
             LD   C,16
-            CALL EditorSelectedCall
+            CALL SELCAL
             INC  A
-            JR   Z,EditorLoadStorage
+            JR   Z,LOASTO
             XOR  A
-EditorLoadReset:
+; EditorLoadReset
+LOARES:
             LD   HL,0
             ; Adjacent high bytes of horizontal and desired columns.
-            LD   (EditorHorizontalHigh),HL
-            LD   (EditorCursor),HL
-            LD   (EditorTop),HL
-            LD   (EditorHorizontal),HL
-            LD   (EditorDesiredColumn),HL
+            LD   (HORHIG),HL
+            LD   (CURSOR),HL
+            LD   (TOP),HL
+            LD   (HOR),HL
+            LD   (DESCOL),HL
             LD   L,A
-            LD   (EditorFlags),HL
+            LD   (FLAGS),HL
             RET
-EditorLoadNotFound:
-            LD   A,(EditorSaveState)
+; EditorLoadNotFound
+LOANOTFO:
+            LD   A,(SAVSTA)
             OR   A
             CCF
-            LD   A,EditorErrorNotFound
+            LD   A,ERRNOTFO
             RET  Z
-            LD   A,EditorFlagDirty|EditorFlagNew
+            LD   A,FLADIR|FLAGNEW
             OR   A
-            JR   EditorLoadReset
-EditorLoadTextError:
-            LD   A,EditorErrorText
+            JR   LOARES
+; EditorLoadTextError
+LOATEXER:
+            LD   A,ERRTEX
             SCF
             RET
-EditorLoadCapacity:
-            LD   A,EditorErrorCapacity
+; EditorLoadCapacity
+LOACAP:
+            LD   A,ERRCAP
             SCF
             RET
-EditorLoadStorage:
-            LD   A,EditorErrorStorage
+; EditorLoadStorage
+LOASTO:
+            LD   A,ERRSTO
             SCF
             RET
 
-.routine in A out A,carry,zero clobbers sign,parity,halfCarry,C
-EditorLoadValidateByte:
+;@ROUTINE in A out A,carry,zero clobbers sign,parity,halfCarry,C
+; EditorLoadValidateByte
+LOAVALBY:
             LD   C,A
-            LD   A,(EditorLoadPendingCr)
+            LD   A,(LOAPENCR)
             OR   A
-            JR   Z,EditorLoadValidateOrdinary
+            JR   Z,LOAVALOR
             LD   A,C
             CP   10
-            JR   NZ,EditorLoadValidateBad
+            JR   NZ,LOAVALBA
             XOR  A
-            LD   (EditorLoadPendingCr),A
+            LD   (LOAPENCR),A
             LD   A,C
             RET
-EditorLoadValidateOrdinary:
+; EditorLoadValidateOrdinary
+LOAVALOR:
             LD   A,C
             CP   13
-            JR   Z,EditorLoadValidateCr
+            JR   Z,LOAVALCR
             CP   9
-            JR   Z,EditorLoadValidateGood
+            JR   Z,LOAVALGO
             CP   10
-            JR   Z,EditorLoadValidateGood
+            JR   Z,LOAVALGO
             CP   32
-            JR   C,EditorLoadValidateBad
+            JR   C,LOAVALBA
             CP   127
-            JR   NC,EditorLoadValidateBad
-EditorLoadValidateGood:
+            JR   NC,LOAVALBA
+; EditorLoadValidateGood
+LOAVALGO:
             OR   A
             RET
-EditorLoadValidateCr:
+; EditorLoadValidateCr
+LOAVALCR:
             LD   A,1
-            LD   (EditorLoadPendingCr),A
+            LD   (LOAPENCR),A
             LD   A,C
             OR   A
             RET
-EditorLoadValidateBad:
+; EditorLoadValidateBad
+LOAVALBA:
             LD   A,C
             SCF
             RET
 
-.routine in A out A,carry,zero clobbers sign,parity,halfCarry,DE,HL
-EditorLoadAppend:
-            LD   DE,(EditorLength)
-            LD   HL,EditorTextCapacity
-            OR   A
-            SBC  HL,DE
-            JR   Z,EditorLoadAppendFull
-            LD   HL,EditorTextBase
-            ADD  HL,DE
-            LD   (HL),A
-            INC  DE
-            LD   (EditorLength),DE
-            OR   A
-            RET
-EditorLoadAppendFull:
-            SCF
-            RET
-EditorLoadCodeEnd:
+;@ROUTINE in A out A,carry,zero clobbers sign,parity,halfCarry,DE,HL
+; EditorLoadAppend
+LOAAPP:
+            JP   DOCAPP
+; EditorLoadCodeEnd
+LOACODEN:

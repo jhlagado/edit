@@ -1,181 +1,219 @@
 ; Transient entry, raw-key dispatcher, and CCP return.
 
-EditorMainCodeStart:
-.routine out A,carry,zero clobbers sign,parity,halfCarry,BC,DE,HL,IX,IY
-EditorEntry:
-            LD   (EditorRestoreSp+1),SP
-            LD   SP,EditorStackTop
-            CALL EditorRun
-EditorRestoreSp:
+; EditorMainCodeStart
+MAICODST:
+;@ROUTINE out A,carry,zero clobbers sign,parity,halfCarry,BC,DE,HL,IX,IY
+; EditorEntry
+ENTRY:
+            LD   (RESSP+1),SP
+            LD   SP,STACKTOP
+            CALL RUN
+; EditorRestoreSp
+RESSP:
             LD   SP,0
             RET
 
-.routine out A,carry,zero clobbers sign,parity,halfCarry,BC,DE,HL,IX,IY
-EditorRun:
-            CALL EditorPrepareCommand
-            JP   C,EditorRunError
-            CALL EditorLoadFile
-            JP   C,EditorRunError
-            CALL EditorRender
-EditorMainLoop:
-            CALL EditorReadByte
+;@ROUTINE out A,carry,zero clobbers sign,parity,halfCarry,BC,DE,HL,IX,IY
+; EditorRun
+RUN:
+            CALL PRECOM
+            JP   C,RUNERROR
+            CALL LOADFILE
+            JP   C,RUNERROR
+            CALL RENDER
+; EditorMainLoop
+MAINLOOP:
+            CALL READBYTE
             CP   17
-            JP   Z,EditorCommandQuit
+            JP   Z,COMQUI
             PUSH AF
-            LD   A,(EditorFlags)
+            LD   A,(FLAGS)
             AND  $FD
-            LD   (EditorFlags),A
+            LD   (FLAGS),A
             POP  AF
             CP   19
-            JR   Z,EditorCommandSave
+            JR   Z,COMSAV
             CP   6
-            JR   Z,EditorCommandSearch
+            JR   Z,COMSEA
             CP   14
-            JR   Z,EditorCommandSearchRepeat
+            JR   Z,COMSEARE
             CP   18
-            JR   Z,EditorCommandReplace
+            JR   Z,COMREP
             CP   27
-            JR   Z,EditorCommandEscape
+            JR   Z,COMESC
             CP   13
-            JR   Z,EditorCommandNewline
+            JR   Z,COMNEW
             CP   8
-            JR   Z,EditorCommandBackspace
+            JR   Z,COMBAC
             CP   127
-            JR   Z,EditorCommandDelete
+            JR   Z,COMDEL
             CP   9
-            JR   Z,EditorCommandInsert
+            JR   Z,COMINS
             CP   32
-            JR   C,EditorCommandUnsupported
+            JR   C,COMUNS
             CP   127
-            JR   NC,EditorCommandUnsupported
-EditorCommandInsert:
-            CALL EditorBufferInsertByte
-            JR   EditorCommandComplete
-EditorCommandNewline:
-            CALL EditorBufferInsertNewline
-            JR   EditorCommandComplete
-EditorCommandBackspace:
-            CALL EditorBufferBackspace
-            JR   EditorCommandComplete
-EditorCommandDelete:
-            CALL EditorBufferDelete
-            JR   EditorCommandComplete
-EditorCommandSave:
-            CALL EditorSave
-            JR   EditorCommandComplete
-EditorCommandSearch:
-            CALL EditorSearchBegin
-            JR   EditorCommandComplete
-EditorCommandSearchRepeat:
-            CALL EditorSearchRepeat
-            JR   EditorCommandComplete
-EditorCommandReplace:
-            CALL EditorReplaceBegin
-            JR   EditorCommandComplete
-EditorCommandEscape:
-            CALL EditorReadEscapeByte
-            JR   C,EditorCommandUnsupported
+            JR   NC,COMUNS
+; EditorCommandInsert
+COMINS:
+            LD   E,A
+            LD   A,OPINSERT
+            CALL SESEXE
+            JR   COMCOM
+; EditorCommandNewline
+COMNEW:
+            LD   A,OPNEW
+            CALL SESEXE
+            JR   COMCOM
+; EditorCommandBackspace
+COMBAC:
+            LD   A,OPBAC
+            CALL SESEXE
+            JR   COMCOM
+; EditorCommandDelete
+COMDEL:
+            LD   A,OPDELETE
+            CALL SESEXE
+            JR   COMCOM
+; EditorCommandSave
+COMSAV:
+            CALL SAVE
+            JR   COMCOM
+; EditorCommandSearch
+COMSEA:
+            CALL SEABEG
+            JR   COMCOM
+; EditorCommandSearchRepeat
+COMSEARE:
+            LD   A,OPFINNEX
+            CALL SESEXE
+            JR   COMCOM
+; EditorCommandReplace
+COMREP:
+            CALL REPBEG
+            JR   COMCOM
+; EditorCommandEscape
+COMESC:
+            CALL REAESCBY
+            JR   C,COMUNS
             CP   '['
-            JR   NZ,EditorCommandUnsupported
-            CALL EditorReadEscapeByte
-            JR   C,EditorCommandUnsupported
+            JR   NZ,COMUNS
+            CALL REAESCBY
+            JR   C,COMUNS
             CP   'A'
-            JR   Z,EditorCommandUp
+            JR   Z,COMUP
             CP   'B'
-            JR   Z,EditorCommandDown
+            JR   Z,COMDOW
             CP   'C'
-            JR   Z,EditorCommandRight
+            JR   Z,COMRIG
             CP   'D'
-            JR   NZ,EditorCommandUnsupported
-            CALL EditorMoveLeft
-            JR   EditorCommandComplete
-EditorCommandUp:
-            CALL EditorMoveUp
-            JR   EditorCommandComplete
-EditorCommandDown:
-            CALL EditorMoveDown
-            JR   EditorCommandComplete
-EditorCommandRight:
-            CALL EditorMoveRight
-            JR   EditorCommandComplete
-EditorCommandUnsupported:
-            CALL EditorBufferBoundary
-EditorCommandComplete:
-            JR   NC,EditorCommandRender
+            JR   NZ,COMUNS
+            LD   A,OPLEFT
+            CALL SESEXE
+            JR   COMCOM
+; EditorCommandUp
+COMUP:
+            LD   A,OPUP
+            CALL SESEXE
+            JR   COMCOM
+; EditorCommandDown
+COMDOW:
+            LD   A,OPDOWN
+            CALL SESEXE
+            JR   COMCOM
+; EditorCommandRight
+COMRIG:
+            LD   A,OPRIGHT
+            CALL SESEXE
+            JR   COMCOM
+; EditorCommandUnsupported
+COMUNS:
+            CALL BUFBOU
+; EditorCommandComplete
+COMCOM:
+            JR   NC,COMREN
             LD   A,7
-            CALL EditorOutputByte
-EditorCommandRender:
-            CALL EditorRender
-            JP   EditorMainLoop
+            CALL OUTBYT
+; EditorCommandRender
+COMREN:
+            CALL PRESENT
+            JP   MAINLOOP
 
-EditorCommandQuit:
-            LD   A,(EditorFlags)
-            AND  EditorFlagDirty
-            JR   Z,EditorCommandExit
-            LD   A,(EditorFlags)
-            AND  EditorFlagConfirmQuit
-            JR   NZ,EditorCommandExit
-            LD   A,(EditorFlags)
-            OR   EditorFlagConfirmQuit
-            LD   (EditorFlags),A
-            LD   A,EditorStatusDiscard
-            LD   (EditorStatus),A
-            CALL EditorRender
-            JP   EditorMainLoop
-EditorCommandExit:
-            LD   DE,EditorClearHome
-            JP   EditorOutputText
+; EditorCommandQuit
+COMQUI:
+            LD   A,(FLAGS)
+            AND  FLADIR
+            JR   Z,COMEXI
+            LD   A,(FLAGS)
+            AND  FLACONQU
+            JR   NZ,COMEXI
+            LD   A,(FLAGS)
+            OR   FLACONQU
+            LD   (FLAGS),A
+            LD   A,STADIS
+            LD   (STATUS),A
+            CALL PRESENT
+            JP   MAINLOOP
+; EditorCommandExit
+COMEXI:
+            LD   DE,CLEHOM
+            JP   OUTTEX
 
-EditorRunError:
+; EditorRunError
+RUNERROR:
             PUSH AF
-            LD   DE,EditorErrorPrefix
-            CALL EditorOutputText
+            LD   DE,ERRPRE
+            CALL OUTTEX
             POP  AF
             PUSH AF
             RRCA
             RRCA
             RRCA
             RRCA
-            CALL EditorPrintHexNibble
+            CALL PRIHEXNI
             POP  AF
-            CALL EditorPrintHexNibble
-            LD   DE,EditorNewline
-            JP   EditorOutputText
+            CALL PRIHEXNI
+            LD   DE,NEWLINE
+            JP   OUTTEX
 
-.routine out A,carry,zero clobbers sign,parity,halfCarry,BC,DE,HL
-EditorReadByte:
+;@ROUTINE out A,carry,zero clobbers sign,parity,halfCarry,BC,DE,HL
+; EditorReadByte
+READBYTE:
             LD   DE,$00FF
             LD   C,6
-            CALL EditorCallBdos
+            CALL CALLBDOS
             OR   A
-            JR   Z,EditorReadByte
+            JR   Z,READBYTE
             RET
 
-.routine out A,carry,zero clobbers sign,parity,halfCarry,BC,DE,HL
-EditorReadEscapeByte:
+;@ROUTINE out A,carry,zero clobbers sign,parity,halfCarry,BC,DE,HL
+; EditorReadEscapeByte
+REAESCBY:
             LD   HL,256
-            LD   (EditorScratchA),HL
-EditorReadEscapeLoop:
+            LD   (SCRATCHA),HL
+; EditorReadEscapeLoop
+REAESCLO:
             LD   DE,$00FF
             LD   C,6
-            CALL EditorCallBdos
+            CALL CALLBDOS
             OR   A
             RET  NZ
-            LD   HL,(EditorScratchA)
+            LD   HL,(SCRATCHA)
             DEC  HL
-            LD   (EditorScratchA),HL
+            LD   (SCRATCHA),HL
             LD   A,H
             OR   L
-            JR   NZ,EditorReadEscapeLoop
+            JR   NZ,REAESCLO
             SCF
             RET
 
-.routine in A out A,carry,zero clobbers sign,parity,halfCarry,BC,DE,HL
-EditorPrintHexNibble:
+;@ROUTINE in A out A,carry,zero clobbers sign,parity,halfCarry,BC,DE,HL
+; EditorPrintHexNibble
+PRIHEXNI:
             AND  $0F
             ADD  A,'0'
             CP   '9'+1
-            JP   C,EditorOutputByte
+            JP   C,OUTBYT
             ADD  A,7
-            JP   EditorOutputByte
-EditorMainCodeEnd:
+            JP   OUTBYT
+; EditorMainCodeEnd
+MAICODEN:

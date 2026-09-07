@@ -1,6 +1,5 @@
 import { createHash } from "node:crypto";
-import { mkdir, mkdtemp, readFile, rm, writeFile } from "node:fs/promises";
-import { tmpdir } from "node:os";
+import { mkdir, readFile, writeFile } from "node:fs/promises";
 import { join } from "node:path";
 
 import {
@@ -8,8 +7,11 @@ import {
   projectOwnedCandidates,
 } from "./atom-assembly.mjs";
 
-const temporaryDirectory = await mkdtemp(join(tmpdir(), "edit-build-"));
-try {
+{
+  const arguments_ = process.argv.slice(2);
+  if (arguments_.some((argument) => argument !== "--verify-release")) {
+    throw new Error("usage: node tools/build.mjs [--verify-release]");
+  }
   const baseline = JSON.parse(await readFile("release-baseline.json", "utf8"));
   const candidate = projectOwnedCandidates.find(
     ({ name }) => name === "editor.asm",
@@ -18,13 +20,14 @@ try {
 
   const artifacts = await assembleProjectOwnedAtomArtifacts({
     outputDirectory: "src",
-    temporaryDirectory,
     candidate,
     base: 0x0100,
     entryAddress: 0x0100,
   });
   const sha256 = createHash("sha256").update(artifacts.bytes).digest("hex");
-  if (artifacts.bytes.length !== baseline.bytes || sha256 !== baseline.sha256) {
+  const releaseBaselineMatch =
+    artifacts.bytes.length === baseline.bytes && sha256 === baseline.sha256;
+  if (arguments_.includes("--verify-release") && !releaseBaselineMatch) {
     throw new Error(
       `EDIT.COM differs from release baseline: ${artifacts.bytes.length} bytes, ${sha256}`,
     );
@@ -32,7 +35,8 @@ try {
   const manifest = {
     format: "edit-build-manifest-v1",
     artifact: "EDIT.COM",
-    version: baseline.version,
+    version: releaseBaselineMatch ? baseline.version : `${baseline.version}-dev`,
+    releaseBaselineMatch,
     bytes: artifacts.bytes.length,
     sha256,
     assembler: {
@@ -42,6 +46,8 @@ try {
     loadAddress: 0x0100,
     entryAddress: 0x0100,
     contract: "docs/specification.md",
+    sourceFormat: "native-atom",
+    symbolLedger: "src/editor-symbols.json",
   };
 
   await mkdir("dist", { recursive: true });
@@ -53,7 +59,5 @@ try {
     ),
     writeFile("dist/manifest.json", `${JSON.stringify(manifest, undefined, 2)}\n`),
   ]);
-  console.log(`Built EDIT.COM: ${manifest.bytes} bytes, sha256 ${sha256}`);
-} finally {
-  await rm(temporaryDirectory, { recursive: true, force: true });
+  console.log(`Built ${manifest.version} EDIT.COM: ${manifest.bytes} bytes, sha256 ${sha256}`);
 }

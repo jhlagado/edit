@@ -1,380 +1,500 @@
 ; Full repaint for the 80-by-24 terminal profile.
 
-EditorScreenCodeStart:
-.routine out A,carry,zero clobbers sign,parity,halfCarry,BC,DE,HL
-EditorRender:
-            CALL EditorEnsureViewport
-            LD   DE,EditorClearHome
-            CALL EditorOutputText
-            LD   HL,(EditorTop)
-            LD   B,23
-EditorRenderRows:
-            PUSH BC
-            CALL EditorRenderLine
-            LD   (EditorRenderPointer),HL
-            LD   A,13
-            CALL EditorOutputByte
-            LD   A,10
-            CALL EditorOutputByte
-            LD   HL,(EditorRenderPointer)
-            POP  BC
-            DJNZ EditorRenderRows
-            JP   EditorRenderStatus
+; EditorScreenCodeStart
+SCRCODST:
+;@ROUTINE out A,carry,zero clobbers sign,parity,halfCarry,BC,DE,HL
+; EditorRender
+RENDER:
+            CALL LAYRES
+            XOR  A
+            LD   (DISSTAVA),A
+            JP   PRESENT
 
-.routine out A,carry,zero clobbers sign,parity,halfCarry,BC,DE,HL
-EditorEnsureViewport:
-            LD   HL,(EditorCursor)
-            CALL EditorNavigationLineStart
-            LD   (EditorScratchA),HL
-EditorEnsureVertical:
-            LD   DE,(EditorTop)
+; Incremental presentation after one raw command. Layout reports byte-independent
+; damage and owns cache invalidation; this adapter emits only affected rows.
+;@ROUTINE out A,carry,zero clobbers sign,parity,halfCarry,BC,DE,HL
+; EditorPresent
+PRESENT:
+            CALL LAYPRE
+            OR   A
+            JP   Z,DISSTA
+            CP   3
+            JR   NZ,DISPAR
+            LD   DE,CLEHOM
+            CALL OUTTEX
+            XOR  A
+            LD   (DISSTAVA),A
+            LD   B,0
+            LD   A,3
+; EditorDisplayPartial
+DISPAR:
+            LD   C,A
+            LD   A,B
+            LD   (DISROW),A
+            INC  A
+            LD   D,A
+            LD   A,C
+            CP   1
+            LD   A,23
+            JR   NZ,DISENDRE
+            LD   A,D
+; EditorDisplayEndReady
+DISENDRE:
+            LD   (DISENDRO),A
+; EditorDisplayRowLoop
+DISROWLO:
+            LD   DE,CURPRE
+            CALL OUTTEX
+            LD   A,(DISROW)
+            INC  A
+            CALL OUTDEC
+            LD   A,';'
+            CALL OUTBYT
+            LD   A,'1'
+            CALL OUTBYT
+            LD   A,'H'
+            CALL OUTBYT
+            LD   A,(DISROW)
+            CALL LAYGETRO
+            JR   C,DISBLARO
+            LD   (RENPOI),HL
+            LD   (RENCOL),DE
+            LD   (RENCOLHI),A
+            LD   HL,0
+            LD   (RENCOU),HL
+            CALL DISPAILI
+            LD   A,(RENCOU)
+            CP   80
+            JR   Z,DISNEXRO
+; EditorDisplayBlankRow
+DISBLARO:
+            LD   DE,ERALIN
+            CALL OUTTEX
+; EditorDisplayNextRow
+DISNEXRO:
+            LD   HL,DISROW
+            INC  (HL)
+            LD   A,(DISENDRO)
+            CP   (HL)
+            JR   NZ,DISROWLO
+; EditorDisplayStatus
+DISSTA:
+            LD   A,(DISSTAVA)
+            OR   A
+            JR   Z,DISREFST
+            LD   A,(FLAGS)
+            AND  FLADIR
+            LD   B,A
+            LD   A,(DISLASFL)
+            CP   B
+            JR   NZ,DISREFST
+            LD   A,(STATUS)
+            LD   B,A
+            LD   A,(DISLASST)
+            CP   B
+            JR   NZ,DISREFST
+            LD   DE,CURPRE
+            CALL OUTTEX
+            JP   POSCUR
+; EditorDisplayRefreshStatus
+DISREFST:
+            LD   A,(FLAGS)
+            AND  FLADIR
+            LD   (DISLASFL),A
+            LD   A,(STATUS)
+            LD   (DISLASST),A
+            LD   A,1
+            LD   (DISSTAVA),A
+            JP   RENSTA
+
+; Each row starts from a cached near-left anchor and stops at its known content
+; end or eighty visible cells. Hidden suffixes and whole prefixes are not read.
+; EditorDisplayPaintLine
+DISPAILI:
+            LD   A,(RENCOU)
+            CP   80
+            RET  Z
+            LD   HL,(RENPOI)
+            LD   DE,(LAYROWEN)
             OR   A
             SBC  HL,DE
-            JR   NC,EditorEnsureCountRows
-            LD   HL,(EditorScratchA)
-            LD   (EditorTop),HL
-EditorEnsureCountRows:
-            LD   HL,(EditorTop)
+            RET  NC
+            LD   HL,(RENPOI)
+            CALL DOCREABY
+            RET  C
+            CP   9
+            JR   Z,DISTAB
+            CALL RENCEL
+            JR   DISADV
+; EditorDisplayTab
+DISTAB:
+            LD   HL,(RENCOL)
+            CALL NAVNEXTA
+            LD   (SCRATCHB),HL
+; EditorDisplayTabLoop
+DISTABLO:
+            LD   A,' '
+            CALL RENCEL
+            LD   A,(RENCOU)
+            CP   80
+            RET  Z
+            LD   HL,(RENCOL)
+            LD   DE,(SCRATCHB)
+            OR   A
+            SBC  HL,DE
+            JR   NZ,DISTABLO
+; EditorDisplayAdvance
+DISADV:
+            LD   HL,(RENPOI)
+            INC  HL
+            LD   (RENPOI),HL
+            JR   DISPAILI
+
+;@ROUTINE out A,carry,zero clobbers sign,parity,halfCarry,BC,DE,HL
+; EditorEnsureViewport
+ENSVIE:
+            ; A valid viewport already records the cursor's row. Avoid walking
+            ; the same row boundaries again through repeated cache lookups.
+            LD   HL,(TOP)
+            LD   DE,(LAYORITO)
+            OR   A
+            SBC  HL,DE
+            JR   NZ,ENSDIS
+            LD   HL,(CURSOR)
+            CALL LAYFINLI
+            JR   C,ENSDIS
+            LD   B,A
+            JR   ENSROWRE
+; EditorEnsureDiscover
+ENSDIS:
+            ; Once outside the cached viewport, repeated lookups cannot help
+            ; the cold walk. Rebuild after discovery instead of probing each row.
+            CALL LAYRES
+            LD   HL,(CURSOR)
+            CALL NAVLINST
+            LD   (SCRATCHA),HL
+; EditorEnsureVertical
+ENSVER:
+            LD   DE,(TOP)
+            OR   A
+            SBC  HL,DE
+            JR   NC,ENSCOURO
+            LD   HL,(SCRATCHA)
+            LD   (TOP),HL
+; EditorEnsureCountRows
+ENSCOURO:
+            LD   HL,(TOP)
             LD   B,0
-EditorEnsureRowLoop:
-            LD   DE,(EditorScratchA)
+; EditorEnsureRowLoop
+ENSROWLO:
+            LD   DE,(SCRATCHA)
             PUSH HL
             OR   A
             SBC  HL,DE
             POP  HL
-            JR   Z,EditorEnsureRowReady
-            CALL EditorNavigationNextLine
-            JR   C,EditorEnsureRowReady
+            JR   Z,ENSROWRE
+            CALL NAVNEXLI
+            JR   C,ENSROWRE
             INC  B
             LD   A,B
             CP   23
-            JR   C,EditorEnsureRowLoop
-            LD   HL,(EditorTop)
-            CALL EditorNavigationNextLine
-            JR   C,EditorEnsureRowReady
-            LD   (EditorTop),HL
-            LD   HL,(EditorScratchA)
-            JR   EditorEnsureVertical
-EditorEnsureRowReady:
+            JR   C,ENSROWLO
+            LD   HL,(TOP)
+            CALL NAVNEXLI
+            JR   C,ENSROWRE
+            LD   (TOP),HL
+            LD   HL,(SCRATCHA)
+            JR   ENSVER
+; EditorEnsureRowReady
+ENSROWRE:
             LD   A,B
-            LD   (EditorCursorScreenRow),A
-            CALL EditorNavigationCursorColumn
+            LD   (CURSCRRO),A
+            CALL NAVCURCO
             OR   A
-            JR   NZ,EditorEnsureHorizontal
+            JR   NZ,ENSHOR
             LD   DE,80
             PUSH HL
             OR   A
             SBC  HL,DE
             POP  HL
-            JR   C,EditorEnsureNoHorizontal
-EditorEnsureHorizontal:
+            JR   C,ENSNOHOR
+; EditorEnsureHorizontal
+ENSHOR:
             LD   DE,79
             OR   A
             SBC  HL,DE
-            LD   (EditorHorizontal),HL
+            LD   (HOR),HL
             SBC  A,0
-            LD   (EditorHorizontalHigh),A
+            LD   (HORHIG),A
             LD   HL,79
-            JR   EditorEnsureColumnReady
-EditorEnsureNoHorizontal:
+            JR   ENSCOLRE
+; EditorEnsureNoHorizontal
+ENSNOHOR:
             XOR  A
-            LD   (EditorHorizontalHigh),A
+            LD   (HORHIG),A
             LD   DE,0
-            LD   (EditorHorizontal),DE
-EditorEnsureColumnReady:
+            LD   (HOR),DE
+; EditorEnsureColumnReady
+ENSCOLRE:
             LD   A,L
-            LD   (EditorCursorScreenColumn),A
-            RET
-
-; Render one logical line beginning at HL and return the next line's offset or
-; logical EOF. RenderColumn is the source visual column; RenderCount is cells.
-.routine in HL out HL,carry,zero clobbers sign,parity,halfCarry,A,BC,DE
-EditorRenderLine:
-            LD   (EditorRenderPointer),HL
-            LD   HL,0
-            LD   (EditorRenderColumn),HL
-            LD   (EditorRenderCount),HL
-            XOR  A
-            LD   (EditorRenderColumnHigh),A
-EditorRenderLineLoop:
-            LD   HL,(EditorRenderPointer)
-            PUSH HL
-            CALL EditorBufferByteAt
-            POP  HL
-            JR   C,EditorRenderLineDone
-            CP   10
-            JR   Z,EditorRenderLineNewline
-            CP   13
-            JR   Z,EditorRenderLineCr
-            CP   9
-            JR   Z,EditorRenderLineTab
-            CALL EditorRenderCell
-            JR   EditorRenderLineAdvance
-EditorRenderLineTab:
-            LD   HL,(EditorRenderColumn)
-            CALL EditorNavigationNextTab
-            LD   (EditorScratchB),HL
-EditorRenderTabLoop:
-            LD   A,' '
-            CALL EditorRenderCell
-            ; A tab spans at most eight cells: low-word equality also detects
-            ; its end across wrap. RenderCell carries into the high byte.
-            LD   HL,(EditorRenderColumn)
-            LD   DE,(EditorScratchB)
-            OR   A
-            SBC  HL,DE
-            JR   NZ,EditorRenderTabLoop
-EditorRenderLineAdvance:
-            LD   HL,(EditorRenderPointer)
-            INC  HL
-            LD   (EditorRenderPointer),HL
-            JR   EditorRenderLineLoop
-EditorRenderLineCr:
-            INC  HL
-            LD   (EditorRenderPointer),HL
-            PUSH HL
-            CALL EditorBufferByteAt
-            POP  HL
-            JR   C,EditorRenderLineDone
-            CP   10
-            JR   NZ,EditorRenderLineDone
-EditorRenderLineNewline:
-            INC  HL
-            LD   (EditorRenderPointer),HL
-EditorRenderLineDone:
-            LD   HL,(EditorRenderPointer)
+            LD   (CURSCRCO),A
             RET
 
 ; Render one visual cell in A when it lies in the horizontal viewport.
-.routine in A out A,carry,zero clobbers sign,parity,halfCarry,BC,DE,HL
-EditorRenderCell:
-            LD   (EditorScratchC),A
-            LD   A,(EditorHorizontalHigh)
+;@ROUTINE in A out A,carry,zero clobbers sign,parity,halfCarry,BC,DE,HL
+; EditorRenderCell
+RENCEL:
+            LD   (SCRATCHC),A
+            LD   A,(HORHIG)
             LD   D,A
-            LD   A,(EditorRenderColumnHigh)
+            LD   A,(RENCOLHI)
             CP   D
-            JR   C,EditorRenderCellAdvance
-            JR   NZ,EditorRenderCellVisible
-            LD   HL,(EditorRenderColumn)
-            LD   DE,(EditorHorizontal)
+            JR   C,RENCELAD
+            JR   NZ,RENCELVI
+            LD   HL,(RENCOL)
+            LD   DE,(HOR)
             PUSH HL
             OR   A
             SBC  HL,DE
             POP  HL
-            JR   C,EditorRenderCellAdvance
-EditorRenderCellVisible:
-            LD   DE,(EditorRenderCount)
+            JR   C,RENCELAD
+; EditorRenderCellVisible
+RENCELVI:
+            LD   DE,(RENCOU)
             LD   A,E
             CP   80
-            JR   NC,EditorRenderCellAdvance
-            LD   A,(EditorScratchC)
-            CALL EditorOutputByte
-            LD   HL,(EditorRenderCount)
+            JR   NC,RENCELAD
+            LD   A,(SCRATCHC)
+            CALL OUTBYT
+            LD   HL,(RENCOU)
             INC  HL
-            LD   (EditorRenderCount),HL
-EditorRenderCellAdvance:
-            LD   HL,(EditorRenderColumn)
+            LD   (RENCOU),HL
+; EditorRenderCellAdvance
+RENCELAD:
+            LD   HL,(RENCOL)
             INC  HL
-            LD   (EditorRenderColumn),HL
+            LD   (RENCOL),HL
             LD   A,H
             OR   L
             RET  NZ
-            LD   A,(EditorRenderColumnHigh)
+            LD   A,(RENCOLHI)
             INC  A
-            LD   (EditorRenderColumnHigh),A
+            LD   (RENCOLHI),A
             RET
 
-.routine out A,carry,zero clobbers sign,parity,halfCarry,BC,DE,HL
-EditorRenderStatus:
-            LD   DE,EditorStatusPrefix
-            CALL EditorStatusBegin
-            LD   HL,EditorFcb+1
+;@ROUTINE out A,carry,zero clobbers sign,parity,halfCarry,BC,DE,HL
+; EditorRenderStatus
+RENSTA:
+            LD   DE,STAPRE
+            CALL STABEG
+            LD   HL,FCB+1
             LD   B,8
-EditorStatusNameLoop:
+; EditorStatusNameLoop
+STANAMLO:
             LD   A,(HL)
             PUSH HL
             PUSH BC
-            CALL EditorStatusByte
+            CALL STABYT
             POP  BC
             POP  HL
             INC  HL
-            DJNZ EditorStatusNameLoop
+            DJNZ STANAMLO
             LD   A,'.'
-            CALL EditorStatusByte
-            LD   HL,EditorFcb+9
+            CALL STABYT
+            LD   HL,FCB+9
             LD   B,3
-EditorStatusExtensionLoop:
+; EditorStatusExtensionLoop
+STAEXTLO:
             LD   A,(HL)
             PUSH HL
             PUSH BC
-            CALL EditorStatusByte
+            CALL STABYT
             POP  BC
             POP  HL
             INC  HL
-            DJNZ EditorStatusExtensionLoop
+            DJNZ STAEXTLO
             LD   A,' '
-            CALL EditorStatusByte
-            LD   A,(EditorFlags)
-            AND  EditorFlagDirty
+            CALL STABYT
+            LD   A,(FLAGS)
+            AND  FLADIR
             LD   A,' '
-            JR   Z,EditorStatusDirtyReady
+            JR   Z,STADIRRE
             LD   A,'*'
-EditorStatusDirtyReady:
-            CALL EditorStatusByte
+; EditorStatusDirtyReady
+STADIRRE:
+            CALL STABYT
             LD   A,' '
-            CALL EditorStatusByte
+            CALL STABYT
             LD   A,' '
-            CALL EditorStatusByte
-            CALL EditorStatusMessage
-            LD   DE,EditorStatusHints
-            CALL EditorStatusText
-.routine out A,carry,zero clobbers sign,parity,halfCarry,BC,DE,HL
-EditorStatusFill:
-            LD   HL,(EditorRenderCount)
+            CALL STABYT
+            CALL STAMES
+            LD   DE,STAHIN
+            CALL STATEX
+;@ROUTINE out A,carry,zero clobbers sign,parity,halfCarry,BC,DE,HL
+; EditorStatusFill
+STAFIL:
+            LD   HL,(RENCOU)
             LD   A,L
             CP   80
-            JR   NC,EditorStatusFilled
+            JR   NC,STAFIL1
             LD   A,' '
-            CALL EditorStatusByte
-            JR   EditorStatusFill
-EditorStatusFilled:
-            LD   DE,EditorReverseOff
-            CALL EditorOutputText
-            JP   EditorPositionCursor
+            CALL STABYT
+            JR   STAFIL
+; EditorStatusFilled
+STAFIL1:
+            LD   DE,REVOFF
+            CALL OUTTEX
+            JP   POSCUR
 
-.routine in DE out A,carry,zero clobbers sign,parity,halfCarry,BC,DE,HL
-EditorStatusBegin:
+;@ROUTINE in DE out A,carry,zero clobbers sign,parity,halfCarry,BC,DE,HL
+; EditorStatusBegin
+STABEG:
             PUSH DE
-            LD   DE,EditorStatusPosition
-            CALL EditorOutputText
+            LD   DE,STAPOS
+            CALL OUTTEX
             LD   HL,0
-            LD   (EditorRenderCount),HL
+            LD   (RENCOU),HL
             POP  DE
-            JP   EditorStatusText
+            JP   STATEX
 
-.routine out A,carry,zero clobbers sign,parity,halfCarry,BC,DE,HL
-EditorStatusMessage:
-            LD   A,(EditorStatus)
+;@ROUTINE out A,carry,zero clobbers sign,parity,halfCarry,BC,DE,HL
+; EditorStatusMessage
+STAMES:
+            LD   A,(STATUS)
             OR   A
             RET  Z
             ADD  A,A
-            JR   C,EditorStatusSearchMessage
-            CP   EditorStatusSaved*2
-            LD   DE,EditorStatusSavedText
-            JR   Z,EditorStatusMessageText
-            CP   EditorStatusFull*2
-            LD   DE,EditorStatusFullText
-            JR   Z,EditorStatusMessageText
-            CP   EditorStatusDiscard*2
-            LD   DE,EditorStatusDiscardText
-            JR   Z,EditorStatusMessageText
-            CP   EditorStatusSaveConflict*2
-            JR   C,EditorStatusMessageDone
-            LD   DE,EditorStatusSaveFailedText
-            CALL EditorStatusText
-            LD   A,(EditorStatus)
+            JR   C,STASEAME
+            CP   STASAV*2
+            LD   DE,STASAVTE
+            JR   Z,STAMESTE
+            CP   STAFUL*2
+            LD   DE,STAFULTE
+            JR   Z,STAMESTE
+            CP   STADIS*2
+            LD   DE,STADISTE
+            JR   Z,STAMESTE
+            CP   STASAVCO*2
+            JR   C,STAMESDO
+            LD   DE,STASAVFA
+            CALL STATEX
+            LD   A,(STATUS)
             OR   A
             PUSH AF
             RRCA
             RRCA
             RRCA
             RRCA
-            CALL EditorStatusHexNibble
+            CALL STAHEXNI
             POP  AF
-            CALL EditorStatusHexNibble
-EditorStatusMessageDone:
+            CALL STAHEXNI
+; EditorStatusMessageDone
+STAMESDO:
             RET
-EditorStatusMessageText:
-            JR   EditorStatusText
-EditorStatusSearchMessage:
+; EditorStatusMessageText
+STAMESTE:
+            JR   STATEX
+; EditorStatusSearchMessage
+STASEAME:
             LD   E,A
             LD   D,0
-            LD   HL,EditorStatusFoundText
+            LD   HL,STAFOUTE
             ADD  HL,DE
             EX   DE,HL
-            JR   EditorStatusText
+            JR   STATEX
 
-.routine in DE out A,carry,zero clobbers sign,parity,halfCarry,BC,DE,HL
-EditorStatusText:
+;@ROUTINE in DE out A,carry,zero clobbers sign,parity,halfCarry,BC,DE,HL
+; EditorStatusText
+STATEX:
             LD   A,(DE)
             OR   A
             RET  Z
             INC  DE
             PUSH DE
-            CALL EditorStatusByte
+            CALL STABYT
             POP  DE
-            JR   EditorStatusText
+            JR   STATEX
 
-.routine in A out A,carry,zero clobbers sign,parity,halfCarry,BC,DE,HL
-EditorStatusByte:
-            CALL EditorOutputByte
-            LD   HL,(EditorRenderCount)
+;@ROUTINE in A out A,carry,zero clobbers sign,parity,halfCarry,BC,DE,HL
+; EditorStatusByte
+STABYT:
+            CALL OUTBYT
+            LD   HL,(RENCOU)
             INC  HL
-            LD   (EditorRenderCount),HL
+            LD   (RENCOU),HL
             RET
 
-.routine in A out A,carry,zero clobbers sign,parity,halfCarry,BC,DE,HL
-EditorStatusHexNibble:
+;@ROUTINE in A out A,carry,zero clobbers sign,parity,halfCarry,BC,DE,HL
+; EditorStatusHexNibble
+STAHEXNI:
             AND  $0F
             ADD  A,'0'
             CP   '9'+1
-            JR   C,EditorStatusByte
+            JR   C,STABYT
             ADD  A,7
-            JR   EditorStatusByte
+            JR   STABYT
 
-.routine out A,carry,zero clobbers sign,parity,halfCarry,BC,DE,HL
-EditorPositionCursor:
-            LD   A,(EditorCursorScreenRow)
+;@ROUTINE out A,carry,zero clobbers sign,parity,halfCarry,BC,DE,HL
+; EditorPositionCursor
+POSCUR:
+            LD   A,(CURSCRRO)
             INC  A
-            LD   (EditorScratchA),A
-            LD   A,(EditorCursorScreenColumn)
+            LD   (SCRATCHA),A
+            LD   A,(CURSCRCO)
             INC  A
-            LD   (EditorScratchA+1),A
-            LD   A,(EditorScratchA)
-            CALL EditorOutputDecimal
+            LD   (SCRATCHA+1),A
+            LD   A,(SCRATCHA)
+            CALL OUTDEC
             LD   A,';'
-            CALL EditorOutputByte
-            LD   A,(EditorScratchA+1)
-            CALL EditorOutputDecimal
+            CALL OUTBYT
+            LD   A,(SCRATCHA+1)
+            CALL OUTDEC
             LD   A,'H'
-            JR   EditorOutputByte
+            JR   OUTBYT
 
-.routine in A out A,carry,zero clobbers sign,parity,halfCarry,BC,DE,HL
-EditorOutputDecimal:
+;@ROUTINE in A out A,carry,zero clobbers sign,parity,halfCarry,BC,DE,HL
+; EditorOutputDecimal
+OUTDEC:
             LD   B,0
-EditorOutputDecimalLoop:
+; EditorOutputDecimalLoop
+OUTDECLO:
             CP   10
-            JR   C,EditorOutputDecimalReady
+            JR   C,OUTDECRE
             SUB  10
             INC  B
-            JR   EditorOutputDecimalLoop
-EditorOutputDecimalReady:
-            LD   (EditorScratchC),A
+            JR   OUTDECLO
+; EditorOutputDecimalReady
+OUTDECRE:
+            LD   (SCRATCHC),A
             LD   A,B
             OR   A
-            JR   Z,EditorOutputDecimalOnes
+            JR   Z,OUTDECON
             ADD  A,'0'
-            CALL EditorOutputByte
-EditorOutputDecimalOnes:
-            LD   A,(EditorScratchC)
+            CALL OUTBYT
+; EditorOutputDecimalOnes
+OUTDECON:
+            LD   A,(SCRATCHC)
             ADD  A,'0'
-            JR   EditorOutputByte
+            JR   OUTBYT
 
-.routine in A out A clobbers carry,zero,sign,parity,halfCarry,BC,DE,HL
-EditorOutputByte:
+;@ROUTINE in A out A clobbers carry,zero,sign,parity,halfCarry,BC,DE,HL
+; EditorOutputByte
+OUTBYT:
             LD   E,A
             LD   C,6
-            JP   EditorCallBdos
+            JP   CALLBDOS
 
-.routine in DE out A clobbers carry,zero,sign,parity,halfCarry,BC,DE,HL
-EditorOutputText:
+;@ROUTINE in DE out A clobbers carry,zero,sign,parity,halfCarry,BC,DE,HL
+; EditorOutputText
+OUTTEX:
             LD   A,(DE)
             CP   '$'
             RET  Z
             INC  DE
             PUSH DE
-            CALL EditorOutputByte
+            CALL OUTBYT
             POP  DE
-            JR   EditorOutputText
+            JR   OUTTEX
 
-EditorScreenCodeEnd:
+; EditorScreenCodeEnd
+SCRCODEN:

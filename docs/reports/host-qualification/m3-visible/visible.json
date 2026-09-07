@@ -1,0 +1,1158 @@
+{
+  "format": "edit-native-visible-reference-v1",
+  "windowId": 426138,
+  "samples": [
+    {
+      "inputTicks": 112626925863351,
+      "ptyOutputTicks": 112626925878701,
+      "terminalBytes": 48,
+      "key": "a",
+      "expectedFirstRow": "xaordinary source line 0123456789                                               ",
+      "expectedCursor": {
+        "row": 1,
+        "column": 3
+      },
+      "terminalContents": "xaordinary source line 0123456789\nordinary source line 0123456789\nordinary source line 0123456789\nordinary source line 0123456789\nordinary source line 0123456789\nordinary source line 0123456789\nordinary source line 0123456789\nordinary source line 0123456789\nordinary source line 0123456789\nordinary source line 0123456789\nordinary source line 0123456789\nordinary source line 0123456789\nordinary source line 0123456789\nordinary source line 0123456789\nordinary source line 0123456789\nordinary source line 0123456789\nordinary source line 0123456789\nordinary source line 0123456789\nordinary source line 0123456789\nordinary source line 0123456789\nordinary source line 0123456789\nordinary source line 0123456789\nordinary source line 0123456789\nEDIT INPUT   .TXT *    ^S Save  ^Q Quit",
+      "reference": {
+        "callbackTicks": 112626939218088,
+        "displayTicks": 112626929394498,
+        "height": 770,
+        "persistedTicks": 112626939924856,
+        "png": "frame-00051.png",
+        "sequence": 51,
+        "sha256": "4424071ec8ed60e79ce92304bcaa0d1a8894bd5e758f5a96450f272ac153a944",
+        "width": 1160
+      },
+      "firstMatchingFrame": {
+        "callbackTicks": 112626932583877,
+        "displayTicks": 112626926964152,
+        "height": 770,
+        "persistedTicks": 112626936486748,
+        "png": "frame-00047.png",
+        "sequence": 47,
+        "sha256": "4424071ec8ed60e79ce92304bcaa0d1a8894bd5e758f5a96450f272ac153a944",
+        "width": 1160
+      },
+      "presentationMs": 45.866708333333335,
+      "callbackDelayMs": 234.15520833333335,
+      "ptyOutputMs": 0.6395833333333334,
+      "completeFramesObserved": 6
+    },
+    {
+      "inputTicks": 112626940218426,
+      "ptyOutputTicks": 112626940236882,
+      "terminalBytes": 49,
+      "key": "b",
+      "expectedFirstRow": "xabordinary source line 0123456789                                              ",
+      "expectedCursor": {
+        "row": 1,
+        "column": 4
+      },
+      "terminalContents": "xabordinary source line 0123456789\nordinary source line 0123456789\nordinary source line 0123456789\nordinary source line 0123456789\nordinary source line 0123456789\nordinary source line 0123456789\nordinary source line 0123456789\nordinary source line 0123456789\nordinary source line 0123456789\nordinary source line 0123456789\nordinary source line 0123456789\nordinary source line 0123456789\nordinary source line 0123456789\nordinary source line 0123456789\nordinary source line 0123456789\nordinary source line 0123456789\nordinary source line 0123456789\nordinary source line 0123456789\nordinary source line 0123456789\nordinary source line 0123456789\nordinary source line 0123456789\nordinary source line 0123456789\nordinary source line 0123456789\nEDIT INPUT   .TXT *    ^S Save  ^Q Quit",
+      "reference": {
+        "callbackTicks": 112626950956818,
+        "displayTicks": 112626946216162,
+        "height": 770,
+        "persistedTicks": 112626951632308,
+        "png": "frame-00068.png",
+        "sequence": 68,
+        "sha256": "0fc3a97cc46607fcf92405cdd2af99f16e2e5b6a9c887e2d305053880fec61be",
+        "width": 1160
+      },
+      "firstMatchingFrame": {
+        "callbackTicks": 112626946116247,
+        "displayTicks": 112626941476083,
+        "height": 770,
+        "persistedTicks": 112626946877061,
+        "png": "frame-00061.png",
+        "sequence": 61,
+        "sha256": "0fc3a97cc46607fcf92405cdd2af99f16e2e5b6a9c887e2d305053880fec61be",
+        "width": 1160
+      },
+      "presentationMs": 52.402375,
+      "callbackDelayMs": 193.34016666666665,
+      "ptyOutputMs": 0.769,
+      "completeFramesObserved": 9
+    },
+    {
+      "inputTicks": 112626951900282,
+      "ptyOutputTicks": 112626951931279,
+      "terminalBytes": 50,
+      "key": "c",
+      "expectedFirstRow": "xabcordinary source line 0123456789                                             ",
+      "expectedCursor": {
+        "row": 1,
+        "column": 5
+      },
+      "terminalContents": "xabcordinary source line 0123456789\nordinary source line 0123456789\nordinary source line 0123456789\nordinary source line 0123456789\nordinary source line 0123456789\nordinary source line 0123456789\nordinary source line 0123456789\nordinary source line 0123456789\nordinary source line 0123456789\nordinary source line 0123456789\nordinary source line 0123456789\nordinary source line 0123456789\nordinary source line 0123456789\nordinary source line 0123456789\nordinary source line 0123456789\nordinary source line 0123456789\nordinary source line 0123456789\nordinary source line 0123456789\nordinary source line 0123456789\nordinary source line 0123456789\nordinary source line 0123456789\nordinary source line 0123456789\nordinary source line 0123456789\nEDIT INPUT   .TXT *    ^S Save  ^Q Quit",
+      "reference": {
+        "callbackTicks": 112626963038394,
+        "displayTicks": 112626958567645,
+        "height": 770,
+        "persistedTicks": 112626963668752,
+        "png": "frame-00086.png",
+        "sequence": 86,
+        "sha256": "3ac022746627e7f39da7a1fd5caec1388727406fcf076de42660b53a1ebb6a77",
+        "width": 1160
+      },
+      "firstMatchingFrame": {
+        "callbackTicks": 112626957677114,
+        "displayTicks": 112626953378388,
+        "height": 770,
+        "persistedTicks": 112626958330262,
+        "png": "frame-00078.png",
+        "sequence": 78,
+        "sha256": "3ac022746627e7f39da7a1fd5caec1388727406fcf076de42660b53a1ebb6a77",
+        "width": 1160
+      },
+      "presentationMs": 61.58775,
+      "callbackDelayMs": 179.11358333333334,
+      "ptyOutputMs": 1.2915416666666668,
+      "completeFramesObserved": 10
+    },
+    {
+      "inputTicks": 112626963755324,
+      "ptyOutputTicks": 112626963772427,
+      "terminalBytes": 51,
+      "key": "d",
+      "expectedFirstRow": "xabcdordinary source line 0123456789                                            ",
+      "expectedCursor": {
+        "row": 1,
+        "column": 6
+      },
+      "terminalContents": "xabcdordinary source line 0123456789\nordinary source line 0123456789\nordinary source line 0123456789\nordinary source line 0123456789\nordinary source line 0123456789\nordinary source line 0123456789\nordinary source line 0123456789\nordinary source line 0123456789\nordinary source line 0123456789\nordinary source line 0123456789\nordinary source line 0123456789\nordinary source line 0123456789\nordinary source line 0123456789\nordinary source line 0123456789\nordinary source line 0123456789\nordinary source line 0123456789\nordinary source line 0123456789\nordinary source line 0123456789\nordinary source line 0123456789\nordinary source line 0123456789\nordinary source line 0123456789\nordinary source line 0123456789\nordinary source line 0123456789\nEDIT INPUT   .TXT *    ^S Save  ^Q Quit",
+      "reference": {
+        "callbackTicks": 112626974335978,
+        "displayTicks": 112626969773964,
+        "height": 770,
+        "persistedTicks": 112626974973966,
+        "png": "frame-00103.png",
+        "sequence": 103,
+        "sha256": "0b53e17af4aa71d2d973dab053d0b2e2395a31a3a104a1eed3559e8cf716235c",
+        "width": 1160
+      },
+      "firstMatchingFrame": {
+        "callbackTicks": 112626969614693,
+        "displayTicks": 112626965369966,
+        "height": 770,
+        "persistedTicks": 112626970337106,
+        "png": "frame-00096.png",
+        "sequence": 96,
+        "sha256": "0b53e17af4aa71d2d973dab053d0b2e2395a31a3a104a1eed3559e8cf716235c",
+        "width": 1160
+      },
+      "presentationMs": 67.27675,
+      "callbackDelayMs": 176.863625,
+      "ptyOutputMs": 0.712625,
+      "completeFramesObserved": 10
+    },
+    {
+      "inputTicks": 112626975365834,
+      "ptyOutputTicks": 112626975386058,
+      "terminalBytes": 52,
+      "key": "e",
+      "expectedFirstRow": "xabcdeordinary source line 0123456789                                           ",
+      "expectedCursor": {
+        "row": 1,
+        "column": 7
+      },
+      "terminalContents": "xabcdeordinary source line 0123456789\nordinary source line 0123456789\nordinary source line 0123456789\nordinary source line 0123456789\nordinary source line 0123456789\nordinary source line 0123456789\nordinary source line 0123456789\nordinary source line 0123456789\nordinary source line 0123456789\nordinary source line 0123456789\nordinary source line 0123456789\nordinary source line 0123456789\nordinary source line 0123456789\nordinary source line 0123456789\nordinary source line 0123456789\nordinary source line 0123456789\nordinary source line 0123456789\nordinary source line 0123456789\nordinary source line 0123456789\nordinary source line 0123456789\nordinary source line 0123456789\nordinary source line 0123456789\nordinary source line 0123456789\nEDIT INPUT   .TXT *    ^S Save  ^Q Quit",
+      "reference": {
+        "callbackTicks": 112626985709294,
+        "displayTicks": 112626981495912,
+        "height": 770,
+        "persistedTicks": 112626986389007,
+        "png": "frame-00121.png",
+        "sequence": 121,
+        "sha256": "579136efc8f72f7c49695831dcc1b8e16c87360868a9a2c759b2399b84306cb5",
+        "width": 1160
+      },
+      "firstMatchingFrame": {
+        "callbackTicks": 112626980648136,
+        "displayTicks": 112626976564097,
+        "height": 770,
+        "persistedTicks": 112626981267467,
+        "png": "frame-00113.png",
+        "sequence": 113,
+        "sha256": "579136efc8f72f7c49695831dcc1b8e16c87360868a9a2c759b2399b84306cb5",
+        "width": 1160
+      },
+      "presentationMs": 49.927625,
+      "callbackDelayMs": 170.16829166666665,
+      "ptyOutputMs": 0.8426666666666667,
+      "completeFramesObserved": 10
+    },
+    {
+      "inputTicks": 112626986949200,
+      "ptyOutputTicks": 112626986967614,
+      "terminalBytes": 53,
+      "key": "f",
+      "expectedFirstRow": "xabcdefordinary source line 0123456789                                          ",
+      "expectedCursor": {
+        "row": 1,
+        "column": 8
+      },
+      "terminalContents": "xabcdefordinary source line 0123456789\nordinary source line 0123456789\nordinary source line 0123456789\nordinary source line 0123456789\nordinary source line 0123456789\nordinary source line 0123456789\nordinary source line 0123456789\nordinary source line 0123456789\nordinary source line 0123456789\nordinary source line 0123456789\nordinary source line 0123456789\nordinary source line 0123456789\nordinary source line 0123456789\nordinary source line 0123456789\nordinary source line 0123456789\nordinary source line 0123456789\nordinary source line 0123456789\nordinary source line 0123456789\nordinary source line 0123456789\nordinary source line 0123456789\nordinary source line 0123456789\nordinary source line 0123456789\nordinary source line 0123456789\nEDIT INPUT   .TXT *    ^S Save  ^Q Quit",
+      "reference": {
+        "callbackTicks": 112626997328573,
+        "displayTicks": 112626993030737,
+        "height": 770,
+        "persistedTicks": 112626997965128,
+        "png": "frame-00139.png",
+        "sequence": 139,
+        "sha256": "40108a974168d2d21e1895af0dfe591a7be5a9109dc07c739c44c02f4b67ceea",
+        "width": 1160
+      },
+      "firstMatchingFrame": {
+        "callbackTicks": 112626992837135,
+        "displayTicks": 112626988679336,
+        "height": 770,
+        "persistedTicks": 112626993477560,
+        "png": "frame-00132.png",
+        "sequence": 132,
+        "sha256": "40108a974168d2d21e1895af0dfe591a7be5a9109dc07c739c44c02f4b67ceea",
+        "width": 1160
+      },
+      "presentationMs": 72.089,
+      "callbackDelayMs": 173.241625,
+      "ptyOutputMs": 0.76725,
+      "completeFramesObserved": 10
+    },
+    {
+      "inputTicks": 112626998421171,
+      "ptyOutputTicks": 112626998437902,
+      "terminalBytes": 54,
+      "key": "g",
+      "expectedFirstRow": "xabcdefgordinary source line 0123456789                                         ",
+      "expectedCursor": {
+        "row": 1,
+        "column": 9
+      },
+      "terminalContents": "xabcdefgordinary source line 0123456789\nordinary source line 0123456789\nordinary source line 0123456789\nordinary source line 0123456789\nordinary source line 0123456789\nordinary source line 0123456789\nordinary source line 0123456789\nordinary source line 0123456789\nordinary source line 0123456789\nordinary source line 0123456789\nordinary source line 0123456789\nordinary source line 0123456789\nordinary source line 0123456789\nordinary source line 0123456789\nordinary source line 0123456789\nordinary source line 0123456789\nordinary source line 0123456789\nordinary source line 0123456789\nordinary source line 0123456789\nordinary source line 0123456789\nordinary source line 0123456789\nordinary source line 0123456789\nordinary source line 0123456789\nEDIT INPUT   .TXT *    ^S Save  ^Q Quit",
+      "reference": {
+        "callbackTicks": 112627009381807,
+        "displayTicks": 112627005067270,
+        "height": 770,
+        "persistedTicks": 112627010047177,
+        "png": "frame-00158.png",
+        "sequence": 158,
+        "sha256": "90d994d9bf43f526fec40375179a87c4b05ddff533f2b3f0cec77dd950350435",
+        "width": 1160
+      },
+      "firstMatchingFrame": {
+        "callbackTicks": 112627003667180,
+        "displayTicks": 112626999422187,
+        "height": 770,
+        "persistedTicks": 112627004276698,
+        "png": "frame-00149.png",
+        "sequence": 149,
+        "sha256": "90d994d9bf43f526fec40375179a87c4b05ddff533f2b3f0cec77dd950350435",
+        "width": 1160
+      },
+      "presentationMs": 41.709,
+      "callbackDelayMs": 176.87470833333333,
+      "ptyOutputMs": 0.697125,
+      "completeFramesObserved": 11
+    },
+    {
+      "inputTicks": 112627010152849,
+      "ptyOutputTicks": 112627010173309,
+      "terminalBytes": 56,
+      "key": "h",
+      "expectedFirstRow": "xabcdefghordinary source line 0123456789                                        ",
+      "expectedCursor": {
+        "row": 1,
+        "column": 10
+      },
+      "terminalContents": "xabcdefghordinary source line 0123456789\nordinary source line 0123456789\nordinary source line 0123456789\nordinary source line 0123456789\nordinary source line 0123456789\nordinary source line 0123456789\nordinary source line 0123456789\nordinary source line 0123456789\nordinary source line 0123456789\nordinary source line 0123456789\nordinary source line 0123456789\nordinary source line 0123456789\nordinary source line 0123456789\nordinary source line 0123456789\nordinary source line 0123456789\nordinary source line 0123456789\nordinary source line 0123456789\nordinary source line 0123456789\nordinary source line 0123456789\nordinary source line 0123456789\nordinary source line 0123456789\nordinary source line 0123456789\nordinary source line 0123456789\nEDIT INPUT   .TXT *    ^S Save  ^Q Quit",
+      "reference": {
+        "callbackTicks": 112627020877713,
+        "displayTicks": 112627015891458,
+        "height": 770,
+        "persistedTicks": 112627021526621,
+        "png": "frame-00175.png",
+        "sequence": 175,
+        "sha256": "450468236bd646ae01b1aa31823b801f3b00c55640b718c59c1a19d971599c2b",
+        "width": 1160
+      },
+      "firstMatchingFrame": {
+        "callbackTicks": 112627015141281,
+        "displayTicks": 112627011079174,
+        "height": 770,
+        "persistedTicks": 112627015825662,
+        "png": "frame-00167.png",
+        "sequence": 167,
+        "sha256": "450468236bd646ae01b1aa31823b801f3b00c55640b718c59c1a19d971599c2b",
+        "width": 1160
+      },
+      "presentationMs": 38.596875,
+      "callbackDelayMs": 169.25445833333333,
+      "ptyOutputMs": 0.8525,
+      "completeFramesObserved": 10
+    },
+    {
+      "inputTicks": 112627021622950,
+      "ptyOutputTicks": 112627021641399,
+      "terminalBytes": 57,
+      "key": "i",
+      "expectedFirstRow": "xabcdefghiordinary source line 0123456789                                       ",
+      "expectedCursor": {
+        "row": 1,
+        "column": 11
+      },
+      "terminalContents": "xabcdefghiordinary source line 0123456789\nordinary source line 0123456789\nordinary source line 0123456789\nordinary source line 0123456789\nordinary source line 0123456789\nordinary source line 0123456789\nordinary source line 0123456789\nordinary source line 0123456789\nordinary source line 0123456789\nordinary source line 0123456789\nordinary source line 0123456789\nordinary source line 0123456789\nordinary source line 0123456789\nordinary source line 0123456789\nordinary source line 0123456789\nordinary source line 0123456789\nordinary source line 0123456789\nordinary source line 0123456789\nordinary source line 0123456789\nordinary source line 0123456789\nordinary source line 0123456789\nordinary source line 0123456789\nordinary source line 0123456789\nEDIT INPUT   .TXT *    ^S Save  ^Q Quit",
+      "reference": {
+        "callbackTicks": 112627032387170,
+        "displayTicks": 112627028268925,
+        "height": 770,
+        "persistedTicks": 112627033079766,
+        "png": "frame-00193.png",
+        "sequence": 193,
+        "sha256": "f89cf6e1aa928c8a04e426afe3f8956d794b5925b7854ebcc640e7691648841a",
+        "width": 1160
+      },
+      "firstMatchingFrame": {
+        "callbackTicks": 112627027273896,
+        "displayTicks": 112627022964841,
+        "height": 770,
+        "persistedTicks": 112627027891155,
+        "png": "frame-00185.png",
+        "sequence": 185,
+        "sha256": "f89cf6e1aa928c8a04e426afe3f8956d794b5925b7854ebcc640e7691648841a",
+        "width": 1160
+      },
+      "presentationMs": 55.912125,
+      "callbackDelayMs": 179.54395833333334,
+      "ptyOutputMs": 0.7687083333333333,
+      "completeFramesObserved": 11
+    },
+    {
+      "inputTicks": 112627033419720,
+      "ptyOutputTicks": 112627033438123,
+      "terminalBytes": 58,
+      "key": "j",
+      "expectedFirstRow": "xabcdefghijordinary source line 0123456789                                      ",
+      "expectedCursor": {
+        "row": 1,
+        "column": 12
+      },
+      "terminalContents": "xabcdefghijordinary source line 0123456789\nordinary source line 0123456789\nordinary source line 0123456789\nordinary source line 0123456789\nordinary source line 0123456789\nordinary source line 0123456789\nordinary source line 0123456789\nordinary source line 0123456789\nordinary source line 0123456789\nordinary source line 0123456789\nordinary source line 0123456789\nordinary source line 0123456789\nordinary source line 0123456789\nordinary source line 0123456789\nordinary source line 0123456789\nordinary source line 0123456789\nordinary source line 0123456789\nordinary source line 0123456789\nordinary source line 0123456789\nordinary source line 0123456789\nordinary source line 0123456789\nordinary source line 0123456789\nordinary source line 0123456789\nEDIT INPUT   .TXT *    ^S Save  ^Q Quit",
+      "reference": {
+        "callbackTicks": 112627044013129,
+        "displayTicks": 112627039499238,
+        "height": 770,
+        "persistedTicks": 112627044651612,
+        "png": "frame-00211.png",
+        "sequence": 211,
+        "sha256": "e401bb7414e085f76c5f952b1d5816b5f5e399f9b2c6a0a5e97cbda4758cb0f4",
+        "width": 1160
+      },
+      "firstMatchingFrame": {
+        "callbackTicks": 112627038829873,
+        "displayTicks": 112627034668395,
+        "height": 770,
+        "persistedTicks": 112627039471791,
+        "png": "frame-00203.png",
+        "sequence": 203,
+        "sha256": "e401bb7414e085f76c5f952b1d5816b5f5e399f9b2c6a0a5e97cbda4758cb0f4",
+        "width": 1160
+      },
+      "presentationMs": 52.028125,
+      "callbackDelayMs": 173.39491666666666,
+      "ptyOutputMs": 0.7667916666666666,
+      "completeFramesObserved": 11
+    },
+    {
+      "inputTicks": 112627045046931,
+      "ptyOutputTicks": 112627045076288,
+      "terminalBytes": 59,
+      "key": "k",
+      "expectedFirstRow": "xabcdefghijkordinary source line 0123456789                                     ",
+      "expectedCursor": {
+        "row": 1,
+        "column": 13
+      },
+      "terminalContents": "xabcdefghijkordinary source line 0123456789\nordinary source line 0123456789\nordinary source line 0123456789\nordinary source line 0123456789\nordinary source line 0123456789\nordinary source line 0123456789\nordinary source line 0123456789\nordinary source line 0123456789\nordinary source line 0123456789\nordinary source line 0123456789\nordinary source line 0123456789\nordinary source line 0123456789\nordinary source line 0123456789\nordinary source line 0123456789\nordinary source line 0123456789\nordinary source line 0123456789\nordinary source line 0123456789\nordinary source line 0123456789\nordinary source line 0123456789\nordinary source line 0123456789\nordinary source line 0123456789\nordinary source line 0123456789\nordinary source line 0123456789\nEDIT INPUT   .TXT *    ^S Save  ^Q Quit",
+      "reference": {
+        "callbackTicks": 112627055285089,
+        "displayTicks": 112627050646994,
+        "height": 770,
+        "persistedTicks": 112627055933675,
+        "png": "frame-00228.png",
+        "sequence": 228,
+        "sha256": "9544f517de01155b12cee1bfd28e46ba48360636bb607a65b42f0a9239ecfb32",
+        "width": 1160
+      },
+      "firstMatchingFrame": {
+        "callbackTicks": 112627050550286,
+        "displayTicks": 112627046283331,
+        "height": 770,
+        "persistedTicks": 112627051334877,
+        "png": "frame-00221.png",
+        "sequence": 221,
+        "sha256": "9544f517de01155b12cee1bfd28e46ba48360636bb607a65b42f0a9239ecfb32",
+        "width": 1160
+      },
+      "presentationMs": 51.516666666666666,
+      "callbackDelayMs": 177.78979166666664,
+      "ptyOutputMs": 1.2232083333333332,
+      "completeFramesObserved": 9
+    },
+    {
+      "inputTicks": 112627056541371,
+      "ptyOutputTicks": 112627056561955,
+      "terminalBytes": 60,
+      "key": "l",
+      "expectedFirstRow": "xabcdefghijklordinary source line 0123456789                                    ",
+      "expectedCursor": {
+        "row": 1,
+        "column": 14
+      },
+      "terminalContents": "xabcdefghijklordinary source line 0123456789\nordinary source line 0123456789\nordinary source line 0123456789\nordinary source line 0123456789\nordinary source line 0123456789\nordinary source line 0123456789\nordinary source line 0123456789\nordinary source line 0123456789\nordinary source line 0123456789\nordinary source line 0123456789\nordinary source line 0123456789\nordinary source line 0123456789\nordinary source line 0123456789\nordinary source line 0123456789\nordinary source line 0123456789\nordinary source line 0123456789\nordinary source line 0123456789\nordinary source line 0123456789\nordinary source line 0123456789\nordinary source line 0123456789\nordinary source line 0123456789\nordinary source line 0123456789\nordinary source line 0123456789\nEDIT INPUT   .TXT *    ^S Save  ^Q Quit",
+      "reference": {
+        "callbackTicks": 112627067187153,
+        "displayTicks": 112627062679736,
+        "height": 770,
+        "persistedTicks": 112627067816560,
+        "png": "frame-00246.png",
+        "sequence": 246,
+        "sha256": "aa9d648ffae1849f54a76489368a5223ef7dde7ec11270fe6e6fdc190ab77b2c",
+        "width": 1160
+      },
+      "firstMatchingFrame": {
+        "callbackTicks": 112627061932577,
+        "displayTicks": 112627057767833,
+        "height": 770,
+        "persistedTicks": 112627062562782,
+        "png": "frame-00238.png",
+        "sequence": 238,
+        "sha256": "aa9d648ffae1849f54a76489368a5223ef7dde7ec11270fe6e6fdc190ab77b2c",
+        "width": 1160
+      },
+      "presentationMs": 51.102583333333335,
+      "callbackDelayMs": 173.531,
+      "ptyOutputMs": 0.8576666666666666,
+      "completeFramesObserved": 10
+    },
+    {
+      "inputTicks": 112627068159474,
+      "ptyOutputTicks": 112627068180915,
+      "terminalBytes": 61,
+      "key": "m",
+      "expectedFirstRow": "xabcdefghijklmordinary source line 0123456789                                   ",
+      "expectedCursor": {
+        "row": 1,
+        "column": 15
+      },
+      "terminalContents": "xabcdefghijklmordinary source line 0123456789\nordinary source line 0123456789\nordinary source line 0123456789\nordinary source line 0123456789\nordinary source line 0123456789\nordinary source line 0123456789\nordinary source line 0123456789\nordinary source line 0123456789\nordinary source line 0123456789\nordinary source line 0123456789\nordinary source line 0123456789\nordinary source line 0123456789\nordinary source line 0123456789\nordinary source line 0123456789\nordinary source line 0123456789\nordinary source line 0123456789\nordinary source line 0123456789\nordinary source line 0123456789\nordinary source line 0123456789\nordinary source line 0123456789\nordinary source line 0123456789\nordinary source line 0123456789\nordinary source line 0123456789\nEDIT INPUT   .TXT *    ^S Save  ^Q Quit",
+      "reference": {
+        "callbackTicks": 112627078774511,
+        "displayTicks": 112627074261787,
+        "height": 770,
+        "persistedTicks": 112627079388728,
+        "png": "frame-00264.png",
+        "sequence": 264,
+        "sha256": "d1ea4f66ae3c5ba5b4a9df2bd40814ef7f23d7bc913ec1ce0a16702a442ce16d",
+        "width": 1160
+      },
+      "firstMatchingFrame": {
+        "callbackTicks": 112627073508668,
+        "displayTicks": 112627069440546,
+        "height": 770,
+        "persistedTicks": 112627074126906,
+        "png": "frame-00256.png",
+        "sequence": 256,
+        "sha256": "d1ea4f66ae3c5ba5b4a9df2bd40814ef7f23d7bc913ec1ce0a16702a442ce16d",
+        "width": 1160
+      },
+      "presentationMs": 53.378,
+      "callbackDelayMs": 169.50508333333335,
+      "ptyOutputMs": 0.893375,
+      "completeFramesObserved": 10
+    },
+    {
+      "inputTicks": 112627079571122,
+      "ptyOutputTicks": 112627079590724,
+      "terminalBytes": 62,
+      "key": "n",
+      "expectedFirstRow": "xabcdefghijklmnordinary source line 0123456789                                  ",
+      "expectedCursor": {
+        "row": 1,
+        "column": 16
+      },
+      "terminalContents": "xabcdefghijklmnordinary source line 0123456789\nordinary source line 0123456789\nordinary source line 0123456789\nordinary source line 0123456789\nordinary source line 0123456789\nordinary source line 0123456789\nordinary source line 0123456789\nordinary source line 0123456789\nordinary source line 0123456789\nordinary source line 0123456789\nordinary source line 0123456789\nordinary source line 0123456789\nordinary source line 0123456789\nordinary source line 0123456789\nordinary source line 0123456789\nordinary source line 0123456789\nordinary source line 0123456789\nordinary source line 0123456789\nordinary source line 0123456789\nordinary source line 0123456789\nordinary source line 0123456789\nordinary source line 0123456789\nordinary source line 0123456789\nEDIT INPUT   .TXT *    ^S Save  ^Q Quit",
+      "reference": {
+        "callbackTicks": 112627090095382,
+        "displayTicks": 112627085453103,
+        "height": 770,
+        "persistedTicks": 112627090808785,
+        "png": "frame-00281.png",
+        "sequence": 281,
+        "sha256": "c431a8c8f39a5cc5bb9e0a1725d6ba8490a8bfc103418891167eed3d12a5beab",
+        "width": 1160
+      },
+      "firstMatchingFrame": {
+        "callbackTicks": 112627085323069,
+        "displayTicks": 112627081075730,
+        "height": 770,
+        "persistedTicks": 112627085993093,
+        "png": "frame-00274.png",
+        "sequence": 274,
+        "sha256": "c431a8c8f39a5cc5bb9e0a1725d6ba8490a8bfc103418891167eed3d12a5beab",
+        "width": 1160
+      },
+      "presentationMs": 62.692,
+      "callbackDelayMs": 176.97245833333335,
+      "ptyOutputMs": 0.81675,
+      "completeFramesObserved": 9
+    },
+    {
+      "inputTicks": 112627091317447,
+      "ptyOutputTicks": 112627091347480,
+      "terminalBytes": 63,
+      "key": "o",
+      "expectedFirstRow": "xabcdefghijklmnoordinary source line 0123456789                                 ",
+      "expectedCursor": {
+        "row": 1,
+        "column": 17
+      },
+      "terminalContents": "xabcdefghijklmnoordinary source line 0123456789\nordinary source line 0123456789\nordinary source line 0123456789\nordinary source line 0123456789\nordinary source line 0123456789\nordinary source line 0123456789\nordinary source line 0123456789\nordinary source line 0123456789\nordinary source line 0123456789\nordinary source line 0123456789\nordinary source line 0123456789\nordinary source line 0123456789\nordinary source line 0123456789\nordinary source line 0123456789\nordinary source line 0123456789\nordinary source line 0123456789\nordinary source line 0123456789\nordinary source line 0123456789\nordinary source line 0123456789\nordinary source line 0123456789\nordinary source line 0123456789\nordinary source line 0123456789\nordinary source line 0123456789\nEDIT INPUT   .TXT *    ^S Save  ^Q Quit",
+      "reference": {
+        "callbackTicks": 112627101699196,
+        "displayTicks": 112627096985867,
+        "height": 770,
+        "persistedTicks": 112627102363900,
+        "png": "frame-00298.png",
+        "sequence": 298,
+        "sha256": "792a9ff316be357a0b450c2f675e0cb3b13f76249a42ffb96328b9b927ef8c33",
+        "width": 1160
+      },
+      "firstMatchingFrame": {
+        "callbackTicks": 112627096886717,
+        "displayTicks": 112627092225509,
+        "height": 770,
+        "persistedTicks": 112627097554281,
+        "png": "frame-00291.png",
+        "sequence": 291,
+        "sha256": "792a9ff316be357a0b450c2f675e0cb3b13f76249a42ffb96328b9b927ef8c33",
+        "width": 1160
+      },
+      "presentationMs": 37.83591666666666,
+      "callbackDelayMs": 194.217,
+      "ptyOutputMs": 1.251375,
+      "completeFramesObserved": 9
+    },
+    {
+      "inputTicks": 112627102782159,
+      "ptyOutputTicks": 112627102802274,
+      "terminalBytes": 64,
+      "key": "p",
+      "expectedFirstRow": "xabcdefghijklmnopordinary source line 0123456789                                ",
+      "expectedCursor": {
+        "row": 1,
+        "column": 18
+      },
+      "terminalContents": "xabcdefghijklmnopordinary source line 0123456789\nordinary source line 0123456789\nordinary source line 0123456789\nordinary source line 0123456789\nordinary source line 0123456789\nordinary source line 0123456789\nordinary source line 0123456789\nordinary source line 0123456789\nordinary source line 0123456789\nordinary source line 0123456789\nordinary source line 0123456789\nordinary source line 0123456789\nordinary source line 0123456789\nordinary source line 0123456789\nordinary source line 0123456789\nordinary source line 0123456789\nordinary source line 0123456789\nordinary source line 0123456789\nordinary source line 0123456789\nordinary source line 0123456789\nordinary source line 0123456789\nordinary source line 0123456789\nordinary source line 0123456789\nEDIT INPUT   .TXT *    ^S Save  ^Q Quit",
+      "reference": {
+        "callbackTicks": 112627113871089,
+        "displayTicks": 112627109368942,
+        "height": 770,
+        "persistedTicks": 112627114545149,
+        "png": "frame-00316.png",
+        "sequence": 316,
+        "sha256": "d0c4106d8739d95fb2dae9c7e1f927cf8cee60162313ca2dbb7f1d78ac0ad168",
+        "width": 1160
+      },
+      "firstMatchingFrame": {
+        "callbackTicks": 112627108404695,
+        "displayTicks": 112627103775293,
+        "height": 770,
+        "persistedTicks": 112627109036421,
+        "png": "frame-00308.png",
+        "sequence": 308,
+        "sha256": "d0c4106d8739d95fb2dae9c7e1f927cf8cee60162313ca2dbb7f1d78ac0ad168",
+        "width": 1160
+      },
+      "presentationMs": 41.380583333333334,
+      "callbackDelayMs": 192.89175,
+      "ptyOutputMs": 0.838125,
+      "completeFramesObserved": 10
+    },
+    {
+      "inputTicks": 112627114607008,
+      "ptyOutputTicks": 112627114627808,
+      "terminalBytes": 65,
+      "key": "q",
+      "expectedFirstRow": "xabcdefghijklmnopqordinary source line 0123456789                               ",
+      "expectedCursor": {
+        "row": 1,
+        "column": 19
+      },
+      "terminalContents": "xabcdefghijklmnopqordinary source line 0123456789\nordinary source line 0123456789\nordinary source line 0123456789\nordinary source line 0123456789\nordinary source line 0123456789\nordinary source line 0123456789\nordinary source line 0123456789\nordinary source line 0123456789\nordinary source line 0123456789\nordinary source line 0123456789\nordinary source line 0123456789\nordinary source line 0123456789\nordinary source line 0123456789\nordinary source line 0123456789\nordinary source line 0123456789\nordinary source line 0123456789\nordinary source line 0123456789\nordinary source line 0123456789\nordinary source line 0123456789\nordinary source line 0123456789\nordinary source line 0123456789\nordinary source line 0123456789\nordinary source line 0123456789\nEDIT INPUT   .TXT *    ^S Save  ^Q Quit",
+      "reference": {
+        "callbackTicks": 112627124826969,
+        "displayTicks": 112627120563121,
+        "height": 770,
+        "persistedTicks": 112627125462576,
+        "png": "frame-00333.png",
+        "sequence": 333,
+        "sha256": "2a6650eb9a9e6a58643d7c3add53f8ecf91e3991b7ab74bbef3dbd416ebdcedb",
+        "width": 1160
+      },
+      "firstMatchingFrame": {
+        "callbackTicks": 112627120288861,
+        "displayTicks": 112627116163952,
+        "height": 770,
+        "persistedTicks": 112627120915697,
+        "png": "frame-00326.png",
+        "sequence": 326,
+        "sha256": "2a6650eb9a9e6a58643d7c3add53f8ecf91e3991b7ab74bbef3dbd416ebdcedb",
+        "width": 1160
+      },
+      "presentationMs": 64.87266666666666,
+      "callbackDelayMs": 171.87120833333336,
+      "ptyOutputMs": 0.8666666666666666,
+      "completeFramesObserved": 9
+    },
+    {
+      "inputTicks": 112627126022811,
+      "ptyOutputTicks": 112627126042943,
+      "terminalBytes": 66,
+      "key": "r",
+      "expectedFirstRow": "xabcdefghijklmnopqrordinary source line 0123456789                              ",
+      "expectedCursor": {
+        "row": 1,
+        "column": 20
+      },
+      "terminalContents": "xabcdefghijklmnopqrordinary source line 0123456789\nordinary source line 0123456789\nordinary source line 0123456789\nordinary source line 0123456789\nordinary source line 0123456789\nordinary source line 0123456789\nordinary source line 0123456789\nordinary source line 0123456789\nordinary source line 0123456789\nordinary source line 0123456789\nordinary source line 0123456789\nordinary source line 0123456789\nordinary source line 0123456789\nordinary source line 0123456789\nordinary source line 0123456789\nordinary source line 0123456789\nordinary source line 0123456789\nordinary source line 0123456789\nordinary source line 0123456789\nordinary source line 0123456789\nordinary source line 0123456789\nordinary source line 0123456789\nordinary source line 0123456789\nEDIT INPUT   .TXT *    ^S Save  ^Q Quit",
+      "reference": {
+        "callbackTicks": 112627137036281,
+        "displayTicks": 112627131447538,
+        "height": 770,
+        "persistedTicks": 112627137858297,
+        "png": "frame-00350.png",
+        "sequence": 350,
+        "sha256": "f7464eeef9c43fc8af750d5c1ef5a1e6546f3e73b8e3df74e202c0622fb2ff6a",
+        "width": 1160
+      },
+      "firstMatchingFrame": {
+        "callbackTicks": 112627131176653,
+        "displayTicks": 112627127091398,
+        "height": 770,
+        "persistedTicks": 112627132104219,
+        "png": "frame-00343.png",
+        "sequence": 343,
+        "sha256": "f7464eeef9c43fc8af750d5c1ef5a1e6546f3e73b8e3df74e202c0622fb2ff6a",
+        "width": 1160
+      },
+      "presentationMs": 44.524458333333335,
+      "callbackDelayMs": 170.21895833333335,
+      "ptyOutputMs": 0.8388333333333333,
+      "completeFramesObserved": 9
+    },
+    {
+      "inputTicks": 112627138422127,
+      "ptyOutputTicks": 112627138448375,
+      "terminalBytes": 67,
+      "key": "s",
+      "expectedFirstRow": "xabcdefghijklmnopqrsordinary source line 0123456789                             ",
+      "expectedCursor": {
+        "row": 1,
+        "column": 21
+      },
+      "terminalContents": "xabcdefghijklmnopqrsordinary source line 0123456789\nordinary source line 0123456789\nordinary source line 0123456789\nordinary source line 0123456789\nordinary source line 0123456789\nordinary source line 0123456789\nordinary source line 0123456789\nordinary source line 0123456789\nordinary source line 0123456789\nordinary source line 0123456789\nordinary source line 0123456789\nordinary source line 0123456789\nordinary source line 0123456789\nordinary source line 0123456789\nordinary source line 0123456789\nordinary source line 0123456789\nordinary source line 0123456789\nordinary source line 0123456789\nordinary source line 0123456789\nordinary source line 0123456789\nordinary source line 0123456789\nordinary source line 0123456789\nordinary source line 0123456789\nEDIT INPUT   .TXT *    ^S Save  ^Q Quit",
+      "reference": {
+        "callbackTicks": 112627148837485,
+        "displayTicks": 112627144564177,
+        "height": 770,
+        "persistedTicks": 112627149488158,
+        "png": "frame-00367.png",
+        "sequence": 367,
+        "sha256": "1d7bf3a748da967eb59694bd8c8437a2c409927adf45e3702f8bd2c317ff87d6",
+        "width": 1160
+      },
+      "firstMatchingFrame": {
+        "callbackTicks": 112627144244844,
+        "displayTicks": 112627139798941,
+        "height": 770,
+        "persistedTicks": 112627144891106,
+        "png": "frame-00360.png",
+        "sequence": 360,
+        "sha256": "1d7bf3a748da967eb59694bd8c8437a2c409927adf45e3702f8bd2c317ff87d6",
+        "width": 1160
+      },
+      "presentationMs": 57.36725,
+      "callbackDelayMs": 185.24595833333333,
+      "ptyOutputMs": 1.0936666666666668,
+      "completeFramesObserved": 9
+    },
+    {
+      "inputTicks": 112627149894246,
+      "ptyOutputTicks": 112627149920846,
+      "terminalBytes": 68,
+      "key": "t",
+      "expectedFirstRow": "xabcdefghijklmnopqrstordinary source line 0123456789                            ",
+      "expectedCursor": {
+        "row": 1,
+        "column": 22
+      },
+      "terminalContents": "xabcdefghijklmnopqrstordinary source line 0123456789\nordinary source line 0123456789\nordinary source line 0123456789\nordinary source line 0123456789\nordinary source line 0123456789\nordinary source line 0123456789\nordinary source line 0123456789\nordinary source line 0123456789\nordinary source line 0123456789\nordinary source line 0123456789\nordinary source line 0123456789\nordinary source line 0123456789\nordinary source line 0123456789\nordinary source line 0123456789\nordinary source line 0123456789\nordinary source line 0123456789\nordinary source line 0123456789\nordinary source line 0123456789\nordinary source line 0123456789\nordinary source line 0123456789\nordinary source line 0123456789\nordinary source line 0123456789\nordinary source line 0123456789\nEDIT INPUT   .TXT *    ^S Save  ^Q Quit",
+      "reference": {
+        "callbackTicks": 112627160590146,
+        "displayTicks": 112627156279551,
+        "height": 770,
+        "persistedTicks": 112627161307741,
+        "png": "frame-00385.png",
+        "sequence": 385,
+        "sha256": "03b3ca9e7d96bc1aa0c6dda37ba4083b48f26d6c5316343688f476edb3299e8c",
+        "width": 1160
+      },
+      "firstMatchingFrame": {
+        "callbackTicks": 112627155271226,
+        "displayTicks": 112627150958038,
+        "height": 770,
+        "persistedTicks": 112627155901474,
+        "png": "frame-00377.png",
+        "sequence": 377,
+        "sha256": "03b3ca9e7d96bc1aa0c6dda37ba4083b48f26d6c5316343688f476edb3299e8c",
+        "width": 1160
+      },
+      "presentationMs": 44.324666666666666,
+      "callbackDelayMs": 179.71616666666665,
+      "ptyOutputMs": 1.1083333333333332,
+      "completeFramesObserved": 10
+    },
+    {
+      "inputTicks": 112627161894012,
+      "ptyOutputTicks": 112627161937790,
+      "terminalBytes": 69,
+      "key": "u",
+      "expectedFirstRow": "xabcdefghijklmnopqrstuordinary source line 0123456789                           ",
+      "expectedCursor": {
+        "row": 1,
+        "column": 23
+      },
+      "terminalContents": "xabcdefghijklmnopqrstuordinary source line 0123456789\nordinary source line 0123456789\nordinary source line 0123456789\nordinary source line 0123456789\nordinary source line 0123456789\nordinary source line 0123456789\nordinary source line 0123456789\nordinary source line 0123456789\nordinary source line 0123456789\nordinary source line 0123456789\nordinary source line 0123456789\nordinary source line 0123456789\nordinary source line 0123456789\nordinary source line 0123456789\nordinary source line 0123456789\nordinary source line 0123456789\nordinary source line 0123456789\nordinary source line 0123456789\nordinary source line 0123456789\nordinary source line 0123456789\nordinary source line 0123456789\nordinary source line 0123456789\nordinary source line 0123456789\nEDIT INPUT   .TXT *    ^S Save  ^Q Quit",
+      "reference": {
+        "callbackTicks": 112627172171803,
+        "displayTicks": 112627167791502,
+        "height": 770,
+        "persistedTicks": 112627172811480,
+        "png": "frame-00402.png",
+        "sequence": 402,
+        "sha256": "6cf94618e16d2ce3ca44624b2d8154ddb991be2c098f9572e4f0639153af06de",
+        "width": 1160
+      },
+      "firstMatchingFrame": {
+        "callbackTicks": 112627167692878,
+        "displayTicks": 112627162986004,
+        "height": 770,
+        "persistedTicks": 112627168317971,
+        "png": "frame-00395.png",
+        "sequence": 395,
+        "sha256": "6cf94618e16d2ce3ca44624b2d8154ddb991be2c098f9572e4f0639153af06de",
+        "width": 1160
+      },
+      "presentationMs": 45.49966666666666,
+      "callbackDelayMs": 196.11975,
+      "ptyOutputMs": 1.8240833333333333,
+      "completeFramesObserved": 9
+    },
+    {
+      "inputTicks": 112627173463421,
+      "ptyOutputTicks": 112627173484876,
+      "terminalBytes": 70,
+      "key": "v",
+      "expectedFirstRow": "xabcdefghijklmnopqrstuvordinary source line 0123456789                          ",
+      "expectedCursor": {
+        "row": 1,
+        "column": 24
+      },
+      "terminalContents": "xabcdefghijklmnopqrstuvordinary source line 0123456789\nordinary source line 0123456789\nordinary source line 0123456789\nordinary source line 0123456789\nordinary source line 0123456789\nordinary source line 0123456789\nordinary source line 0123456789\nordinary source line 0123456789\nordinary source line 0123456789\nordinary source line 0123456789\nordinary source line 0123456789\nordinary source line 0123456789\nordinary source line 0123456789\nordinary source line 0123456789\nordinary source line 0123456789\nordinary source line 0123456789\nordinary source line 0123456789\nordinary source line 0123456789\nordinary source line 0123456789\nordinary source line 0123456789\nordinary source line 0123456789\nordinary source line 0123456789\nordinary source line 0123456789\nEDIT INPUT   .TXT *    ^S Save  ^Q Quit",
+      "reference": {
+        "callbackTicks": 112627183736443,
+        "displayTicks": 112627179417906,
+        "height": 770,
+        "persistedTicks": 112627184423259,
+        "png": "frame-00420.png",
+        "sequence": 420,
+        "sha256": "6d7ca82e59a8387ee84a8ce7ad73c44c9d27f308e0b2deec000aebdc33b4b4fd",
+        "width": 1160
+      },
+      "firstMatchingFrame": {
+        "callbackTicks": 112627179202430,
+        "displayTicks": 112627175035824,
+        "height": 770,
+        "persistedTicks": 112627179818043,
+        "png": "frame-00413.png",
+        "sequence": 413,
+        "sha256": "6d7ca82e59a8387ee84a8ce7ad73c44c9d27f308e0b2deec000aebdc33b4b4fd",
+        "width": 1160
+      },
+      "presentationMs": 65.51679166666666,
+      "callbackDelayMs": 173.60858333333334,
+      "ptyOutputMs": 0.8939583333333334,
+      "completeFramesObserved": 10
+    },
+    {
+      "inputTicks": 112627184875912,
+      "ptyOutputTicks": 112627184897204,
+      "terminalBytes": 71,
+      "key": "w",
+      "expectedFirstRow": "xabcdefghijklmnopqrstuvwordinary source line 0123456789                         ",
+      "expectedCursor": {
+        "row": 1,
+        "column": 25
+      },
+      "terminalContents": "xabcdefghijklmnopqrstuvwordinary source line 0123456789\nordinary source line 0123456789\nordinary source line 0123456789\nordinary source line 0123456789\nordinary source line 0123456789\nordinary source line 0123456789\nordinary source line 0123456789\nordinary source line 0123456789\nordinary source line 0123456789\nordinary source line 0123456789\nordinary source line 0123456789\nordinary source line 0123456789\nordinary source line 0123456789\nordinary source line 0123456789\nordinary source line 0123456789\nordinary source line 0123456789\nordinary source line 0123456789\nordinary source line 0123456789\nordinary source line 0123456789\nordinary source line 0123456789\nordinary source line 0123456789\nordinary source line 0123456789\nordinary source line 0123456789\nEDIT INPUT   .TXT *    ^S Save  ^Q Quit",
+      "reference": {
+        "callbackTicks": 112627195520741,
+        "displayTicks": 112627191066795,
+        "height": 770,
+        "persistedTicks": 112627196189120,
+        "png": "frame-00438.png",
+        "sequence": 438,
+        "sha256": "08e0edfbf4bd41f2886a5dbe248e98e3490c175d86b641e51f5a591b85fe639b",
+        "width": 1160
+      },
+      "firstMatchingFrame": {
+        "callbackTicks": 112627190280223,
+        "displayTicks": 112627185865317,
+        "height": 770,
+        "persistedTicks": 112627190913856,
+        "png": "frame-00430.png",
+        "sequence": 430,
+        "sha256": "08e0edfbf4bd41f2886a5dbe248e98e3490c175d86b641e51f5a591b85fe639b",
+        "width": 1160
+      },
+      "presentationMs": 41.225208333333335,
+      "callbackDelayMs": 183.95441666666665,
+      "ptyOutputMs": 0.8871666666666667,
+      "completeFramesObserved": 10
+    },
+    {
+      "inputTicks": 112627196421643,
+      "ptyOutputTicks": 112627196444186,
+      "terminalBytes": 72,
+      "key": "x",
+      "expectedFirstRow": "xabcdefghijklmnopqrstuvwxordinary source line 0123456789                        ",
+      "expectedCursor": {
+        "row": 1,
+        "column": 26
+      },
+      "terminalContents": "xabcdefghijklmnopqrstuvwxordinary source line 0123456789\nordinary source line 0123456789\nordinary source line 0123456789\nordinary source line 0123456789\nordinary source line 0123456789\nordinary source line 0123456789\nordinary source line 0123456789\nordinary source line 0123456789\nordinary source line 0123456789\nordinary source line 0123456789\nordinary source line 0123456789\nordinary source line 0123456789\nordinary source line 0123456789\nordinary source line 0123456789\nordinary source line 0123456789\nordinary source line 0123456789\nordinary source line 0123456789\nordinary source line 0123456789\nordinary source line 0123456789\nordinary source line 0123456789\nordinary source line 0123456789\nordinary source line 0123456789\nordinary source line 0123456789\nEDIT INPUT   .TXT *    ^S Save  ^Q Quit",
+      "reference": {
+        "callbackTicks": 112627206846132,
+        "displayTicks": 112627202295484,
+        "height": 770,
+        "persistedTicks": 112627207575835,
+        "png": "frame-00455.png",
+        "sequence": 455,
+        "sha256": "fdcafbcba6e47f11d8b56686607fe2a37672115e1fc92e763d4670cf9474c7d8",
+        "width": 1160
+      },
+      "firstMatchingFrame": {
+        "callbackTicks": 112627202235271,
+        "displayTicks": 112627197834383,
+        "height": 770,
+        "persistedTicks": 112627202903707,
+        "png": "frame-00448.png",
+        "sequence": 448,
+        "sha256": "fdcafbcba6e47f11d8b56686607fe2a37672115e1fc92e763d4670cf9474c7d8",
+        "width": 1160
+      },
+      "presentationMs": 58.86416666666666,
+      "callbackDelayMs": 183.37033333333335,
+      "ptyOutputMs": 0.9392916666666666,
+      "completeFramesObserved": 9
+    },
+    {
+      "inputTicks": 112627208255828,
+      "ptyOutputTicks": 112627208280787,
+      "terminalBytes": 73,
+      "key": "y",
+      "expectedFirstRow": "xabcdefghijklmnopqrstuvwxyordinary source line 0123456789                       ",
+      "expectedCursor": {
+        "row": 1,
+        "column": 27
+      },
+      "terminalContents": "xabcdefghijklmnopqrstuvwxyordinary source line 0123456789\nordinary source line 0123456789\nordinary source line 0123456789\nordinary source line 0123456789\nordinary source line 0123456789\nordinary source line 0123456789\nordinary source line 0123456789\nordinary source line 0123456789\nordinary source line 0123456789\nordinary source line 0123456789\nordinary source line 0123456789\nordinary source line 0123456789\nordinary source line 0123456789\nordinary source line 0123456789\nordinary source line 0123456789\nordinary source line 0123456789\nordinary source line 0123456789\nordinary source line 0123456789\nordinary source line 0123456789\nordinary source line 0123456789\nordinary source line 0123456789\nordinary source line 0123456789\nordinary source line 0123456789\nEDIT INPUT   .TXT *    ^S Save  ^Q Quit",
+      "reference": {
+        "callbackTicks": 112627218743963,
+        "displayTicks": 112627214200706,
+        "height": 770,
+        "persistedTicks": 112627219633835,
+        "png": "frame-00473.png",
+        "sequence": 473,
+        "sha256": "67eb7a776bd884593b0f34ccb7919f6c7fb01b289711990236c106527e3ea50a",
+        "width": 1160
+      },
+      "firstMatchingFrame": {
+        "callbackTicks": 112627214012763,
+        "displayTicks": 112627209836445,
+        "height": 770,
+        "persistedTicks": 112627214619640,
+        "png": "frame-00466.png",
+        "sequence": 466,
+        "sha256": "67eb7a776bd884593b0f34ccb7919f6c7fb01b289711990236c106527e3ea50a",
+        "width": 1160
+      },
+      "presentationMs": 65.85904166666667,
+      "callbackDelayMs": 174.01325,
+      "ptyOutputMs": 1.0399583333333333,
+      "completeFramesObserved": 10
+    },
+    {
+      "inputTicks": 112627220323919,
+      "ptyOutputTicks": 112627220347164,
+      "terminalBytes": 74,
+      "key": "z",
+      "expectedFirstRow": "xabcdefghijklmnopqrstuvwxyzordinary source line 0123456789                      ",
+      "expectedCursor": {
+        "row": 1,
+        "column": 28
+      },
+      "terminalContents": "xabcdefghijklmnopqrstuvwxyzordinary source line 0123456789\nordinary source line 0123456789\nordinary source line 0123456789\nordinary source line 0123456789\nordinary source line 0123456789\nordinary source line 0123456789\nordinary source line 0123456789\nordinary source line 0123456789\nordinary source line 0123456789\nordinary source line 0123456789\nordinary source line 0123456789\nordinary source line 0123456789\nordinary source line 0123456789\nordinary source line 0123456789\nordinary source line 0123456789\nordinary source line 0123456789\nordinary source line 0123456789\nordinary source line 0123456789\nordinary source line 0123456789\nordinary source line 0123456789\nordinary source line 0123456789\nordinary source line 0123456789\nordinary source line 0123456789\nEDIT INPUT   .TXT *    ^S Save  ^Q Quit",
+      "reference": {
+        "callbackTicks": 112627231208629,
+        "displayTicks": 112627227060739,
+        "height": 770,
+        "persistedTicks": 112627231871587,
+        "png": "frame-00492.png",
+        "sequence": 492,
+        "sha256": "18e5dd2de5a08c9f3c8d8af5ddbfefb525e32b78a65f011b3e05d83d38b7612c",
+        "width": 1160
+      },
+      "firstMatchingFrame": {
+        "callbackTicks": 112627226083073,
+        "displayTicks": 112627221877730,
+        "height": 770,
+        "persistedTicks": 112627226697666,
+        "png": "frame-00484.png",
+        "sequence": 484,
+        "sha256": "18e5dd2de5a08c9f3c8d8af5ddbfefb525e32b78a65f011b3e05d83d38b7612c",
+        "width": 1160
+      },
+      "presentationMs": 64.742125,
+      "callbackDelayMs": 175.222625,
+      "ptyOutputMs": 0.9685416666666666,
+      "completeFramesObserved": 10
+    },
+    {
+      "inputTicks": 112627232194999,
+      "ptyOutputTicks": 112627232236364,
+      "terminalBytes": 75,
+      "key": "a",
+      "expectedFirstRow": "xabcdefghijklmnopqrstuvwxyzaordinary source line 0123456789                     ",
+      "expectedCursor": {
+        "row": 1,
+        "column": 29
+      },
+      "terminalContents": "xabcdefghijklmnopqrstuvwxyzaordinary source line 0123456789\nordinary source line 0123456789\nordinary source line 0123456789\nordinary source line 0123456789\nordinary source line 0123456789\nordinary source line 0123456789\nordinary source line 0123456789\nordinary source line 0123456789\nordinary source line 0123456789\nordinary source line 0123456789\nordinary source line 0123456789\nordinary source line 0123456789\nordinary source line 0123456789\nordinary source line 0123456789\nordinary source line 0123456789\nordinary source line 0123456789\nordinary source line 0123456789\nordinary source line 0123456789\nordinary source line 0123456789\nordinary source line 0123456789\nordinary source line 0123456789\nordinary source line 0123456789\nordinary source line 0123456789\nEDIT INPUT   .TXT *    ^S Save  ^Q Quit",
+      "reference": {
+        "callbackTicks": 112627242857400,
+        "displayTicks": 112627238659204,
+        "height": 770,
+        "persistedTicks": 112627243483069,
+        "png": "frame-00510.png",
+        "sequence": 510,
+        "sha256": "45227d70e76d7cab71bbe7c0b4e31264d513639743fa20cee9dc24e153e3b5d6",
+        "width": 1160
+      },
+      "firstMatchingFrame": {
+        "callbackTicks": 112627237751306,
+        "displayTicks": 112627233443822,
+        "height": 770,
+        "persistedTicks": 112627238372671,
+        "png": "frame-00502.png",
+        "sequence": 502,
+        "sha256": "45227d70e76d7cab71bbe7c0b4e31264d513639743fa20cee9dc24e153e3b5d6",
+        "width": 1160
+      },
+      "presentationMs": 52.03429166666666,
+      "callbackDelayMs": 179.4785,
+      "ptyOutputMs": 1.7235416666666667,
+      "completeFramesObserved": 11
+    },
+    {
+      "inputTicks": 112627243642417,
+      "ptyOutputTicks": 112627243665556,
+      "terminalBytes": 76,
+      "key": "b",
+      "expectedFirstRow": "xabcdefghijklmnopqrstuvwxyzabordinary source line 0123456789                    ",
+      "expectedCursor": {
+        "row": 1,
+        "column": 30
+      },
+      "terminalContents": "xabcdefghijklmnopqrstuvwxyzabordinary source line 0123456789\nordinary source line 0123456789\nordinary source line 0123456789\nordinary source line 0123456789\nordinary source line 0123456789\nordinary source line 0123456789\nordinary source line 0123456789\nordinary source line 0123456789\nordinary source line 0123456789\nordinary source line 0123456789\nordinary source line 0123456789\nordinary source line 0123456789\nordinary source line 0123456789\nordinary source line 0123456789\nordinary source line 0123456789\nordinary source line 0123456789\nordinary source line 0123456789\nordinary source line 0123456789\nordinary source line 0123456789\nordinary source line 0123456789\nordinary source line 0123456789\nordinary source line 0123456789\nordinary source line 0123456789\nEDIT INPUT   .TXT *    ^S Save  ^Q Quit",
+      "reference": {
+        "callbackTicks": 112627254344997,
+        "displayTicks": 112627249892459,
+        "height": 770,
+        "persistedTicks": 112627254998608,
+        "png": "frame-00528.png",
+        "sequence": 528,
+        "sha256": "a546fcddeb4bd8fa6bf244aecb25306d40fff6e9158d184c4edb6b2329deca1a",
+        "width": 1160
+      },
+      "firstMatchingFrame": {
+        "callbackTicks": 112627249136672,
+        "displayTicks": 112627245041500,
+        "height": 770,
+        "persistedTicks": 112627249766923,
+        "png": "frame-00520.png",
+        "sequence": 520,
+        "sha256": "a546fcddeb4bd8fa6bf244aecb25306d40fff6e9158d184c4edb6b2329deca1a",
+        "width": 1160
+      },
+      "presentationMs": 58.295125,
+      "callbackDelayMs": 170.63216666666665,
+      "ptyOutputMs": 0.964125,
+      "completeFramesObserved": 10
+    },
+    {
+      "inputTicks": 112627255391397,
+      "ptyOutputTicks": 112627255420722,
+      "terminalBytes": 77,
+      "key": "c",
+      "expectedFirstRow": "xabcdefghijklmnopqrstuvwxyzabcordinary source line 0123456789                   ",
+      "expectedCursor": {
+        "row": 1,
+        "column": 31
+      },
+      "terminalContents": "xabcdefghijklmnopqrstuvwxyzabcordinary source line 0123456789\nordinary source line 0123456789\nordinary source line 0123456789\nordinary source line 0123456789\nordinary source line 0123456789\nordinary source line 0123456789\nordinary source line 0123456789\nordinary source line 0123456789\nordinary source line 0123456789\nordinary source line 0123456789\nordinary source line 0123456789\nordinary source line 0123456789\nordinary source line 0123456789\nordinary source line 0123456789\nordinary source line 0123456789\nordinary source line 0123456789\nordinary source line 0123456789\nordinary source line 0123456789\nordinary source line 0123456789\nordinary source line 0123456789\nordinary source line 0123456789\nordinary source line 0123456789\nordinary source line 0123456789\nEDIT INPUT   .TXT *    ^S Save  ^Q Quit",
+      "reference": {
+        "callbackTicks": 112627265539252,
+        "displayTicks": 112627261050514,
+        "height": 770,
+        "persistedTicks": 112627266187431,
+        "png": "frame-00545.png",
+        "sequence": 545,
+        "sha256": "53bba7118653f8b9d3a291979f23561c69d220eb265c617c5fd0917e9c905936",
+        "width": 1160
+      },
+      "firstMatchingFrame": {
+        "callbackTicks": 112627261014281,
+        "displayTicks": 112627256649747,
+        "height": 770,
+        "persistedTicks": 112627261674963,
+        "png": "frame-00538.png",
+        "sequence": 538,
+        "sha256": "53bba7118653f8b9d3a291979f23561c69d220eb265c617c5fd0917e9c905936",
+        "width": 1160
+      },
+      "presentationMs": 52.43125,
+      "callbackDelayMs": 181.85558333333336,
+      "ptyOutputMs": 1.221875,
+      "completeFramesObserved": 9
+    },
+    {
+      "inputTicks": 112627266836333,
+      "ptyOutputTicks": 112627266860653,
+      "terminalBytes": 78,
+      "key": "d",
+      "expectedFirstRow": "xabcdefghijklmnopqrstuvwxyzabcdordinary source line 0123456789                  ",
+      "expectedCursor": {
+        "row": 1,
+        "column": 32
+      },
+      "terminalContents": "xabcdefghijklmnopqrstuvwxyzabcdordinary source line 0123456789\nordinary source line 0123456789\nordinary source line 0123456789\nordinary source line 0123456789\nordinary source line 0123456789\nordinary source line 0123456789\nordinary source line 0123456789\nordinary source line 0123456789\nordinary source line 0123456789\nordinary source line 0123456789\nordinary source line 0123456789\nordinary source line 0123456789\nordinary source line 0123456789\nordinary source line 0123456789\nordinary source line 0123456789\nordinary source line 0123456789\nordinary source line 0123456789\nordinary source line 0123456789\nordinary source line 0123456789\nordinary source line 0123456789\nordinary source line 0123456789\nordinary source line 0123456789\nordinary source line 0123456789\nEDIT INPUT   .TXT *    ^S Save  ^Q Quit",
+      "reference": {
+        "callbackTicks": 112627277078860,
+        "displayTicks": 112627272682772,
+        "height": 770,
+        "persistedTicks": 112627277737461,
+        "png": "frame-00563.png",
+        "sequence": 563,
+        "sha256": "616d6689f177375c03d37caa42b8b90db2032a62a423cedc38f25628cc972ffd",
+        "width": 1160
+      },
+      "firstMatchingFrame": {
+        "callbackTicks": 112627272505966,
+        "displayTicks": 112627268264962,
+        "height": 770,
+        "persistedTicks": 112627273123344,
+        "png": "frame-00556.png",
+        "sequence": 556,
+        "sha256": "616d6689f177375c03d37caa42b8b90db2032a62a423cedc38f25628cc972ffd",
+        "width": 1160
+      },
+      "presentationMs": 59.52620833333334,
+      "callbackDelayMs": 176.7085,
+      "ptyOutputMs": 1.0133333333333334,
+      "completeFramesObserved": 10
+    }
+  ],
+  "cold": {
+    "inputTicks": 112626914281280,
+    "ptyOutputTicks": 112626914356359,
+    "terminalBytes": 142,
+    "key": "x",
+    "expectedFirstRow": "xordinary source line 0123456789                                                ",
+    "expectedCursor": {
+      "row": 1,
+      "column": 2
+    },
+    "terminalContents": "xordinary source line 0123456789\nordinary source line 0123456789\nordinary source line 0123456789\nordinary source line 0123456789\nordinary source line 0123456789\nordinary source line 0123456789\nordinary source line 0123456789\nordinary source line 0123456789\nordinary source line 0123456789\nordinary source line 0123456789\nordinary source line 0123456789\nordinary source line 0123456789\nordinary source line 0123456789\nordinary source line 0123456789\nordinary source line 0123456789\nordinary source line 0123456789\nordinary source line 0123456789\nordinary source line 0123456789\nordinary source line 0123456789\nordinary source line 0123456789\nordinary source line 0123456789\nordinary source line 0123456789\nordinary source line 0123456789\nEDIT INPUT   .TXT *    ^S Save  ^Q Quit",
+    "reference": {
+      "callbackTicks": 112626924625955,
+      "displayTicks": 112626920209842,
+      "height": 770,
+      "persistedTicks": 112626925292006,
+      "png": "frame-00037.png",
+      "sequence": 37,
+      "sha256": "4fdccf01947e5dcbf9efae56c7a9e22866383dc9226f98ad234f2b9f1eb7b8cf",
+      "width": 1160
+    },
+    "firstMatchingFrame": {
+      "callbackTicks": 112626920096369,
+      "displayTicks": 112626915777760,
+      "height": 770,
+      "persistedTicks": 112626920723719,
+      "png": "frame-00030.png",
+      "sequence": 30,
+      "sha256": "4fdccf01947e5dcbf9efae56c7a9e22866383dc9226f98ad234f2b9f1eb7b8cf",
+      "width": 1160
+    },
+    "presentationMs": 62.35333333333334,
+    "callbackDelayMs": 179.94204166666665,
+    "ptyOutputMs": 3.1282916666666667,
+    "completeFramesObserved": 9
+  },
+  "summary": {
+    "medianMs": 52.4168125,
+    "p95Ms": 67.27675
+  },
+  "timebase": {
+    "numer": 125,
+    "denom": 3
+  },
+  "captureRequestedHz": 60,
+  "boundary": "PTY input write timestamp to first matching complete ScreenCaptureKit frame displayTime (WindowServer presentation, not physical scanout)",
+  "oracle": "Exact entire-window pixel hash equals settled reference; independent Terminal contents confirms expected first row; final ANSI cursor position confirmed. Reference PNGs must be visually audited for cursor visibility.",
+  "limitations": [
+    "Capture may miss earlier states; matching reference may be delayed by cursor blink, so results are observation bounds.",
+    "Reference cursor visibility requires image review; invisible-cursor reference is not qualified.",
+    "PNG encoding and capture observer add host load; callback delay is recorded separately."
+  ],
+  "diskSha256": "1eb581ba61677f80a25743d3569815251a9e8fa0ec9548615855406fab39b99d",
+  "provenance": {
+    "editor": {
+      "physicalRecordsSha256": "e6abba89599b4aacc104b59b3833995279d2773d7f70ecb5ce40758bb4165ea4",
+      "physicalBytes": 5632,
+      "artifactPath": "/Users/johnhardy/projects/edit/test/fixtures/editor-engine-milestone3.json",
+      "sha256": "6be83f6edb9ee92387c7b3817f473fbbc389a58ab1a20d9a2a6101e695fb77c4",
+      "bytes": 5513
+    },
+    "diskSha256": "1eb581ba61677f80a25743d3569815251a9e8fa0ec9548615855406fab39b99d",
+    "nativeHostSha256": "df5d6782e8a60504b46b8bf58014839935a8f448b976bdc93102b6074d81c37b",
+    "captureHelperSha256": "2685bce9d9bcfa91241400c5521969a9ffbd22169cc4f3906aae19697fde74ca",
+    "qualifierSha256": "7d9f6fc8a4c42ac7eb0f183ae28c0d6ee2047efbf60bd150673ab5817d724108",
+    "triptychHead": "5e2ff4d53a88dafb36125731f0dded913f539c7f",
+    "terminalVersion": "2.15",
+    "terminalBuild": "470.2",
+    "platform": "macOS-26.5.2-arm64-arm-64bit",
+    "machine": "arm64",
+    "pythonVersion": "3.9.6"
+  }
+}

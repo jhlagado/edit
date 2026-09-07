@@ -1,55 +1,62 @@
 ; Command-tail parser for EDIT and EDIT NAME.EXT.
 
-EditorCommandLength .equ $0080
-EditorCommandStart  .equ $0081
+; EditorCommandLength
+COMLEN EQU $0080
+; EditorCommandStart
+COMSTA  EQU $0081
 
-EditorCommandCodeStart:
-.routine out A,carry,zero clobbers sign,parity,halfCarry,BC,DE,HL,IX
-EditorPrepareCommand:
-            LD   HL,EditorDefaultName
-            LD   DE,EditorFcb
-            CALL EditorBuildFcb
-            LD   (EditorSaveState),A
-            LD   A,(EditorCommandLength)
+; EditorCommandCodeStart
+COMCODST:
+;@ROUTINE out A,carry,zero clobbers sign,parity,halfCarry,BC,DE,HL,IX
+; EditorPrepareCommand
+PRECOM:
+            LD   HL,DEFNAM
+            LD   DE,FCB
+            CALL BUILDFCB
+            LD   (SAVSTA),A
+            LD   A,(COMLEN)
             LD   B,A
-            LD   HL,EditorCommandStart
-            CALL EditorCommandSkipSpaces
-            JR   Z,EditorCommandReady
-            LD   (EditorSaveState),A
+            LD   HL,COMSTA
+            CALL COMSKISP
+            JR   Z,COMREA
+            LD   (SAVSTA),A
             PUSH HL
             LD   C,B
             PUSH BC
             XOR  A
-            LD   (EditorFcb),A
-            LD   HL,EditorFcb+1
-            LD   DE,EditorFcb+2
+            LD   (FCB),A
+            LD   HL,FCB+1
+            LD   DE,FCB+2
             LD   BC,10
             LD   (HL),' '
             LDIR
             POP  BC
             POP  HL
-            CALL EditorCommandParseName
-            JR   C,EditorCommandInvalid
-            CALL EditorCommandSkipSpaces
-            JR   NZ,EditorCommandInvalid
-EditorCommandReady:
-            LD   HL,EditorFcb+9
-            LD   DE,EditorBackupExtension
-            CALL EditorCommandExtensionEqual
-            JR   Z,EditorCommandInvalid
-            LD   HL,EditorFcb+9
-            LD   DE,EditorTemporaryExtension
-            CALL EditorCommandExtensionEqual
-            JR   Z,EditorCommandInvalid
+            CALL COMPARNA
+            JR   C,COMINV
+            CALL COMSKISP
+            JR   NZ,COMINV
+; EditorCommandReady
+COMREA:
+            LD   HL,FCB+9
+            LD   DE,BACEXT
+            CALL COMEXTEQ
+            JR   Z,COMINV
+            LD   HL,FCB+9
+            LD   DE,TEMEXT
+            CALL COMEXTEQ
+            JR   Z,COMINV
             XOR  A
             RET
-EditorCommandInvalid:
-            LD   A,EditorErrorCommand
+; EditorCommandInvalid
+COMINV:
+            LD   A,ERRCOM
             SCF
             RET
 
-.routine in B,HL out A,B,HL,zero clobbers carry,sign,parity,halfCarry
-EditorCommandSkipSpaces:
+;@ROUTINE in B,HL out A,B,HL,zero clobbers carry,sign,parity,halfCarry
+; EditorCommandSkipSpaces
+COMSKISP:
             LD   A,B
             OR   A
             RET  Z
@@ -58,95 +65,108 @@ EditorCommandSkipSpaces:
             RET  NZ
             INC  HL
             DEC  B
-            JR   EditorCommandSkipSpaces
+            JR   COMSKISP
 
-.routine in B,HL out A,B,HL,carry,zero clobbers sign,parity,halfCarry,C,D,IX
-EditorCommandParseName:
-            LD   IX,EditorFcb+1
+;@ROUTINE in B,HL out A,B,HL,carry,zero clobbers sign,parity,halfCarry,C,D,IX
+; EditorCommandParseName
+COMPARNA:
+            LD   IX,FCB+1
             LD   D,8
             LD   C,0
-EditorCommandNameByte:
+; EditorCommandNameByte
+COMNAMBY:
             LD   A,B
             OR   A
-            JR   Z,EditorCommandNameDone
+            JR   Z,COMNAMDO
             LD   A,(HL)
             CP   ' '
-            JR   Z,EditorCommandNameDone
+            JR   Z,COMNAMDO
             CP   '.'
-            JR   NZ,EditorCommandNameData
+            JR   NZ,COMNAMDA
             LD   A,D
             CP   8
-            JR   NZ,EditorCommandNameBad
+            JR   NZ,COMNAMBA
             LD   A,C
             OR   A
-            JR   Z,EditorCommandNameBad
-            LD   IX,EditorFcb+9
+            JR   Z,COMNAMBA
+            LD   IX,FCB+9
             LD   D,3
             LD   C,0
-            JR   EditorCommandNameTake
-EditorCommandNameData:
+            JR   COMNAMTA
+; EditorCommandNameData
+COMNAMDA:
             CP   'a'
-            JR   C,EditorCommandNameCheck
+            JR   C,COMNAMCH
             CP   'z'+1
-            JR   NC,EditorCommandNameCheck
+            JR   NC,COMNAMCH
             AND  $DF
-EditorCommandNameCheck:
+; EditorCommandNameCheck
+COMNAMCH:
             CP   '!'
-            JR   C,EditorCommandNameBad
+            JR   C,COMNAMBA
             CP   $7F
-            JR   NC,EditorCommandNameBad
+            JR   NC,COMNAMBA
             CP   '*'
-            JR   C,EditorCommandFilenameHigh
+            JR   C,COMFILHI
             CP   '-'
-            JR   C,EditorCommandNameBad
+            JR   C,COMNAMBA
             CP   '/'
-            JR   Z,EditorCommandNameBad
+            JR   Z,COMNAMBA
             CP   ':'
-            JR   C,EditorCommandFilenameHigh
+            JR   C,COMFILHI
             CP   '@'
-            JR   C,EditorCommandNameBad
-EditorCommandFilenameHigh:
+            JR   C,COMNAMBA
+; EditorCommandFilenameHigh
+COMFILHI:
             CP   '['
-            JR   C,EditorCommandFilenameReady
+            JR   C,COMFILRE
             CP   '^'
-            JR   C,EditorCommandNameBad
+            JR   C,COMNAMBA
             CP   '_'
-            JR   Z,EditorCommandNameBad
-EditorCommandFilenameReady:
+            JR   Z,COMNAMBA
+; EditorCommandFilenameReady
+COMFILRE:
             OR   A
             INC  C
             PUSH AF
             LD   A,D
             CP   C
-            JR   C,EditorCommandNameOverflow
+            JR   C,COMNAMOV
             POP  AF
             LD   (IX+0),A
             INC  IX
-EditorCommandNameTake:
+; EditorCommandNameTake
+COMNAMTA:
             INC  HL
             DEC  B
-            JR   EditorCommandNameByte
-EditorCommandNameDone:
+            JR   COMNAMBY
+; EditorCommandNameDone
+COMNAMDO:
             LD   A,C
             OR   A
-            JR   Z,EditorCommandNameBad
+            JR   Z,COMNAMBA
             RET
-EditorCommandNameOverflow:
+; EditorCommandNameOverflow
+COMNAMOV:
             POP  AF
-EditorCommandNameBad:
+; EditorCommandNameBad
+COMNAMBA:
             SCF
             RET
 
-.routine in DE,HL out A,zero clobbers carry,sign,parity,halfCarry,B,DE,HL
-EditorCommandExtensionEqual:
+;@ROUTINE in DE,HL out A,zero clobbers carry,sign,parity,halfCarry,B,DE,HL
+; EditorCommandExtensionEqual
+COMEXTEQ:
             LD   B,3
-EditorCommandExtensionLoop:
+; EditorCommandExtensionLoop
+COMEXTLO:
             LD   A,(DE)
             CP   (HL)
             RET  NZ
             INC  DE
             INC  HL
-            DJNZ EditorCommandExtensionLoop
+            DJNZ COMEXTLO
             XOR  A
             RET
-EditorCommandCodeEnd:
+; EditorCommandCodeEnd
+COMCODEN:

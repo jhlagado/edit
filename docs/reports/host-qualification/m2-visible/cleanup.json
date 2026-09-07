@@ -1,0 +1,11 @@
+{
+  "dedicatedWindowId": 426121,
+  "errors": [],
+  "bridgeStop": {
+    "stopped": true,
+    "nativeReturnCode": 143
+  },
+  "dedicatedWindowClosed": true,
+  "captureStopped": true,
+  "captureReturnCode": -15
+}
