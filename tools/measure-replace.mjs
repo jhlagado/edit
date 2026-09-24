@@ -2,7 +2,7 @@ import assert from "node:assert/strict";
 import { dirname, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 
-import { createZ80Runtime } from "@jhlagado/debug80-runtime/z80/runtime";
+import { createZ80Runtime } from "@jhlagado/z80-runtime/z80/runtime";
 import { assembleEditorCandidate } from "../test/support/editor-candidate-assembly.mjs";
 
 const scriptDirectory = dirname(fileURLToPath(import.meta.url));

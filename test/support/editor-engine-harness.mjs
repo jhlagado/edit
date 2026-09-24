@@ -6,7 +6,7 @@ import { readFile } from "node:fs/promises";
 import { dirname, join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import { createCpm22Terminal } from "@jhlagado/debug80-runtime/platforms/cpm22/terminal";
-import { createZ80Runtime } from "@jhlagado/debug80-runtime/z80/runtime";
+import { createZ80Runtime } from "@jhlagado/z80-runtime/z80/runtime";
 import { assembleProjectOwnedAtomArtifacts, projectOwnedCandidates, symbolsFromDebugMap } from "../../tools/atom-assembly.mjs";
 
 const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), "../..");

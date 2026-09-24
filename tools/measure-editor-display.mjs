@@ -126,9 +126,9 @@ const selected = workloads.filter(w => !only || w.name.includes(only));
 assert.ok(selected.length, "no matching workload");
 const result = { format: "edit-engine-display-measurements-v1",
   comparisonLabels: { original: "original frozen editor", milestone1: "completed M1 contiguous editor", milestone2: "completed M2 gap/full-render editor", current: "M3 incremental display" },
-  runtime: { node: process.version, pin: lock.packages["node_modules/@jhlagado/debug80-runtime"].resolved,
-    runtimeSourceSha256: sha256(await readFile(resolve(root, "node_modules/@jhlagado/debug80-runtime/dist/z80/runtime.js"))),
-    cpuSourceSha256: sha256(await readFile(resolve(root, "node_modules/@jhlagado/debug80-runtime/dist/z80/cpu.js"))) },
+  runtime: { node: process.version, pin: lock.packages["node_modules/@jhlagado/z80-runtime"].resolved,
+    runtimeSourceSha256: sha256(await readFile(resolve(root, "node_modules/@jhlagado/z80-runtime/dist/z80/runtime.js"))),
+    cpuSourceSha256: sha256(await readFile(resolve(root, "node_modules/@jhlagado/z80-runtime/dist/z80/cpu.js"))) },
   accounting: { cpu: "Editor-side Z80 instructions/T-states; fake BDOS cycles excluded.",
     copies: "LDI/LDD/LDIR/LDDR source reads inside text arena; may include save-record packing. Other text reads are scalar/scan activity.",
     setup: "Entry, initial gap seeding, cursor placement and fixture layout outside command measurement; setup costs separately recorded.",

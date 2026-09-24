@@ -7,7 +7,7 @@ import {
   CPM22_TERMINAL_ATTR_REVERSE,
   createCpm22Terminal,
 } from "@jhlagado/debug80-runtime/platforms/cpm22/terminal";
-import { createZ80Runtime } from "@jhlagado/debug80-runtime/z80/runtime";
+import { createZ80Runtime } from "@jhlagado/z80-runtime/z80/runtime";
 import {
   assembleProjectOwnedAtomArtifacts,
   projectOwnedCandidates,
