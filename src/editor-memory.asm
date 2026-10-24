@@ -173,8 +173,14 @@ LAYCURRO EQU LAYCOL+3
 LAYORIHO EQU LAYCURRO+1
 ; EditorLayoutOriginTop
 LAYORITO EQU LAYORIHO+3
+; Zero-based number of LF bytes before OriginTop. Bit 2 of LayoutFlags says
+; this cached line count is valid. Keeping it separate from the visible-row
+; cache lets the status line report an absolute source line without scanning
+; the whole document on every ordinary keypress.
+; EditorLayoutTopLine
+LAYTOPLI EQU LAYORITO+2
 ; EditorLayoutRowCount
-LAYROWCO EQU LAYORITO+2
+LAYROWCO EQU LAYTOPLI+2
 ; EditorLayoutFlags
 LAYFLA EQU LAYROWCO+1
 ; EditorLayoutRowEnd
@@ -200,8 +206,10 @@ DISLASFL EQU LAYWOREN
 DISLASST EQU DISLASFL+1
 ; EditorDisplayStatusValid
 DISSTAVA EQU DISLASST+1
+; EditorDisplayLastCursor
+DISLASCU EQU DISSTAVA+1
 ; EditorDisplayRow
-DISROW EQU DISSTAVA+1
+DISROW EQU DISLASCU+2
 ; EditorDisplayEndRow
 DISENDRO EQU DISROW+1
 ; EditorWorkspaceEnd

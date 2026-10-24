@@ -6,6 +6,7 @@ import { fileURLToPath } from "node:url";
 import { assembleCurrent, loadBaseline, memoryAccounts, createEngineMachine,
   beginSession, executeCommands, executeRoutine, engineSnapshot, snapshotDigest,
   physicalFile, writeWord, readWord, seedDocument, logicalDocument, sha256,
+  withoutPositionStatus,
 } from "../test/support/editor-engine-harness.mjs";
 
 const root = resolve(dirname(fileURLToPath(import.meta.url)), "..");
@@ -29,7 +30,7 @@ function gap(machine) {
   return { start: readWord(machine.memory, machine.symbol("EditorDocumentGapStart")),
     end: readWord(machine.memory, machine.symbol("EditorDocumentGapEnd")) };
 }
-function observable(machine) { return snapshotDigest(engineSnapshot(machine)); }
+function observable(machine) { return snapshotDigest(withoutPositionStatus(engineSnapshot(machine))); }
 function observe(machine, name, run, { readOnly = false, noTailCopy = false } = {}) {
   const before = gap(machine);
   const metrics = run();

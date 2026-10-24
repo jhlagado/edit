@@ -398,3 +398,18 @@ export function snapshotDigest(snapshot) {
     cellsSha256: sha256(Uint8Array.from(cells)), attributesSha256: sha256(Uint8Array.from(attributes)),
     files: Object.fromEntries(Object.entries(files).map(([name, bytes]) => [name, { bytes: bytes.length, sha256: sha256(Uint8Array.from(bytes)) }])) };
 }
+
+// Historical frozen editor artifacts predate the derived L<line> C<column>
+// status text. Differential measurements may ignore that one intentional
+// presentation addition while retaining every other status cell and attribute.
+export function withoutPositionStatus(snapshot) {
+  const copy = { ...snapshot, cells: snapshot.cells.slice() };
+  const start = 23 * 80;
+  const row = Buffer.from(copy.cells.slice(start, start + 80)).toString("ascii");
+  const match = /L\d+ C\d+/.exec(row);
+  if (match) {
+    const normalized = `${row.slice(0, match.index)}${row.slice(match.index + match[0].length)}`.padEnd(80, " ").slice(0, 80);
+    copy.cells.splice(start, 80, ...Buffer.from(normalized, "ascii"));
+  }
+  return copy;
+}

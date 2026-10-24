@@ -6,9 +6,115 @@ LAYCODST:
 ;@ROUTINE out A,carry,zero clobbers sign,parity,halfCarry
 ; EditorLayoutReset
 LAYRES:
-            XOR  A
+            LD   A,(LAYFLA)
+            AND  4
             LD   (LAYFLA),A
+            XOR  A
             LD   (LAYROWCO),A
+            RET
+
+; Invalidate the cached absolute top-line number when an accepted edit at or
+; before TOP can shift the byte offset of the viewport. This includes ordinary
+; character edits: even without a newline, changing the document length moves
+; every later newline relative to the unchanged TOP offset.
+;@ROUTINE out A,carry,zero clobbers sign,parity,halfCarry,DE,HL
+; EditorLayoutCheckTopLine
+LAYTOPCH:
+            LD   A,(DOCPENCH)
+            OR   A
+            RET  Z
+            CP   2
+            JR   NC,LAYTOPIN
+            LD   HL,(DOCCHAST)
+            LD   DE,(TOP)
+            OR   A
+            SBC  HL,DE
+            JR   C,LAYTOPIN
+            JR   Z,LAYTOPIN
+            RET
+; EditorLayoutTopLineInvalidate
+LAYTOPIN:
+            LD   A,(LAYFLA)
+            AND  $FB
+            LD   (LAYFLA),A
+            RET
+
+; Count LF bytes in the half-open logical range HL..DE. The caller supplies
+; line-aligned endpoints; the returned BC is the number of line transitions.
+; The document byte reader preserves BC, so this remains a read-only cache
+; operation even while the gap is elsewhere in the arena.
+;@ROUTINE in DE,HL out BC clobbers A,DE,HL
+; EditorLayoutCountLines
+LAYCOUNT:
+            LD   (SCRATCHA),HL
+            LD   (SCRATCHB),DE
+            LD   BC,0
+; EditorLayoutCountLinesLoop
+LAYCTLO:
+            LD   HL,(SCRATCHA)
+            LD   DE,(SCRATCHB)
+            OR   A
+            SBC  HL,DE
+            RET  Z
+            LD   HL,(SCRATCHA)
+            CALL DOCREABY
+            JR   C,LAYCTEN
+            CP   10
+            JR   NZ,LAYCTNX
+            INC  BC
+; EditorLayoutCountLinesNext
+LAYCTNX:
+            LD   HL,(SCRATCHA)
+            INC  HL
+            LD   (SCRATCHA),HL
+            JR   LAYCTLO
+; EditorLayoutCountLinesEnd
+LAYCTEN:
+            RET
+
+; Refresh the cached zero-based line number for TOP. When the viewport moves
+; with a valid cache, count only the crossed range; a cold or invalid cache
+; counts from the start of the document once.
+;@ROUTINE out A,carry,zero clobbers sign,parity,halfCarry,BC,DE,HL
+; EditorLayoutUpdateTopLine
+LAYTOPUP:
+            LD   A,(LAYFLA)
+            AND  4
+            JR   NZ,LAYTOPVA
+            LD   HL,0
+            LD   DE,(TOP)
+            CALL LAYCOUNT
+            LD   (LAYTOPLI),BC
+            JR   LAYTOPSE
+; EditorLayoutTopLineValid
+LAYTOPVA:
+            LD   HL,(TOP)
+            LD   DE,(LAYORITO)
+            OR   A
+            SBC  HL,DE
+            JR   Z,LAYTOPSE
+            JR   C,LAYTOPBA
+            LD   HL,(LAYORITO)
+            LD   DE,(TOP)
+            CALL LAYCOUNT
+            LD   HL,(LAYTOPLI)
+            ADD  HL,BC
+            LD   (LAYTOPLI),HL
+            JR   LAYTOPSE
+; EditorLayoutTopLineBackward
+LAYTOPBA:
+            LD   HL,(TOP)
+            LD   DE,(LAYORITO)
+            CALL LAYCOUNT
+            LD   HL,(LAYTOPLI)
+            OR   A
+            SBC  HL,BC
+            LD   (LAYTOPLI),HL
+; EditorLayoutTopLineSet
+LAYTOPSE:
+            LD   A,(LAYFLA)
+            OR   4
+            LD   (LAYFLA),A
             RET
 
 ; Read boundary[A], A=0..23. BC survives.
@@ -526,8 +632,10 @@ LAYWRIBO:
 ;@ROUTINE out A,carry,zero clobbers sign,parity,halfCarry,BC,DE,HL
 ; EditorLayoutBuild
 LAYBUI:
-            XOR  A
+            LD   A,(LAYFLA)
+            AND  4
             LD   (LAYFLA),A
+            XOR  A
             LD   (LAYIND),A
             LD   DE,(TOP)
             CALL LAYWRIBO
@@ -563,7 +671,9 @@ LAYBUIFU:
             LDIR
             LD   HL,(TOP)
             LD   (LAYORITO),HL
-            LD   A,1
+            LD   A,(LAYFLA)
+            AND  4
+            OR   1
             LD   (LAYFLA),A
             RET
 
@@ -662,6 +772,7 @@ LAYADJNE:
 ;@ROUTINE out A,B,carry,zero clobbers sign,parity,halfCarry,C,DE,HL
 ; EditorLayoutPrepare
 LAYPRE:
+            CALL LAYTOPCH
             XOR  A
             LD   (LAYDAM),A
             LD   (LAYFIR),A
@@ -710,7 +821,8 @@ LAYPREFU:
             LD   (LAYDAM),A
 ; EditorLayoutPrepareCold
 LAYPRECO:
-            XOR  A
+            LD   A,(LAYFLA)
+            AND  4
             LD   (LAYFLA),A
             CALL ENSVIE
             LD   HL,(TOP)

@@ -1,6 +1,7 @@
 import assert from "node:assert/strict";
 import { assembleCurrent, loadBaseline, createEngineMachine, beginSession, executeCommands,
-  executeRoutine, engineSnapshot, memoryAccounts, physicalFile, readWord, writeWord } from "./support/editor-engine-harness.mjs";
+  executeRoutine, engineSnapshot, memoryAccounts, physicalFile, readWord, writeWord,
+  withoutPositionStatus } from "./support/editor-engine-harness.mjs";
 
 const [current, baseline] = await Promise.all([assembleCurrent(), loadBaseline()]);
 const accounts = memoryAccounts(current);
@@ -93,16 +94,17 @@ const sequences = [
     [65], [17], [27,91,68], [6,27], [18,27], [14], [0x01], [19], [17]]},
   {text: "", keys: [[8], [127], [27,91,65], [27,91,66], [14], [18], [9], [13], [65], [19], [17]]},
 ];
+const comparable = machine => withoutPositionStatus(engineSnapshot(machine));
 let compared = 0;
 for (const {text, keys} of sequences) {
   const pair = [baseline,current].map(artifact => {
     const m = createEngineMachine(artifact,{files:{"INPUT.NU":physicalFile(bytes(text))}});
     beginSession(m); return m;
   });
-  assert.deepEqual(engineSnapshot(pair[1]), engineSnapshot(pair[0]));
+  assert.deepEqual(comparable(pair[1]), comparable(pair[0]));
   for (const key of keys) {
     pair.forEach(m => executeCommands(m,key));
-    assert.deepEqual(engineSnapshot(pair[1]),engineSnapshot(pair[0]),`command ${compared}: ${key}`);
+    assert.deepEqual(comparable(pair[1]),comparable(pair[0]),`command ${compared}: ${key}`);
     compared++;
   }
 }
@@ -114,7 +116,7 @@ for (let remainder = 0; remainder < 128; remainder++) {
     const m = createEngineMachine(artifact,{files:{"INPUT.NU":physicalFile(text)}});
     beginSession(m); executeCommands(m,[19]); return m;
   });
-  assert.deepEqual(engineSnapshot(pair[1]),engineSnapshot(pair[0]),`save remainder ${remainder}`);
+  assert.deepEqual(comparable(pair[1]),comparable(pair[0]),`save remainder ${remainder}`);
 }
 console.log(JSON.stringify({semanticCommands: commands, perCommandDifferentialChecks: compared,
   saveRecordRemainders: 128, accounts, result:"pass"},null,2));

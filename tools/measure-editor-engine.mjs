@@ -5,7 +5,7 @@ import { dirname, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import { assembleCurrent, loadBaseline, memoryAccounts, createEngineMachine,
   beginSession, executeCommands, executeRoutine, engineSnapshot, snapshotDigest,
-  physicalFile, writeWord, sha256 } from "../test/support/editor-engine-harness.mjs";
+  withoutPositionStatus, physicalFile, writeWord, sha256 } from "../test/support/editor-engine-harness.mjs";
 
 const root = resolve(dirname(fileURLToPath(import.meta.url)), "..");
 const args = process.argv.slice(2);
@@ -79,7 +79,7 @@ function measure(artifact, workload) {
   const snapshot = engineSnapshot(machine);
   if (workload.name.startsWith("save-")) assert.deepEqual(snapshot.files["INPUT.NU"], Array.from(physicalFile(workload.text)), "saved records differ");
   if (workload.name.startsWith("capacity-reject")) assert.deepEqual(snapshot.text, Array.from(workload.text), "capacity rejection changed text");
-  return { setup, metrics, snapshot: snapshotDigest(snapshot) };
+  return { setup, metrics, snapshot: snapshotDigest(withoutPositionStatus(snapshot)) };
 }
 for (const workload of selected) {
   process.stderr.write(`Measuring ${workload.name}\n`);

@@ -15,6 +15,13 @@ RENDER:
 ;@ROUTINE out A,carry,zero clobbers sign,parity,halfCarry,BC,DE,HL
 ; EditorPresent
 PRESENT:
+            LD   A,(DOCPENCH)
+            OR   A
+            JR   Z,PRESNOCH
+            XOR  A
+            LD   (DISSTAVA),A
+; EditorPresentNoDocumentChange
+PRESNOCH:
             CALL LAYPRE
             OR   A
             JP   Z,DISSTA
@@ -92,6 +99,11 @@ DISSTA:
             LD   B,A
             LD   A,(DISLASST)
             CP   B
+            JR   NZ,DISREFST
+            LD   HL,(CURSOR)
+            LD   DE,(DISLASCU)
+            OR   A
+            SBC  HL,DE
             JR   NZ,DISREFST
             LD   DE,CURPRE
             CALL OUTTEX
@@ -238,6 +250,7 @@ ENSNOHOR:
 ENSCOLRE:
             LD   A,L
             LD   (CURSCRCO),A
+            CALL LAYTOPUP
             RET
 
 ; Render one visual cell in A when it lies in the horizontal viewport.
@@ -285,6 +298,8 @@ RENCELAD:
 ;@ROUTINE out A,carry,zero clobbers sign,parity,halfCarry,BC,DE,HL
 ; EditorRenderStatus
 RENSTA:
+            LD   HL,(CURSOR)
+            LD   (DISLASCU),HL
             LD   DE,STAPRE
             CALL STABEG
             LD   HL,FCB+1
@@ -327,9 +342,103 @@ STADIRRE:
             CALL STABYT
             LD   A,' '
             CALL STABYT
+            CALL STAPOSN
             CALL STAMES
             LD   DE,STAHIN
             CALL STATEX
+            JP   STAFIL
+
+; Compact absolute source position. Line and column are one-based; column is
+; the visual column after tab expansion, matching the existing layout model.
+; The status row is the only presentation surface; no position is persisted.
+;@ROUTINE out A,carry,zero clobbers sign,parity,halfCarry,BC,DE,HL
+; EditorStatusPositionNumber
+STAPOSN:
+            LD   A,'L'
+            CALL STABYT
+            LD   HL,(LAYTOPLI)
+            LD   A,(CURSCRRO)
+            LD   E,A
+            LD   D,0
+            ADD  HL,DE
+            INC  HL
+            XOR  A
+            CALL STADEC24
+            LD   A,' '
+            CALL STABYT
+            LD   A,'C'
+            CALL STABYT
+            LD   HL,(LAYCOL)
+            INC  HL
+            LD   A,H
+            OR   L
+            LD   A,(LAYCOL+2)
+            JR   NZ,STAPOSC
+            INC  A
+; EditorStatusPositionColumn
+STAPOSC:
+            JP   STADEC24
+
+; Output an unsigned 24-bit value in decimal without leading zeroes. The
+; final units place is forced, so zero is rendered as "0". SCRATCHA/B hold
+; the remaining low word/high byte and SCRATCHC+1 is the started flag.
+;@ROUTINE in A,HL out A clobbers carry,zero,sign,parity,halfCarry,BC,DE,HL
+; EditorStatusDecimal24
+STADEC24:
+            LD   (SCRATCHA),HL
+            LD   (SCRATCHB),A
+            XOR  A
+            LD   (SCRATCHC+1),A
+            LD   C,1
+            LD   DE,34464
+            CALL STADECPL
+            LD   C,0
+            LD   DE,10000
+            CALL STADECPL
+            LD   C,0
+            LD   DE,1000
+            CALL STADECPL
+            LD   C,0
+            LD   DE,100
+            CALL STADECPL
+            LD   C,0
+            LD   DE,10
+            CALL STADECPL
+            LD   A,1
+            LD   (SCRATCHC+1),A
+            LD   C,0
+            LD   DE,1
+; EditorStatusDecimalPlace
+STADECPL:
+            LD   B,0
+; EditorStatusDecimalSubtract
+STADECLO:
+            LD   A,(SCRATCHB)
+            LD   HL,(SCRATCHA)
+            OR   A
+            SBC  HL,DE
+            SBC  A,C
+            JR   C,STADECDI
+            INC  B
+            LD   (SCRATCHA),HL
+            LD   (SCRATCHB),A
+            JR   STADECLO
+; EditorStatusDecimalDigit
+STADECDI:
+            LD   A,B
+            OR   A
+            JR   NZ,STADECOU
+            LD   A,(SCRATCHC+1)
+            OR   A
+            RET  Z
+; EditorStatusDecimalOutput
+STADECOU:
+            LD   A,B
+            ADD  A,'0'
+            CALL STABYT
+            LD   A,1
+            LD   (SCRATCHC+1),A
+            RET
 ;@ROUTINE out A,carry,zero clobbers sign,parity,halfCarry,BC,DE,HL
 ; EditorStatusFill
 STAFIL:

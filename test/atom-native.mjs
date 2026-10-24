@@ -2,7 +2,7 @@
 import assert from 'node:assert/strict';
 import {readFile,readdir} from 'node:fs/promises';
 import {assembleCurrent} from './support/editor-engine-harness.mjs';
-const frozen=JSON.parse(await readFile('test/fixtures/editor-engine-milestone3.json','utf8'));
+const frozen=JSON.parse(await readFile('test/fixtures/editor-engine-position-status.json','utf8'));
 const artifact=await assembleCurrent();
 assert.deepEqual(artifact.bytes,Uint8Array.from(Buffer.from(frozen.binaryBase64,'base64')));
 assert.equal(artifact.sha256,frozen.sha256);

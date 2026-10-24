@@ -473,7 +473,7 @@ loadMeasurements.missing = proveLoad(
   const snapshot = machine.bdos.terminal.snapshot();
   assert.equal(
     Buffer.from(snapshot.cells.slice(23 * 80)).toString("ascii"),
-    "EDIT NEW     .NU  *    ^S Save  ^Q Quit".padEnd(80),
+    "EDIT NEW     .NU  *  L1 C1  ^S Save  ^Q Quit".padEnd(80),
   );
   assert.ok(
     snapshot.attributes
@@ -1246,6 +1246,56 @@ searchMeasurements.fromEof = searchResult(
       `${status} is absent from the status row`,
     );
   }
+  assertCanaries(machine);
+}
+
+// The position is derived from the rendered layout, not just the byte cursor.
+// Keep multi-digit decimal output, 24-bit tab columns, and same-cursor document
+// mutations covered because each exercises a different cache/formatter path.
+function statusRow(machine) {
+  return Buffer.from(machine.bdos.terminal.snapshot().cells.slice(23 * 80)).toString("ascii");
+}
+{
+  const machine = createMachine();
+  prepareDefaultFcb(machine);
+  installBuffer(machine, Buffer.from("A".repeat(1233), "ascii"), 1233);
+  invokeRoutine(machine, "EditorRender");
+  assert.ok(statusRow(machine).includes("L1 C1234"));
+
+  installBuffer(machine, new Uint8Array(8192).fill(9), 8192);
+  invokeRoutine(machine, "EditorRender");
+  assert.ok(statusRow(machine).includes("L1 C65537"));
+
+  installBuffer(machine, Buffer.from("abc\nxyz", "ascii"), 3);
+  invokeRoutine(machine, "EditorRender");
+  assert.ok(statusRow(machine).includes("L1 C4"));
+  machine.memory[symbol("EditorDma")] = 9;
+  writeWord(machine.memory, symbol("EditorDocumentStart"), 0);
+  writeWord(machine.memory, symbol("EditorDocumentRemove"), 1);
+  writeWord(machine.memory, symbol("EditorDocumentInput"), symbol("EditorDma"));
+  writeWord(machine.memory, symbol("EditorDocumentInsert"), 1);
+  assert.equal(invokeRoutine(machine, "EditorDocumentSplice").carry, false);
+  invokeRoutine(machine, "EditorPresent");
+  assert.ok(statusRow(machine).includes("L1 C11"));
+  assertCanaries(machine);
+}
+
+// A non-newline insertion before the viewport still shifts every later
+// newline. The absolute top-line cache must be invalidated for this case too.
+{
+  const machine = createMachine();
+  prepareDefaultFcb(machine);
+  installBuffer(machine, Buffer.from("a\n".repeat(80), "ascii"), 120);
+  invokeRoutine(machine, "EditorRender");
+  assert.ok(statusRow(machine).includes("L61 C1"));
+  machine.memory[symbol("EditorDma")] = 120;
+  writeWord(machine.memory, symbol("EditorDocumentStart"), 0);
+  writeWord(machine.memory, symbol("EditorDocumentRemove"), 0);
+  writeWord(machine.memory, symbol("EditorDocumentInput"), symbol("EditorDma"));
+  writeWord(machine.memory, symbol("EditorDocumentInsert"), 1);
+  assert.equal(invokeRoutine(machine, "EditorDocumentSplice").carry, false);
+  invokeRoutine(machine, "EditorPresent");
+  assert.ok(statusRow(machine).includes("L60 C2"));
   assertCanaries(machine);
 }
 

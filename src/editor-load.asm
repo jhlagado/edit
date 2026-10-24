@@ -70,6 +70,9 @@ LOARES:
             LD   (DESCOL),HL
             LD   L,A
             LD   (FLAGS),HL
+            LD   A,(LAYFLA)
+            AND  $FB
+            LD   (LAYFLA),A
             RET
 ; EditorLoadNotFound
 LOANOTFO:

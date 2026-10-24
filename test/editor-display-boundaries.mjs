@@ -4,7 +4,7 @@ import assert from 'node:assert/strict';
 import {dirname,resolve} from 'node:path';
 import {fileURLToPath} from 'node:url';
 import {assembleCurrent,loadBaseline,createEngineMachine,beginSession,executeCommands,
- executeRoutine,engineSnapshot,physicalFile,seedDocument,writeWord,readWord}
+ executeRoutine,engineSnapshot,withoutPositionStatus,physicalFile,seedDocument,writeWord,readWord}
  from './support/editor-engine-harness.mjs';
 const root=resolve(dirname(fileURLToPath(import.meta.url)),'..');
 const [current,reference]=await Promise.all([assembleCurrent(),loadBaseline(resolve(root,'test/fixtures/editor-engine-milestone2.json'))]);
@@ -12,7 +12,7 @@ assert.equal(typeof current.symbols.EditorPresent,'number','requires M3 presente
 const bytes=t=>Uint8Array.from(Buffer.from(t,'ascii'));
 const hl=v=>({h:v>>>8,l:v&255});
 let commands=0,batches=0,warmSamples=0;
-function same(pair,label){assert.deepEqual(engineSnapshot(pair[1]),engineSnapshot(pair[0]),label);}
+function same(pair,label){assert.deepEqual(withoutPositionStatus(engineSnapshot(pair[1])),withoutPositionStatus(engineSnapshot(pair[0])),label);}
 function makePair(content,cursor=0){
  const pair=[reference,current].map(a=>{
   const m=createEngineMachine(a,{files:{'INPUT.NU':physicalFile(content)}});beginSession(m);
@@ -53,7 +53,9 @@ const right=[27,91,67],left=[27,91,68],up=[27,91,65],down=[27,91,66];
 {
  const pair=makePair(bytes('abcdef\r\nsecond\nthird'));
  const move=command(pair,right,'cursor-only');
- assert.ok(move.metrics.terminalBytes<=20,'cursor-only bounded escape output');
+ // Position is part of the status row, so a cursor move repaints that row;
+ // it must still avoid touching any text row.
+ assert.ok(move.metrics.terminalBytes<=120,'cursor-only status output bounded');
  assert.deepEqual(paintedRows(move),[],'cursor-only must not paint text');
  const edit=command(pair,[88],'same-line insert');
  assert.deepEqual(paintedRows(edit),[0],'one changed text row');

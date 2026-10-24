@@ -170,9 +170,15 @@ save failure, or discard exit may write `$E400..$FFFF` except through BDOS.
 ## Screen
 
 Rows 1 through 23 display text. Row 24 is a reverse-video status row containing
-the selected filename, a dirty marker when appropriate, the last status, and
-the `^S Save` and `^Q Quit` key hints. The editor uses only the CSI cursor,
-erase, and rendition operations already required by the platform contract.
+the selected filename, a dirty marker when appropriate, the compact position
+`L<line> C<column>`, the last status, and the `^S Save` and `^Q Quit` key hints.
+The line and column are one-based: the line counts logical source lines and the
+column counts display cells after tab expansion. They are derived view state,
+not bytes in the file, and are refreshed whenever the cursor or viewport makes
+them stale. The position is omitted while row 24 is occupied by a search or
+replacement prompt; the ordinary status row returns when that prompt ends.
+The editor uses only the CSI cursor, erase, and rendition operations already
+required by the platform contract.
 
 Printable bytes occupy one cell. A tab advances to the next eight-column tab
 stop and displays spaces. Newline bytes are not displayed. The viewport has a
@@ -221,6 +227,17 @@ consumed.
 first `^Q` displays a discard warning without changing the buffer. A second
 consecutive `^Q` returns without saving. Any other complete key command cancels
 the confirmation.
+
+### Indentation policy
+
+The current editor treats HT as a literal tab byte and CR as a literal CRLF
+insertion; it does not infer programming-language structure. The planned
+programming-editor increment will copy leading whitespace onto a new line and
+use a two-space indentation step, with Shift-Tab removing up to one such step
+from the current line or selected lines. The core editor will not guess that a
+word such as `end` closes a block. Language-specific closing-keyword behavior,
+if ever wanted, belongs in an explicit language adapter rather than in the
+portable editor contract.
 
 ## Forward search increment
 

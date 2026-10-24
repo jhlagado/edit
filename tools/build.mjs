@@ -1,7 +1,8 @@
 import { createHash } from "node:crypto";
 import { mkdir, readFile, writeFile } from "node:fs/promises";
-import { join } from "node:path";
+import { resolve } from "node:path";
 
+import { verifyEditorCore } from "./check-editor-core.mjs";
 import {
   assembleProjectOwnedAtomArtifacts,
   projectOwnedCandidates,
@@ -12,6 +13,11 @@ import {
   if (arguments_.some((argument) => argument !== "--verify-release")) {
     throw new Error("usage: node tools/build.mjs [--verify-release]");
   }
+  const projectRoot = resolve(import.meta.dirname, "..");
+  const editorCore = await verifyEditorCore({
+    projectRoot,
+    moduleDirectory: resolve(projectRoot, "src"),
+  });
   const baseline = JSON.parse(await readFile("release-baseline.json", "utf8"));
   const candidate = projectOwnedCandidates.find(
     ({ name }) => name === "editor.asm",
@@ -47,6 +53,7 @@ import {
     entryAddress: 0x0100,
     contract: "docs/specification.md",
     sourceFormat: "native-atom",
+    editorCore,
     symbolLedger: "src/editor-symbols.json",
   };
 
