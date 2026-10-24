@@ -77,15 +77,32 @@ EditorLiteralInputCancel:
             SCF
             RET
 
+; Render the prompt in DE and the literal's final bytes on the status row. A
+; literal wider than the cells after the prompt shows only its tail, so the
+; cursor after it stays inside the final column.
 .routine in DE out A,carry,zero clobbers sign,parity,halfCarry,BC,DE,HL
 EditorRenderLiteral:
             CALL EditorStatusBegin
             LD   HL,(EditorRenderPointer)
-            LD   A,(HL)
+            LD   B,(HL)
+            INC  HL
+            LD   A,(EditorColumns)
+            DEC  A
+            LD   C,A
+            LD   A,(EditorRenderCount)
+            ADD  A,B
+            SUB  C
+            JR   C,EditorRenderLiteralVisible
+            LD   E,A
+            LD   D,0
+            ADD  HL,DE
+            LD   A,B
+            SUB  E
+            LD   B,A
+EditorRenderLiteralVisible:
+            LD   A,B
             OR   A
             JR   Z,EditorRenderLiteralFill
-            LD   B,A
-            INC  HL
 EditorRenderLiteralLoop:
             LD   A,(HL)
             CP   9
@@ -100,9 +117,10 @@ EditorRenderLiteralByte:
             INC  HL
             DJNZ EditorRenderLiteralLoop
 EditorRenderLiteralFill:
-            LD   HL,(EditorRenderCount)
-            LD   H,L
-            LD   L,23
+            LD   A,(EditorRenderCount)
+            LD   H,A
+            LD   A,(EditorTextRows)
+            LD   L,A
             LD   (EditorCursorScreenRow),HL
             JP   EditorStatusFill
 

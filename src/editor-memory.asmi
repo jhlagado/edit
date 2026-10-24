@@ -1,14 +1,23 @@
-; Fixed memory partition for the native CP/M editor.
+; Memory partition for the native CP/M editor. The code, workspace, and text
+; base are fixed. The BDOS address in the word at $0006 is the exclusive top of
+; the private stack, and the text arena ends where the stack begins.
 
 EditorCodeBase       .equ $0100
 EditorCodeLimit      .equ $1E00
 EditorWorkspaceBase  .equ $1E00
 EditorWorkspaceLimit .equ $2000
 EditorTextBase       .equ $2000
-EditorTextLimit      .equ $D800
-EditorTextCapacity   .equ EditorTextLimit-EditorTextBase
-EditorStackFloor     .equ $D800
-EditorStackTop       .equ $E400
+EditorStackSize      .equ 256
+EditorTextMinimum    .equ 1024
+
+; Screen limits. Larger configured or reported sizes are clamped to the
+; maximum, smaller ones to the minimum.
+EditorMinimumColumns .equ 20
+EditorMinimumRows    .equ 4
+EditorMaximumSize    .equ 99
+
+; Configuration flags.
+EditorConfigProbe    .equ 1
 
 EditorFcb            .equ EditorWorkspaceBase
 EditorTransactionFcb .equ EditorFcb+36
@@ -36,14 +45,18 @@ EditorRenderColumn   .equ EditorRenderPointer+2
 EditorRenderCount    .equ EditorRenderColumn+2
 EditorCursorScreenRow .equ EditorRenderCount+2
 EditorCursorScreenColumn .equ EditorCursorScreenRow+1
-; Visual columns need 19 bits at the full 47104-byte tab-only capacity.
+; Visual columns need 19 bits for a tab-only arena that reaches $FFFF.
 ; Keep low words in their existing slots; byte offsets remain 16-bit.
 EditorHorizontalHigh .equ EditorCursorScreenColumn+1
 EditorDesiredColumnHigh .equ EditorHorizontalHigh+1
 EditorRenderColumnHigh .equ EditorDesiredColumnHigh+1
 EditorColumnHigh     .equ EditorRenderColumnHigh+1
 EditorTargetColumnHigh .equ EditorColumnHigh+1
-EditorWorkspaceEnd   .equ EditorTargetColumnHigh+1
+; Text capacity derived from the BDOS address, and the selected screen size.
+EditorTextCapacity   .equ EditorTargetColumnHigh+1
+EditorColumns        .equ EditorTextCapacity+2
+EditorTextRows       .equ EditorColumns+1
+EditorWorkspaceEnd   .equ EditorTextRows+1
 
 EditorFlagDirty        .equ 1
 EditorFlagConfirmQuit  .equ 2

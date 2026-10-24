@@ -36,7 +36,7 @@ EditorBufferOpenGap:
             LD   H,0
             LD   (EditorScratchA),HL
             LD   DE,(EditorLength)
-            LD   HL,EditorTextCapacity
+            LD   HL,(EditorTextCapacity)
             OR   A
             SBC  HL,DE
             LD   DE,(EditorScratchA)

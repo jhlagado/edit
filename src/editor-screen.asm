@@ -1,13 +1,68 @@
-; Full repaint for the 80-by-24 terminal profile.
+; Full repaint for the selected screen size. Every row except the last shows
+; text; the last row is the status row.
+
+EditorAbiBase     .equ $FF00
+EditorAbiGeometry .equ $FF09
 
 EditorScreenCodeStart:
+; Select the screen size from the TEC-OS console geometry when the probe flag
+; is set and the ABI table reports nonzero columns, otherwise from the
+; configuration block. Each dimension is clamped to the supported range.
+.routine out A,carry,zero clobbers sign,parity,halfCarry,BC,DE,HL
+EditorSelectScreen:
+            LD   HL,(EditorConfigColumns)
+            LD   A,(EditorConfigFlags)
+            AND  EditorConfigProbe
+            JR   Z,EditorSelectScreenClamp
+            PUSH HL
+            LD   HL,EditorAbiBase
+            LD   DE,EditorAbiTag
+            CALL EditorCommandExtensionEqual
+            POP  HL
+            JR   NZ,EditorSelectScreenClamp
+            LD   DE,(EditorAbiGeometry)
+            LD   A,D
+            OR   E
+            JR   Z,EditorSelectScreenClamp
+            LD   A,(DE)
+            OR   A
+            JR   Z,EditorSelectScreenClamp
+            EX   DE,HL
+            LD   E,(HL)
+            INC  HL
+            LD   D,(HL)
+            EX   DE,HL
+EditorSelectScreenClamp:
+            LD   A,L
+            LD   B,EditorMinimumColumns
+            CALL EditorClampSize
+            LD   (EditorColumns),A
+            LD   A,H
+            LD   B,EditorMinimumRows
+            CALL EditorClampSize
+            DEC  A
+            LD   (EditorTextRows),A
+            RET
+
+.routine in A,B out A,carry,zero clobbers sign,parity,halfCarry
+EditorClampSize:
+            CP   B
+            JR   NC,EditorClampSizeHigh
+            LD   A,B
+EditorClampSizeHigh:
+            CP   EditorMaximumSize+1
+            RET  C
+            LD   A,EditorMaximumSize
+            RET
+
 .routine out A,carry,zero clobbers sign,parity,halfCarry,BC,DE,HL
 EditorRender:
             CALL EditorEnsureViewport
             LD   DE,EditorClearHome
             CALL EditorOutputText
+            LD   A,(EditorTextRows)
+            LD   B,A
             LD   HL,(EditorTop)
-            LD   B,23
 EditorRenderRows:
             PUSH BC
             CALL EditorRenderLine
@@ -46,9 +101,10 @@ EditorEnsureRowLoop:
             CALL EditorNavigationNextLine
             JR   C,EditorEnsureRowReady
             INC  B
-            LD   A,B
-            CP   23
-            JR   C,EditorEnsureRowLoop
+            LD   A,(EditorTextRows)
+            DEC  A
+            CP   B
+            JR   NC,EditorEnsureRowLoop
             LD   HL,(EditorTop)
             CALL EditorNavigationNextLine
             JR   C,EditorEnsureRowReady
@@ -59,22 +115,27 @@ EditorEnsureRowReady:
             LD   A,B
             LD   (EditorCursorScreenRow),A
             CALL EditorNavigationCursorColumn
+            LD   C,A
+            LD   A,(EditorColumns)
+            LD   E,A
+            LD   D,0
+            LD   A,C
             OR   A
             JR   NZ,EditorEnsureHorizontal
-            LD   DE,80
             PUSH HL
-            OR   A
             SBC  HL,DE
             POP  HL
             JR   C,EditorEnsureNoHorizontal
 EditorEnsureHorizontal:
-            LD   DE,79
+            ; Keep the cursor in the final column: Horizontal = column-(width-1).
+            DEC  DE
             OR   A
             SBC  HL,DE
             LD   (EditorHorizontal),HL
+            LD   A,C
             SBC  A,0
             LD   (EditorHorizontalHigh),A
-            LD   HL,79
+            EX   DE,HL
             JR   EditorEnsureColumnReady
 EditorEnsureNoHorizontal:
             XOR  A
@@ -163,9 +224,10 @@ EditorRenderCell:
             POP  HL
             JR   C,EditorRenderCellAdvance
 EditorRenderCellVisible:
-            LD   DE,(EditorRenderCount)
-            LD   A,E
-            CP   80
+            LD   A,(EditorColumns)
+            LD   D,A
+            LD   A,(EditorRenderCount)
+            CP   D
             JR   NC,EditorRenderCellAdvance
             LD   A,(EditorScratchC)
             CALL EditorOutputByte
@@ -226,14 +288,19 @@ EditorStatusDirtyReady:
             LD   A,' '
             CALL EditorStatusByte
             CALL EditorStatusMessage
+            ; Key hints appear only when they fit in the remaining cells.
+            LD   A,(EditorColumns)
+            LD   HL,EditorRenderCount
+            SUB  (HL)
+            CP   EditorStatusHintsLength
             LD   DE,EditorStatusHints
-            CALL EditorStatusText
+            CALL NC,EditorStatusText
 .routine out A,carry,zero clobbers sign,parity,halfCarry,BC,DE,HL
 EditorStatusFill:
-            LD   HL,(EditorRenderCount)
-            LD   A,L
-            CP   80
-            JR   NC,EditorStatusFilled
+            LD   A,(EditorColumns)
+            LD   HL,EditorRenderCount
+            CP   (HL)
+            JR   Z,EditorStatusFilled
             LD   A,' '
             CALL EditorStatusByte
             JR   EditorStatusFill
@@ -245,6 +312,13 @@ EditorStatusFilled:
 .routine in DE out A,carry,zero clobbers sign,parity,halfCarry,BC,DE,HL
 EditorStatusBegin:
             PUSH DE
+            LD   A,27
+            CALL EditorOutputByte
+            LD   A,'['
+            CALL EditorOutputByte
+            LD   A,(EditorTextRows)
+            INC  A
+            CALL EditorOutputDecimal
             LD   DE,EditorStatusPosition
             CALL EditorOutputText
             LD   HL,0
@@ -305,13 +379,17 @@ EditorStatusText:
             POP  DE
             JR   EditorStatusText
 
+; Output one status cell in A. Cells beyond the screen width are dropped.
 .routine in A out A,carry,zero clobbers sign,parity,halfCarry,BC,DE,HL
 EditorStatusByte:
-            CALL EditorOutputByte
-            LD   HL,(EditorRenderCount)
-            INC  HL
-            LD   (EditorRenderCount),HL
-            RET
+            LD   C,A
+            LD   A,(EditorColumns)
+            LD   HL,EditorRenderCount
+            CP   (HL)
+            RET  Z
+            INC  (HL)
+            LD   A,C
+            JP   EditorOutputByte
 
 .routine in A out A,carry,zero clobbers sign,parity,halfCarry,BC,DE,HL
 EditorStatusHexNibble:

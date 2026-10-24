@@ -1,17 +1,34 @@
-; Transient entry, raw-key dispatcher, and CCP return.
+; Transient entry, raw-key dispatcher, and CP/M exit.
+
+CpmWarmBoot     .equ $0000
+CpmBdosVector   .equ $0006
 
 EditorMainCodeStart:
+; The private stack ends just below the BDOS address and may overwrite the
+; CCP, so every exit after the stack switch is a warm boot. A TPA too small for
+; the minimum arena returns to the CCP before any memory is written.
 .routine out A,carry,zero clobbers sign,parity,halfCarry,BC,DE,HL,IX,IY
 EditorEntry:
-            LD   (EditorRestoreSp+1),SP
-            LD   SP,EditorStackTop
+            LD   HL,(CpmBdosVector)
+            LD   DE,EditorTextBase+EditorStackSize+EditorTextMinimum
+            OR   A
+            SBC  HL,DE
+            JR   C,EditorEntryMemory
+            LD   DE,EditorTextMinimum
+            ADD  HL,DE
+            LD   (EditorTextCapacity),HL
+            LD   SP,(CpmBdosVector)
             CALL EditorRun
-EditorRestoreSp:
-            LD   SP,0
-            RET
+            JP   CpmWarmBoot
+EditorEntryMemory:
+            LD   DE,EditorErrorPrefix
+            CALL EditorOutputText
+            LD   DE,EditorMemoryText
+            JP   EditorOutputText
 
 .routine out A,carry,zero clobbers sign,parity,halfCarry,BC,DE,HL,IX,IY
 EditorRun:
+            CALL EditorSelectScreen
             CALL EditorPrepareCommand
             JP   C,EditorRunError
             CALL EditorLoadFile

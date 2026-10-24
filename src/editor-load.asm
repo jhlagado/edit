@@ -127,7 +127,7 @@ EditorLoadValidateBad:
 .routine in A out A,carry,zero clobbers sign,parity,halfCarry,DE,HL
 EditorLoadAppend:
             LD   DE,(EditorLength)
-            LD   HL,EditorTextCapacity
+            LD   HL,(EditorTextCapacity)
             OR   A
             SBC  HL,DE
             JR   Z,EditorLoadAppendFull

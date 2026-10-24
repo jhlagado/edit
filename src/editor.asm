@@ -6,6 +6,13 @@
 EditorTransientStart:
             JP   EditorEntry
 
+; Patchable configuration at $0103: tag, layout version, columns, rows, and
+; flags. The probe flag selects the TEC-OS console geometry when it is present.
+EditorConfig:             .db "ECFG",1
+EditorConfigColumns:      .db 80
+EditorConfigRows:         .db 24
+EditorConfigFlags:        .db EditorConfigProbe
+
 EditorCodeStart:
             .include "editor-bdos.asm"
             .include "editor-command.asm"
@@ -23,12 +30,15 @@ EditorImmutableStart:
 EditorBackupExtension:    .db "BAK"
 EditorTemporaryExtension: .db "$$$"
 EditorErrorPrefix:        .db 13,10,"EDIT error ","$"
+EditorMemoryText:         .db "06 TPA too small",13,10,"$"
+EditorAbiTag:             .db "TNA"
 EditorNewline:            .db 13,10,"$"
 EditorClearHome:          .db 27,"[2J",27,"[H","$"
-EditorStatusPosition:     .db 27,"[24;1H",27,"[7m","$"
+EditorStatusPosition:     .db ";1H",27,"[7m","$"
 EditorReverseOff:         .db 27,"[0m",27,"[","$"
 EditorStatusPrefix:       .db "EDIT ",0
 EditorStatusHints:        .db "  ^S Save  ^Q Quit",0
+EditorStatusHintsLength   .equ 18
 EditorStatusSavedText:    .db "Saved  ",0
 EditorStatusFullText:     .db "Full  ",0
 EditorStatusDiscardText:  .db "Discard changes? ^Q again  ",0
