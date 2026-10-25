@@ -15,7 +15,7 @@ const pinned = {
   modules: [
     {
       file: "editor-document.asm",
-      sha256: "5f74b04c2108da4f97907e4e1252adfb34f5f22ffb1e4a33c5cc2c7ec8af0f89",
+      sha256: "a43738188331680c3249283e6e23827867e43b989cb8e72bbdf6db5d8178d4ab",
     },
     {
       file: "editor-buffer.asm",

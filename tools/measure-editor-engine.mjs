@@ -3,9 +3,9 @@ import assert from "node:assert/strict";
 import { readFile, writeFile } from "node:fs/promises";
 import { dirname, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
-import { assembleCurrent, loadBaseline, memoryAccounts, createEngineMachine,
+import { FROZEN_ARENA_TOP, assembleCurrent, loadBaseline, memoryAccounts, createEngineMachine,
   beginSession, executeCommands, executeRoutine, engineSnapshot, snapshotDigest,
-  withoutPositionStatus, physicalFile, writeWord, sha256 } from "../test/support/editor-engine-harness.mjs";
+  normalizeStatusRow, physicalFile, writeWord, sha256 } from "../test/support/editor-engine-harness.mjs";
 
 const root = resolve(dirname(fileURLToPath(import.meta.url)), "..");
 const args = process.argv.slice(2);
@@ -69,7 +69,7 @@ const result = { format: mode === "compare" ? "edit-engine-command-measurements-
   workloads: [] };
 
 function measure(artifact, workload) {
-  const machine = createEngineMachine(artifact, { files: { "INPUT.NU": physicalFile(workload.text) } });
+  const machine = createEngineMachine(artifact, { files: { "INPUT.NU": physicalFile(workload.text) }, top: FROZEN_ARENA_TOP });
   const setup = { entry: beginSession(machine) };
   if (workload.cursor !== undefined) {
     writeWord(machine.memory, machine.symbol("EditorCursor"), workload.cursor);
@@ -79,7 +79,7 @@ function measure(artifact, workload) {
   const snapshot = engineSnapshot(machine);
   if (workload.name.startsWith("save-")) assert.deepEqual(snapshot.files["INPUT.NU"], Array.from(physicalFile(workload.text)), "saved records differ");
   if (workload.name.startsWith("capacity-reject")) assert.deepEqual(snapshot.text, Array.from(workload.text), "capacity rejection changed text");
-  return { setup, metrics, snapshot: snapshotDigest(withoutPositionStatus(snapshot)) };
+  return { setup, metrics, snapshot: snapshotDigest(normalizeStatusRow(snapshot)) };
 }
 for (const workload of selected) {
   process.stderr.write(`Measuring ${workload.name}\n`);

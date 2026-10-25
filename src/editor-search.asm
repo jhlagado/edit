@@ -95,16 +95,34 @@ SEAACC:
             LD   A,OPFIND
             JP   SESEXE
 
+; Render the prompt in DE and the literal's final bytes on the status row. A
+; literal wider than the cells after the prompt shows only its tail, so the
+; cursor after it stays inside the final column.
 ;@ROUTINE in DE out A,carry,zero clobbers sign,parity,halfCarry,BC,DE,HL
 ; EditorRenderLiteral
 RENLIT:
             CALL STABEG
             LD   HL,(RENPOI)
-            LD   A,(HL)
+            LD   B,(HL)
+            INC  HL
+            LD   A,(COLUMNS)
+            DEC  A
+            LD   C,A
+            LD   A,(RENCOU)
+            ADD  A,B
+            SUB  C
+            JR   C,RENLITVI
+            LD   E,A
+            LD   D,0
+            ADD  HL,DE
+            LD   A,B
+            SUB  E
+            LD   B,A
+; EditorRenderLiteralVisible
+RENLITVI:
+            LD   A,B
             OR   A
             JR   Z,RENLITFI
-            LD   B,A
-            INC  HL
 ; EditorRenderLiteralLoop
 RENLITLO:
             LD   A,(HL)
@@ -122,9 +140,10 @@ RENLITBY:
             DJNZ RENLITLO
 ; EditorRenderLiteralFill
 RENLITFI:
-            LD   HL,(RENCOU)
-            LD   H,L
-            LD   L,23
+            LD   A,(RENCOU)
+            LD   H,A
+            LD   A,(TEXROWS)
+            LD   L,A
             LD   (CURSCRRO),HL
             JP   STAFIL
 

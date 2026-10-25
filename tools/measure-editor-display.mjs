@@ -3,10 +3,10 @@ import assert from "node:assert/strict";
 import { readFile, writeFile } from "node:fs/promises";
 import { dirname, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
-import { assembleCurrent, loadBaseline, memoryAccounts, createEngineMachine,
+import { FROZEN_ARENA_TOP, artifactLayout, assembleCurrent, loadBaseline, memoryAccounts, createEngineMachine,
   beginSession, executeCommands, executeRoutine, engineSnapshot, snapshotDigest,
   physicalFile, writeWord, readWord, seedDocument, logicalDocument, sha256,
-  withoutPositionStatus,
+  normalizeStatusRow,
 } from "../test/support/editor-engine-harness.mjs";
 
 const root = resolve(dirname(fileURLToPath(import.meta.url)), "..");
@@ -31,7 +31,7 @@ function gap(machine) {
   return { start: readWord(machine.memory, machine.symbol("EditorDocumentGapStart")),
     end: readWord(machine.memory, machine.symbol("EditorDocumentGapEnd")) };
 }
-function observable(machine) { return snapshotDigest(withoutPositionStatus(engineSnapshot(machine))); }
+function observable(machine) { return snapshotDigest(normalizeStatusRow(engineSnapshot(machine))); }
 function observe(machine, name, run, { readOnly = false, noTailCopy = false } = {}) {
   const before = gap(machine);
   const metrics = run();
@@ -47,10 +47,10 @@ function command(machine, name, bytes, checks) {
   return observe(machine, name, () => executeCommands(machine, bytes), checks);
 }
 function prepare(artifact, workload) {
-  const machine = createEngineMachine(artifact, { files: { "INPUT.NU": physicalFile(workload.text) } });
+  const machine = createEngineMachine(artifact, { files: { "INPUT.NU": physicalFile(workload.text) }, top: FROZEN_ARENA_TOP });
   const entry = beginSession(machine);
   const initialGap = gap(machine);
-  if (initialGap !== null) assert.deepEqual(initialGap, { start: workload.text.length, end: artifact.symbols.EditorTextCapacity }, "load must leave an end gap");
+  if (initialGap !== null) assert.deepEqual(initialGap, { start: workload.text.length, end: artifactLayout(artifact, FROZEN_ARENA_TOP).capacity }, "load must leave an end gap");
   if (workload.gapAt !== undefined) seedDocument(machine, workload.text, { gapAt: workload.gapAt });
   assert.deepEqual(Array.from(logicalDocument(machine)), Array.from(workload.text));
   writeWord(machine.memory, machine.symbol("EditorCursor"), workload.cursor ?? 0);

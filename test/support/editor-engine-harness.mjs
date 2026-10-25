@@ -11,6 +11,12 @@ import { assembleProjectOwnedAtomArtifacts, projectOwnedCandidates, symbolsFromD
 
 const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), "../..");
 const RETURN_ADDRESS = 0x0040;
+const WARM_BOOT = 0x0000;
+// BDOS address used when a test does not choose one: a 64 KiB CP/M 2.2 system.
+export const DEFAULT_TPA_TOP = 0xe400;
+// BDOS address that gives a current editor the frozen editors' 47,104-byte
+// arena, so measurements compare like with like.
+export const FROZEN_ARENA_TOP = 0xd900;
 export const sha256 = (bytes) => createHash("sha256").update(bytes).digest("hex");
 export { readWord, writeWord, writeFcb, physicalFile, logicalFileBytes };
 
@@ -33,16 +39,30 @@ export async function assembleCurrent(root = ROOT) {
     symbols:symbolsFromDebugMap(artifacts.debugMap)};
 }
 
+// Frozen editors fix their arena and stack at assembly time. Current editors
+// derive both from the BDOS address at $0006 and leave with a warm boot.
+export function artifactLayout(artifact, top = DEFAULT_TPA_TOP) {
+  const s = artifact.symbols;
+  if (s.EditorStackTop !== undefined) {
+    return { derived: false, top: s.EditorStackTop, textLimit: s.EditorTextLimit,
+      stackFloor: s.EditorStackFloor, capacity: s.EditorTextLimit - s.EditorTextBase };
+  }
+  const textLimit = top - s.EditorStackSize;
+  return { derived: true, top, textLimit, stackFloor: textLimit,
+    capacity: textLimit - s.EditorTextBase };
+}
+
 export function memoryAccounts(artifact) {
   const s = artifact.symbols;
+  const layout = artifactLayout(artifact);
   return { artifactBytes: artifact.bytes.length,
     entryBytes: s.EditorCodeStart - s.EditorTransientStart,
     codeBytes: s.EditorCodeEnd - s.EditorCodeStart,
     immutableBytes: s.EditorImmutableEnd - s.EditorImmutableStart,
     workspaceBytes: s.EditorWorkspaceEnd - s.EditorWorkspaceBase,
     workspaceCapacity: s.EditorWorkspaceLimit - s.EditorWorkspaceBase,
-    textCapacity: s.EditorTextLimit - s.EditorTextBase,
-    reservedStackBytes: s.EditorStackTop - s.EditorStackFloor,
+    textCapacity: layout.capacity,
+    reservedStackBytes: layout.top - layout.stackFloor,
     codeRoom: s.EditorWorkspaceBase - s.EditorResidentEnd };
 }
 
@@ -215,7 +235,7 @@ class FakeBdos {
  * Copy means LDI/LDD/LDIR/LDDR reads from the text arena. Scalar reads are all other
  * CPU reads of arena bytes (navigation, render, match, validation, etc.), not unique bytes.
  */
-export function createEngineMachine(artifact, { files = {}, failures = [] } = {}) {
+export function createEngineMachine(artifact, { files = {}, failures = [], top } = {}) {
   const symbol = (name) => {
     const address = artifact.symbols[name];
     assert.equal(typeof address, "number", `missing symbol ${name}`);
@@ -225,14 +245,23 @@ export function createEngineMachine(artifact, { files = {}, failures = [] } = {}
   initial.set(artifact.bytes, artifact.loadAddress ?? 0x100);
   const runtime = createZ80Runtime({ memory: initial, startAddress: 0x100 }, 0x100);
   const memory = runtime.hardware.memory;
+  const layout = artifactLayout(artifact, top);
+  writeWord(memory, 6, layout.top);
   memory.fill(0xa5, symbol("EditorWorkspaceEnd"), symbol("EditorWorkspaceLimit"));
-  memory.fill(0xc7, symbol("EditorTextBase"), symbol("EditorTextLimit"));
-  memory.fill(0x5a, symbol("EditorStackTop"));
+  memory.fill(0xc7, symbol("EditorTextBase"), layout.textLimit);
+  memory.fill(0x5a, layout.top);
+  if (layout.derived) {
+    // Routine-level calls start from the state that entry establishes.
+    writeWord(memory, symbol("EditorTextLimit"), layout.textLimit);
+    writeWord(memory, symbol("EditorTextCapacity"), layout.capacity);
+    memory[symbol("EditorColumns")] = 80;
+    memory[symbol("EditorTextRows")] = 23;
+  }
   const bdos = new FakeBdos(memory, symbol("EditorDma"), files, failures);
-  const machine = { artifact, symbol, runtime, memory, bdos, activeMetrics: undefined };
+  const machine = { artifact, symbol, layout, runtime, memory, bdos, activeMetrics: undefined };
   const originalRead = runtime.hardware.memRead;
   const originalWrite = runtime.hardware.memWrite;
-  const textBase = symbol("EditorTextBase"), textLimit = symbol("EditorTextLimit");
+  const textBase = symbol("EditorTextBase"), textLimit = layout.textLimit;
   const inText = (address) => address >= textBase && address < textLimit;
   runtime.hardware.memRead = (address) => {
     const m = machine.activeMetrics;
@@ -249,7 +278,7 @@ export function createEngineMachine(artifact, { files = {}, failures = [] } = {}
   };
   machine.assertGuards = () => {
     assert.ok(memory.slice(symbol("EditorWorkspaceEnd"), symbol("EditorWorkspaceLimit")).every(x => x === 0xa5), "workspace overflow");
-    if (machine.highGuard) assert.deepEqual(memory.slice(symbol("EditorStackTop")), machine.highGuard, "high memory changed");
+    if (machine.highGuard) assert.deepEqual(memory.slice(layout.top), machine.highGuard, "high memory changed");
   };
   return machine;
 }
@@ -284,7 +313,7 @@ function runBoundary(machine, boundary, done, maxInstructions = 100_000_000) {
   m.bdosCalls = Object.fromEntries(Object.entries(bdos.calls).map(([k,v]) => [k,v - (callsStart[k] ?? 0)]).filter(([,v]) => v));
   m.minimumSp = minimumSp;
   m.stackBytesBelowStart = Math.max(0, startSp - minimumSp);
-  m.stackDepthFromPrivateTop = Math.max(0, machine.symbol("EditorStackTop") - minimumSp);
+  m.stackDepthFromPrivateTop = Math.max(0, machine.layout.top - minimumSp);
   m.returnPc = runtime.cpu.pc;
   m.finalSp = runtime.cpu.sp;
   machine.assertGuards();
@@ -299,9 +328,9 @@ export function beginSession(machine, commandTail = "INPUT.NU") {
   memory[0x80] = tail.length; memory.set(tail, 0x81);
   runtime.cpu.sp = 0xe8fe;
   writeWord(memory, runtime.cpu.sp, RETURN_ADDRESS);
-  machine.highGuard = memory.slice(symbol("EditorStackTop"));
+  machine.highGuard = memory.slice(machine.layout.top);
   runtime.cpu.pc = symbol("EditorEntry");
-  const result = runBoundary(machine, "EditorEntry -> EditorMainLoop (load + initial render)", () => runtime.cpu.pc === symbol("EditorMainLoop") || runtime.cpu.pc === RETURN_ADDRESS);
+  const result = runBoundary(machine, "EditorEntry -> EditorMainLoop (load + initial render)", () => runtime.cpu.pc === symbol("EditorMainLoop") || exited(machine));
   assert.equal(runtime.cpu.pc, symbol("EditorMainLoop"), "entry failed before input boundary");
   return result;
 }
@@ -314,11 +343,24 @@ export function executeCommands(machine, input, { boundary = "EditorMainLoop -> 
   assert.ok(input.length > 0);
   bdos.input.push(...input);
   const startSp = runtime.cpu.sp;
-  const result = runBoundary(machine, boundary, () => (runtime.cpu.pc === symbol("EditorMainLoop") && bdos.input.length === 0) || runtime.cpu.pc === RETURN_ADDRESS, maxInstructions);
+  const result = runBoundary(machine, boundary, () => (runtime.cpu.pc === symbol("EditorMainLoop") && bdos.input.length === 0) || exited(machine), maxInstructions);
   assert.equal(bdos.input.length, 0, "command exited with unconsumed input");
   if (runtime.cpu.pc === symbol("EditorMainLoop")) assert.equal(runtime.cpu.sp, startSp, "command stack mismatch");
-  else assert.equal(runtime.cpu.sp, 0xe900, "entry caller stack mismatch");
+  else if (runtime.cpu.pc === RETURN_ADDRESS) assert.equal(runtime.cpu.sp, 0xe900, "entry caller stack mismatch");
+  else assert.ok(runtime.cpu.sp <= machine.layout.top && runtime.cpu.sp >= machine.layout.stackFloor, "warm boot outside the private stack");
   return result;
+}
+
+/** A frozen editor returns to the CCP; a current editor warm-boots. */
+export function exited(machine) {
+  const pc = machine.runtime.cpu.pc;
+  return pc === RETURN_ADDRESS || (machine.layout.derived && pc === WARM_BOOT);
+}
+
+/** Routine calls start below the private stack top of a frozen editor and at
+ * the top of a current editor's private stack, outside both text arenas. */
+export function routineStackTop(machine) {
+  return machine.layout.derived ? machine.layout.top : 0xe300;
 }
 
 /** Semantic routine proof boundary: separate from complete-command cost. */
@@ -327,12 +369,12 @@ export function executeRoutine(machine, name, { registers = {}, input = [], maxI
   const savedPc = runtime.cpu.pc, savedSp = runtime.cpu.sp;
   Object.assign(runtime.cpu, { a: 0,b: 0,c: 0,d: 0,e: 0,h: 0,l: 0, ...registers });
   runtime.cpu.flags.C = 0;
-  runtime.cpu.sp = 0xe2fe;
+  runtime.cpu.sp = routineStackTop(machine) - 2;
   writeWord(memory, runtime.cpu.sp, RETURN_ADDRESS);
   runtime.cpu.pc = symbol(name);
   machine.bdos.input.push(...input);
   const result = runBoundary(machine, `${name} entry -> RET (semantic only; no implied render)`, () => runtime.cpu.pc === RETURN_ADDRESS, maxInstructions);
-  assert.equal(runtime.cpu.sp, 0xe300, `${name} stack mismatch`);
+  assert.equal(runtime.cpu.sp, routineStackTop(machine), `${name} stack mismatch`);
   result.a = runtime.cpu.a; result.carry = runtime.cpu.flags.C !== 0;
   result.hl = (runtime.cpu.h << 8) | runtime.cpu.l;
   runtime.cpu.pc = savedPc; runtime.cpu.sp = savedSp;
@@ -347,7 +389,7 @@ export function logicalDocument(machine) {
   if (artifact.symbols.EditorDocumentGapStart === undefined) return memory.slice(base, base + length);
   const start = readWord(memory, symbol("EditorDocumentGapStart"));
   const end = readWord(memory, symbol("EditorDocumentGapEnd"));
-  const capacity = symbol("EditorTextLimit") - base;
+  const capacity = machine.layout.capacity;
   assert.ok(0 <= start && start <= end && end <= capacity, "gap bounds");
   assert.equal(length, capacity - (end - start), "gap length invariant");
   const result = new Uint8Array(length);
@@ -359,7 +401,7 @@ export function logicalDocument(machine) {
 /** Fixture setup only: never charge a direct placement as an executed edit. */
 export function seedDocument(machine, bytes, {gapAt = bytes.length} = {}) {
   const {memory, symbol, artifact} = machine;
-  const base = symbol("EditorTextBase"), capacity = symbol("EditorTextLimit") - base;
+  const base = symbol("EditorTextBase"), capacity = machine.layout.capacity;
   assert.ok(bytes.length <= capacity && gapAt >= 0 && gapAt <= bytes.length);
   memory.fill(0xc7, base, base + capacity);
   writeWord(memory, symbol("EditorLength"), bytes.length);
@@ -400,16 +442,16 @@ export function snapshotDigest(snapshot) {
 }
 
 // Historical frozen editor artifacts predate the derived L<line> C<column>
-// status text. Differential measurements may ignore that one intentional
-// presentation addition while retaining every other status cell and attribute.
-export function withoutPositionStatus(snapshot) {
+// status text, the unpadded filename, and the gap before the status message.
+// Differential measurements compare the status row's words in order, so those
+// intentional presentation changes are ignored while every other status word,
+// every text cell, and every attribute is retained.
+export function normalizeStatusRow(snapshot) {
   const copy = { ...snapshot, cells: snapshot.cells.slice() };
   const start = 23 * 80;
   const row = Buffer.from(copy.cells.slice(start, start + 80)).toString("ascii");
-  const match = /L\d+ C\d+/.exec(row);
-  if (match) {
-    const normalized = `${row.slice(0, match.index)}${row.slice(match.index + match[0].length)}`.padEnd(80, " ").slice(0, 80);
-    copy.cells.splice(start, 80, ...Buffer.from(normalized, "ascii"));
-  }
+  const normalized = row.replace(/L\d+ C\d+/, "").replace(/ +\./, ".")
+    .replace(/ +/g, " ").trim().padEnd(80, " ").slice(0, 80);
+  copy.cells.splice(start, 80, ...Buffer.from(normalized, "ascii"));
   return copy;
 }

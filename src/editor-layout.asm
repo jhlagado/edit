@@ -1,4 +1,4 @@
-; One synchronous 23-row layout. Flags bit0=boundaries valid, bit1=cursor column
+; One synchronous layout of up to 23 text rows. Flags bit0=boundaries valid, bit1=cursor column
 ; valid. Tagged anchors store near-left offsets or exact short-line end columns.
 ; No terminal/BDOS calls; the presenter owns output and acknowledges screen state.
 ; EditorLayoutCodeStart
@@ -653,7 +653,8 @@ LAYBUIRO:
             JR   C,LAYBUIDO
             LD   A,(LAYIND)
             INC  A
-            CP   23
+            LD   HL,TEXROWS
+            CP   (HL)
             JR   Z,LAYBUIFU
             LD   (LAYIND),A
             JR   LAYBUIRO

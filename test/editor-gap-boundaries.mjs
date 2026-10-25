@@ -1,19 +1,20 @@
 // M2 physical-gap proofs. Fixtures may place a gap inside CRLF; public editing
 // endpoints remain logical-character boundaries. This is not a latency test.
 import assert from 'node:assert/strict';
-import {assembleCurrent, createEngineMachine, seedDocument, logicalDocument,
+import {artifactLayout, assembleCurrent, createEngineMachine, seedDocument, logicalDocument,
   beginSession, executeRoutine, executeCommands, readWord, writeWord, physicalFile}
   from './support/editor-engine-harness.mjs';
 const artifact = await assembleCurrent();
 const s = artifact.symbols;
 assert.equal(typeof s.EditorDocumentGapStart, 'number', 'requires M2 gap implementation');
-const capacity = s.EditorTextLimit - s.EditorTextBase;
+const layout = artifactLayout(artifact);
+const capacity = layout.capacity;
 const bytes = text => Uint8Array.from(Buffer.from(text, 'ascii'));
 const regs = (value, hi, lo) => ({[hi]:value >>> 8, [lo]:value & 255});
 const hl = v => regs(v,'h','l'), de = v => regs(v,'d','e'), bc = v => regs(v,'b','c');
 const gap = m => [readWord(m.memory,s.EditorDocumentGapStart),readWord(m.memory,s.EditorDocumentGapEnd)];
 const physical = m => ({gap:gap(m), length:readWord(m.memory,s.EditorLength),
-  arena:m.memory.slice(s.EditorTextBase,s.EditorTextLimit)});
+  arena:m.memory.slice(s.EditorTextBase,layout.textLimit)});
 let reads=0, splices=0, saves=0;
 function fresh(content, at) {const m=createEngineMachine(artifact); seedDocument(m,content,{gapAt:at}); return m;}
 function invoke(m,name,registers={}) {return executeRoutine(m,name,{registers});}
@@ -161,14 +162,14 @@ for(const at of [1,127,128,255,301])for(const event of ['write:INPUT.$$$','close
  assert.equal(invoke(m,'EditorSave').carry,false);saves++;
  assert.deepEqual(m.bdos.files.get('INPUT.NU'),physicalFile(diskText));unchanged(m,before,'recovered retry');
 }
-// First save of a new file and both clean/confirmed-discard exits retain the
-// actual entry caller stack with a gap that is not at the document end.
+// First save of a new file and both clean/confirmed-discard exits warm-boot
+// from the private stack with a gap that is not at the document end.
 for(const saveFirst of [false,true]) {
  const m=createEngineMachine(artifact);beginSession(m,'NEW.NU');
  seedDocument(m,content,{gapAt:2});const before=physical(m);
  if(saveFirst){executeCommands(m,[19]);saves++;assert.deepEqual(m.bdos.files.get('NEW.NU'),physicalFile(content));unchanged(m,before,'new first save');}
  const r=executeCommands(m,saveFirst?[17]:[17,17]);
- assert.equal(r.returnPc,0x40);assert.equal(r.finalSp,0xe900);unchanged(m,before,'exit');
+ assert.equal(r.returnPc,0);assert.ok(r.finalSp<=layout.top&&r.finalSp>=layout.stackFloor);unchanged(m,before,'exit');
  if(!saveFirst)assert.equal(m.bdos.files.has('NEW.NU'),false);
 }
 // Real navigation, query prompt/search, rendering and Save do not drag the gap.

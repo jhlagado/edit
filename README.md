@@ -77,8 +77,22 @@ Triptych may place that artifact into a disk image; Debug80 may do the same for
 development. Neither consumer owns Edit's source or build.
 
 Edit calls CP/M entry address `$0005` and uses only the BDOS functions listed
-in the specification. It uses the ANSI/VT-style terminal subset described
-there. It does not embed a BIOS or depend on Triptych's Rust crates.
+in the specification. Its upper memory limit is the BDOS address at `$0006`,
+and it exits with a warm boot. It uses the ANSI/VT-style terminal subset
+described there. It does not embed a BIOS or depend on Triptych's Rust crates.
+
+## Screen size
+
+Edit supports screens from 20 × 4 to 80 × 24 and defaults to 80 × 24. On
+TEC-OS it reads the console size from the ROM ABI table. Elsewhere, set the
+size in the configuration block of `EDIT.COM`:
+
+```sh
+node tools/configure.mjs dist/EDIT.COM --columns 40 --rows 24 --output EDIT40.COM
+```
+
+`--probe off` makes Edit ignore the TEC-OS console size. Run the tool with
+only a file name to print the current configuration.
 
 ## License
 

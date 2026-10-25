@@ -2,13 +2,14 @@
 // token/byte model. This is not a complete-keystroke performance benchmark.
 import assert from "node:assert/strict";
 import {
-  assembleCurrent, createEngineMachine, executeRoutine, readWord, writeWord,
-  logicalDocument, seedDocument,
+  artifactLayout, assembleCurrent, createEngineMachine, executeRoutine, readWord,
+  routineStackTop, writeWord, logicalDocument, seedDocument,
 } from "./support/editor-engine-harness.mjs";
 
 const artifact = await assembleCurrent();
 const symbols = artifact.symbols;
-const capacity = symbols.EditorTextLimit - symbols.EditorTextBase;
+const layout = artifactLayout(artifact);
+const capacity = layout.capacity;
 const bytes = text => Uint8Array.from(Buffer.from(text, "ascii"));
 const pair = (value, high, low) => ({ [high]: value >>> 8, [low]: value & 255 });
 const hl = value => pair(value, "h", "l");
@@ -22,7 +23,7 @@ function fresh(content = bytes("A\r\nB\tC\n")) {
   m.memory.fill(0x39, symbols.EditorWorkspaceBase, symbols.EditorLegacyWorkspaceEnd);
   m.memory.fill(0x62, symbols.EditorSessionOpcode, symbols.EditorWorkspaceEnd);
   seedDocument(m, content);
-  m.highGuard = m.memory.slice(symbols.EditorStackTop);
+  m.highGuard = m.memory.slice(layout.top);
   m.memory[symbols.EditorDocChangeFlags] = 3;
   writeWord(m.memory, symbols.EditorDocChangeStart, 123);
   writeWord(m.memory, symbols.EditorDocChangeRemoved, 4);
@@ -35,18 +36,18 @@ function run(m, name, registers = {}) {
   assert.equal(m.runtime.cpu.iy, 0x2468, `${name}: IY preservation`);
   calls++;
   assert.equal(result.returnPc, 0x40, `${name}: return address`);
-  assert.equal(result.finalSp, 0xe300, `${name}: final SP`);
+  assert.equal(result.finalSp, routineStackTop(m), `${name}: final SP`);
   assert.deepEqual(result.bdosCalls, {}, `${name}: document must not call BDOS`);
   assert.equal(result.terminalBytes, 0);
   assert.equal(result.recordsRead, 0);
   assert.equal(result.recordsWritten, 0);
-  assert.ok(result.minimumSp >= symbols.EditorStackFloor);
+  assert.ok(result.minimumSp >= layout.stackFloor);
   return result;
 }
 function logical(m) {
   return logicalDocument(m);
 }
-function arena(m) { return m.memory.slice(symbols.EditorTextBase, symbols.EditorTextLimit); }
+function arena(m) { return m.memory.slice(symbols.EditorTextBase, layout.textLimit); }
 function session(m) {
   // Length belongs to the document. Every other legacy/session byte is private
   // to its caller and must survive even a successful document mutation.
@@ -122,7 +123,8 @@ for (const content of [new Uint8Array(), bytes("A\r\nB"), new Uint8Array(capacit
 // destination atomicity on bad source ranges, and alias/wrap rejection.
 {
   const content = Uint8Array.from({ length: 300 }, (_, i) => 32 + i % 95);
-  const target = symbols.EditorStackFloor + 0x100;
+  // A destination above the BDOS address lies outside every editor account.
+  const target = layout.top + 0x100;
   const cases = [
     { offset: 0, count: 300 }, { offset: 127, count: 129 },
     { offset: 300, count: 0 }, { offset: 299, count: 1 },
@@ -131,7 +133,7 @@ for (const content of [new Uint8Array(), bytes("A\r\nB"), new Uint8Array(capacit
     { offset: 65535, count: 2, error: "Range" },
     { offset: 0, count: 4, destination: 65534, error: "Range" },
     { offset: 0, count: 4, destination: symbols.EditorTextBase, error: "Alias" },
-    { offset: 0, count: 4, destination: symbols.EditorTextLimit - 2, error: "Alias" },
+    { offset: 0, count: 4, destination: layout.textLimit - 2, error: "Alias" },
     { offset: 0, count: 1, destination: symbols.EditorLength, error: "Alias" },
     { offset: 0, count: 1, destination: symbols.EditorLength + 1, error: "Alias" },
     { offset: 0, count: 4, destination: symbols.EditorLength - 1, error: "Alias" },
@@ -141,6 +143,9 @@ for (const content of [new Uint8Array(), bytes("A\r\nB"), new Uint8Array(capacit
   for (const { offset, count, destination = target, error, privateDestination } of cases) {
     const m = fresh(content);
     m.memory.fill(0x8b, target - 1, target + 301);
+    // The copy window is checked exactly below; the rest of high memory here.
+    m.highGuard = undefined;
+    const highBefore = m.memory.slice(layout.top);
     const beforeTarget = m.memory.slice(target - 1, target + 301);
     const beforeArena = arena(m), beforeChange = change(m), beforeState = session(m);
     const beforeLength = readWord(m.memory, symbols.EditorLength);
@@ -163,6 +168,9 @@ for (const content of [new Uint8Array(), bytes("A\r\nB"), new Uint8Array(capacit
     assert.equal(readWord(m.memory, symbols.EditorLength), beforeLength);
     assert.deepEqual(change(m), beforeChange);
     assert.deepEqual(session(m), beforeState);
+    const highAfter = m.memory.slice(layout.top);
+    highAfter.set(highBefore.slice(0x100 - 1, 0x100 + 301), 0x100 - 1);
+    assert.deepEqual(highAfter, highBefore, "copy wrote outside its window");
   }
 }
 
@@ -178,7 +186,7 @@ for (const input of [[13], [13, 65], [0], [26], [31], [127], [128], [255], [65, 
 reject({ start: 0, input: bytes("XY") }, "Capacity", new Uint8Array(capacity - 1).fill(65));
 reject({ start: 0, insert: 65535 }, "Capacity");
 reject({ start: 0, pointer: symbols.EditorTextBase, insert: 1 }, "Alias");
-reject({ start: 0, pointer: symbols.EditorTextLimit - 1, insert: 2 }, "Alias");
+reject({ start: 0, pointer: layout.textLimit - 1, insert: 2 }, "Alias");
 reject({ start: 0, pointer: symbols.EditorTextBase - 1, insert: 2 }, "Alias");
 reject({ start: 0, pointer: symbols.EditorLength, insert: 1 }, "Alias");
 reject({ start: 0, pointer: symbols.EditorLength + 1, insert: 1 }, "Alias");

@@ -2,13 +2,14 @@
 
 Status: active implementation contract
 
-Date: 2026-08-26. Engine implementation notes updated 2026-09-08.
+Date: 2026-08-26. Engine implementation notes updated 2026-09-08. Memory
+derived from the BDOS address and configurable screen size 2026-10-25.
 
 ## Purpose and authority
 
 This document defines a portable full-screen Z80 editor named `EDIT.COM` for
 CP/M-compatible systems. It uses the guest BDOS for console and file operations
-and the 80-column by 24-row terminal contract below. The production program has
+and the screen and terminal contract below, at any supported screen size. The production program has
 no host-runtime, emulator, BIOS, or Triptych dependency.
 
 The authority order is:
@@ -57,8 +58,8 @@ The extensions `BAK` and `$$$` are reserved for the save transaction and are
 rejected as selected filenames. The no-argument default file must already
 exist; an explicitly named file follows the new-file rule below. A command or
 open failure prints one CRLF-terminated `EDIT error XX` line, where `XX` is a
-stable two-digit hexadecimal editor status, and returns to the CCP with the
-incoming stack restored.
+stable two-digit hexadecimal editor status and ends with a warm boot, as every
+exit after entry does (see TPA allocation).
 
 ## New-file creation increment
 
@@ -77,7 +78,7 @@ new empty buffer associated with that name. Explicitness is syntactic:
 file remains an error and never becomes a new buffer.
 
 A new buffer has length, cursor, viewport, desired column, and committed search
-length zero. Its row-24 filename is the selected name. It uses ready status and
+length zero. Its status-row filename is the selected name. It uses ready status and
 the ordinary dirty marker rather than adding a new status string. The buffer is
 dirty even while empty because the requested file has not been published.
 `^Q` therefore displays the existing discard warning; the confirming `^Q`
@@ -135,9 +136,10 @@ and CRLF are distinct newline encodings and are preserved. Return inserts CRLF.
 Backspace or Delete treats either newline encoding as one logical character and
 never leaves the cursor between CR and LF.
 
-The content capacity is exactly 47,104 bytes. Empty files and files containing
-exactly 47,104 logical bytes are accepted. A first byte beyond that capacity is
-rejected before it is written into the text arena. Capacity is checked before
+The content capacity is the size of the text arena, which entry derives from
+the BDOS address (see TPA allocation). Empty files and files that exactly fill
+the arena are accepted. A first byte beyond that capacity is rejected before it
+is written into the text arena. Capacity is checked before
 every insertion; a rejected insertion leaves the content, cursor, viewport,
 dirty state, and transaction state unchanged.
 
@@ -148,49 +150,119 @@ the input file is not part of the editable content.
 
 ## TPA allocation and accounting
 
-CP/M loads `EDIT.COM` at `$0100`. The transient uses this fixed partition:
+CP/M loads `EDIT.COM` at `$0100`. The lower accounts are fixed. The word at
+`$0006`, the BDOS address B, sets the upper end of the transient. Entry derives
+every upper limit from B, as CP/M programs conventionally do:
 
-| Account                                     | Inclusive addresses |     Capacity |
-| ------------------------------------------- | ------------------- | -----------: |
-| Code and immutable data                     | `$0100..$1DFF`      |  7,424 bytes |
-| Fixed writable workspace and one DMA record | `$1E00..$1FFF`      |    512 bytes |
-| Text arena                                  | `$2000..$D7FF`      | 47,104 bytes |
-| Private stack                               | `$D800..$E3FF`      |  3,072 bytes |
+| Account                                     | Inclusive addresses    |          Capacity |
+| ------------------------------------------- | ---------------------- | ----------------: |
+| Code and immutable data                     | `$0100..$1DFF`         |       7,424 bytes |
+| Fixed writable workspace and one DMA record | `$1E00..$1FFF`         |         512 bytes |
+| Text arena                                  | `$2000` to B − `$0101` | B − `$2100` bytes |
+| Private stack                               | B − `$0100` to B − 1   |         256 bytes |
+
+For example:
+
+| BDOS address B   | Text arena     |     Capacity | Private stack  |
+| ---------------- | -------------- | -----------: | -------------- |
+| `$E400`          | `$2000..$E2FF` | 49,920 bytes | `$E300..$E3FF` |
+| `$B406` (TEC-OS) | `$2000..$B305` | 37,638 bytes | `$B306..$B405` |
+
+The text arena must hold at least 1,024 bytes, so B must be at least `$2500`.
+For a smaller B the editor prints one CRLF-delimited `EDIT error 06 TPA too
+small` line and returns to the CCP with the incoming SP. That check precedes
+every memory write and every other BDOS call.
+
+Otherwise entry loads SP from `$0006`, so the first push writes B − 1, and
+records the arena limit and capacity in the document workspace. No path writes
+B or any higher address except through BDOS. The stack and text arena may
+occupy the memory of the resident CCP, so every exit after the stack switch,
+including command and load errors, clean quit, and confirmed discard, ends with
+a jump to `$0000` (warm boot), which rebuilds the CCP. The editor is
+non-reentrant.
 
 The code, immutable data, writable workspace, text arena, and stack are
 reported separately. Overlaying one account onto another does not count as a
 size reduction. The complete `.COM` must end before `$1E00`; uninitialized
 workspace and the text arena do not inflate the artifact.
 
-The CP/M entry saves the exact incoming SP in writable transient code, selects
-the private stack, and restores the incoming SP before every return to the CCP.
-The editor is non-reentrant. No success, load failure, edit-capacity failure,
-save failure, or discard exit may write `$E400..$FFFF` except through BDOS.
-
 ## Screen
 
-Rows 1 through 23 display text. Row 24 is a reverse-video status row containing
-the selected filename, a dirty marker when appropriate, the compact position
-`L<line> C<column>`, the last status, and the `^S Save` and `^Q Quit` key hints.
-The line and column are one-based: the line counts logical source lines and the
-column counts display cells after tab expansion. They are derived view state,
-not bytes in the file, and are refreshed whenever the cursor or viewport makes
-them stale. The position is omitted while row 24 is occupied by a search or
-replacement prompt; the ordinary status row returns when that prompt ends.
-The editor uses only the CSI cursor, erase, and rendition operations already
-required by the platform contract.
+The screen has C columns and R rows, selected once at entry. Rows 1 through
+R − 1 display text. Row R is a reverse-video status row. C may be 20 through 80
+and R may be 4 through 24; a selected value outside that range is clamped to
+the nearer limit. The 24-row limit matches the bounded layout cache of 23 text
+rows. The tested sizes are 80 × 24, 40 × 24, 32 × 24, 21 × 8, and 20 × 4.
+
+The editor uses only CR, LF, BEL, printable ASCII, `ESC [ H`,
+`ESC [ r ; c H`, `ESC [ 2 J`, `ESC [ K`, `ESC [ 7 m`, and `ESC [ 0 m`. The
+terminal must defer the wrap after a printable byte in column C until the next
+printable byte, as a VT100 does. The editor never sends a printable byte in
+that state, never scrolls the terminal, and never addresses a position outside
+the C × R screen.
+
+### Size selection
+
+1. If bit 0 of the configuration flags is set, the ROM bytes at `$FF00..$FF02`
+   are `TNA` (the TEC-OS ABI table), the word at `$FF09` is nonzero, and the
+   byte it addresses is nonzero, that byte is C and the following byte is R.
+2. Otherwise C and R come from the configuration block.
+
+The probe only reads `$FF00..$FF0A` and the two geometry bytes.
+
+### Configuration block
+
+The configuration block occupies fixed addresses in `EDIT.COM`, immediately
+after the entry jump. A user may patch it with any binary editor or set it with
+`node tools/configure.mjs EDIT.COM --columns C --rows R --probe on|off
+[--output OUT.COM]`. The tool rejects sizes outside the supported range.
+
+| Address | Bytes | Contents                                     | Default |
+| ------- | ----: | -------------------------------------------- | ------: |
+| `$0103` |     4 | ASCII `ECFG`                                 |         |
+| `$0107` |     1 | Layout version, 1                            |       1 |
+| `$0108` |     1 | Columns                                      |      80 |
+| `$0109` |     1 | Rows                                         |      24 |
+| `$010A` |     1 | Flags: bit 0 probes the TEC-OS ABI; others 0 |       1 |
+
+### Text area and viewport
 
 Printable bytes occupy one cell. A tab advances to the next eight-column tab
 stop and displays spaces. Newline bytes are not displayed. The viewport has a
 logical top-line offset and a horizontal display-column offset. Moving the
-cursor beyond row 23 or column 80 scrolls the applicable viewport just far
-enough to keep the cursor visible. Long lines are clipped at the viewport
-edges; their bytes remain editable and are preserved on save.
+cursor below row R − 1 scrolls the view by just enough lines to keep the cursor
+on row R − 1. A cursor at visual column V ≥ C (counting from zero) sets the
+horizontal offset to V − (C − 1), which places the cursor in column C; a cursor
+at V < C sets it to zero. Long lines are clipped at the viewport edges; their
+bytes remain editable and are preserved on save.
 
 The hardware cursor is placed on the logical insertion position after every
-completed command. A repaint may rewrite the complete 24-row screen, but the
-observable cells, attributes, cursor, and bell count must match the contract.
-The editor never depends on terminal output being echoed as input.
+completed command, always within rows 1 through R − 1 and columns 1 through C.
+A repaint may rewrite any part of the screen, but the observable cells,
+attributes, cursor, and bell count must match the contract. The editor never
+depends on terminal output being echoed as input.
+
+### Status row
+
+The status row contains, in order:
+- `EDIT `;
+- the selected filename without FCB padding, as `NAME.EXT`, or `NAME` when the
+  extension is blank;
+- a space, then `*` when the buffer is dirty or a space otherwise;
+- two spaces and the compact position `L<line> C<column>`; and
+- two spaces and the last status message, when there is one.
+
+The key hints `  ^S Save  ^Q Quit` follow only when all 18 bytes fit in the
+remaining columns. Cells beyond column C are dropped, and spaces fill the row to
+column C. At 80 and 40 columns the ready row of a short filename therefore
+includes the hints; at 32 columns and below it does not.
+
+The line and column are one-based: the line counts logical source lines and the
+column counts display cells after tab expansion. They are derived view state,
+not bytes in the file, and are refreshed whenever the cursor or viewport makes
+them stale. The position is omitted while the status row is occupied by a
+search or replacement prompt; the ordinary status row returns when that prompt
+ends.
 
 ## Keys and editing
 
@@ -246,11 +318,13 @@ The search increment starts from the pushed 2,504-byte editor at Debug80
 byte search without changing the text representation, file capacity, newline
 rules, save transaction, or terminal profile.
 
-`^F` replaces row 24 with one reverse-video query row. Columns 1 through 6
-contain `Find: `. Each query byte occupies one following cell: printable ASCII
-is shown directly and a horizontal tab is shown as `>`. The remainder of the
-row contains spaces, and the hardware cursor follows the displayed query. The
-query holds at most 64 bytes, so its cursor remains within the row. The initial
+`^F` replaces the status row with one reverse-video query row. Columns 1
+through 6 contain `Find: `. Each displayed query byte occupies one following
+cell: printable ASCII is shown directly and a horizontal tab is shown as `>`.
+The remainder of the row contains spaces, and the hardware cursor follows the
+displayed query. The query holds at most 64 bytes. When the prompt and query
+do not fit in C − 1 columns, only the final C − 1 − 6 query bytes are shown,
+so the cursor remains within the row. The initial
 query is the last successfully committed query, or empty when no search has
 been committed in this execution.
 
@@ -321,9 +395,12 @@ current match reports `Not found`, rings once, and retains the file cursor,
 viewport, content, dirty state, and committed query. The command does not
 search ahead or wrap: `^F` and `^N` already select the match to be replaced.
 
-For a current match, `^R` replaces row 24 with one reverse-video replacement
-row. Columns 1 through 9 contain `Replace: `. The replacement starts empty on
-every invocation and holds at most 64 bytes in the inactive DMA record.
+For a current match, `^R` replaces the status row with one reverse-video
+replacement row. Columns 1 through 9 contain `Replace: `. The replacement
+starts empty on every invocation and holds at most 64 bytes in the inactive DMA
+record. It follows the query row's display rule: when the prompt and
+replacement do not fit in C − 1 columns, only the final C − 1 − 9 bytes are
+shown.
 Printable ASCII is displayed directly and a horizontal tab is displayed as
 `>`. Backspace and Delete remove the final byte. Either key at length zero,
 the first byte beyond 64, and every other unsupported control byte ring the
@@ -342,7 +419,7 @@ CRLF, so replacement never changes or joins existing line endings. Both may
 contain a horizontal tab, which remains one stored `$09` byte.
 
 Capacity is checked against the final length before the first text byte or
-editor field changes. A growth that would exceed 47,104 bytes reports `Full`,
+editor field changes. A growth that would exceed the arena capacity reports `Full`,
 rings once, and preserves the exact content, length, cursor, viewport, desired
 column, dirty and new flags, committed query, and save state. The transient
 replacement bytes in the DMA record have no meaning after the command
@@ -410,7 +487,7 @@ A save performs these phases through ordinary FCB calls:
 Dirty state is cleared only after the new selected file has been installed. A
 single injected BDOS failure at any phase restores the previous selected file,
 removes a partial temporary file where CP/M permits it, retains the edited
-buffer, and reports `Save failed XX` on row 24. If both publication and rollback
+buffer, and reports `Save failed XX` on the status row. If both publication and rollback
 operations fail, the previous complete file must remain recoverable as either
 the selected name or `NAME.BAK`; the editor reports the rollback status and
 does not claim a successful save.
@@ -463,7 +540,7 @@ The standalone ATOM build and headless proof must distinguish:
 - invalid command tails and reserved extensions;
 - missing, empty, representative Atom, and representative Nucleus files;
 - LF, CRLF, tabs, long lines, `$1A`, invalid controls, and bare CR;
-- exactly 47,104 content bytes and the first rejected byte;
+- content that exactly fills the arena and the first rejected byte;
 - insertion at the start, middle, and end;
 - CRLF insertion and atomic capacity rejection;
 - Backspace and Delete over bytes, LF, and CRLF;
@@ -474,8 +551,9 @@ The standalone ATOM build and headless proof must distinguish:
 - save, repeated save, every transaction failure phase, rollback failure, and
   successful save after a failure;
 - exact logical and physical saved-file bytes;
-- exact entry and exit SP, return PC, workspace canaries, text-arena canaries,
-  and unchanged CP/M high memory;
+- the stack switch to the BDOS address, a warm-boot exit with SP inside the
+  private stack, workspace canaries, text-arena canaries, and unchanged memory
+  at and above the BDOS address;
 - exact assembled extents, representative instructions and T-states, and Z80
   stack balance; and
 - headless Z80/BDOS/terminal behavior.
@@ -537,7 +615,7 @@ The literal-replacement increment must additionally distinguish:
   replacement, one-byte and 64-byte search queries, and overlapping matches;
 - retained LF and CRLF bytes, no match across either line ending, and tab
   matching and replacement as exact `$09` bytes;
-- a result that exactly fills the 47,104-byte arena and the first rejected
+- a result that exactly fills the arena and the first rejected
   growth, with byte-for-byte content and every listed persistent field
   unchanged on rejection except `Full` status and one bell;
 - cursor placement, vertical-column invalidation, dirty and discard state,
@@ -553,12 +631,34 @@ The literal-replacement increment must additionally distinguish:
 - exact code, immutable, workspace, text-capacity, and runtime deltas from the
   pushed 2,869-byte baseline.
 
+The memory and screen-size revision must additionally distinguish:
+
+- BDOS addresses `$E400` and `$B406`: the derived capacity, a file that
+  exactly fills the arena, the first rejected byte, a rejected insertion at
+  capacity, a save, and no write at or above the BDOS address;
+- the minimum arena, and a BDOS address one byte lower that is refused with
+  `EDIT error 06 TPA too small`, no memory write, no file operation, and a
+  return with the incoming SP;
+- the configuration defaults and layout, the configuration tool, size
+  selection from the configuration block and from the TEC-OS ABI, a disabled
+  probe, an absent tag, a zero geometry pointer, zero columns, and clamping
+  of small and large sizes; and
+- complete editing sessions at 80 × 24, 40 × 24, 32 × 24, 21 × 8, and 20 × 4,
+  each with both BDOS addresses: exact text rows, status rows with filename and
+  position, attributes, and cursor after vertical scroll, horizontal scroll, a
+  return within the screen, insertion, save, the 64-byte query and replacement
+  rows, cancellation, search, and discard confirmation; a terminal that faults
+  on scrolling, wrapping, or out-of-screen addresses; and agreement with the
+  reference 80 × 24 terminal model.
+
 The final gate includes strict assembly, scoped editor proofs, the complete
 CP/M acceptance, runtime and terminal tests, Extension Host integration, full
 repository tests, typechecking, lint, formatting, link checks, and diff checks.
 
 The production Z80 proof coverage and measurements are recorded in
-[`editor-proof.md`](reports/editor-proof.md).
+[`editor-proof.md`](reports/editor-proof.md). The memory and screen-size
+revision is recorded in
+[`screen-and-memory.md`](reports/screen-and-memory.md).
 
 The retained search implementation contains a three-byte entry jump, 2,653
 bytes of code, and 184 bytes of immutable data. The complete `EDIT.COM` is

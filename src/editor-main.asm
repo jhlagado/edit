@@ -1,21 +1,41 @@
-; Transient entry, raw-key dispatcher, and CCP return.
+; Transient entry, raw-key dispatcher, and CP/M exit.
+
+; CpmWarmBoot
+WARMBOOT    EQU $0000
+; CpmBdosVector
+BDOSVEC     EQU $0006
 
 ; EditorMainCodeStart
 MAICODST:
+; The private stack ends just below the BDOS address and may overwrite the
+; CCP, so every exit after the stack switch is a warm boot. A TPA too small for
+; the minimum arena returns to the CCP before any memory is written.
 ;@ROUTINE out A,carry,zero clobbers sign,parity,halfCarry,BC,DE,HL,IX,IY
 ; EditorEntry
 ENTRY:
-            LD   (RESSP+1),SP
-            LD   SP,STACKTOP
+            LD   HL,(BDOSVEC)
+            LD   DE,MINTOP
+            OR   A
+            SBC  HL,DE
+            JR   C,ENTMEM
+            LD   SP,(BDOSVEC)
+            LD   HL,(BDOSVEC)
+            LD   DE,STASIZ
+            SBC  HL,DE
+            CALL DOCSETLI
             CALL RUN
-; EditorRestoreSp
-RESSP:
-            LD   SP,0
-            RET
+            JP   WARMBOOT
+; EditorEntryMemory
+ENTMEM:
+            LD   DE,ERRPRE
+            CALL OUTTEX
+            LD   DE,MEMTEX
+            JP   OUTTEX
 
 ;@ROUTINE out A,carry,zero clobbers sign,parity,halfCarry,BC,DE,HL,IX,IY
 ; EditorRun
 RUN:
+            CALL SELSCR
             CALL PRECOM
             JP   C,RUNERROR
             CALL LOADFILE

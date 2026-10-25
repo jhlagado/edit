@@ -4,7 +4,7 @@ import assert from 'node:assert/strict';
 import {dirname,resolve} from 'node:path';
 import {fileURLToPath} from 'node:url';
 import {assembleCurrent,loadBaseline,createEngineMachine,beginSession,executeCommands,
- executeRoutine,engineSnapshot,withoutPositionStatus,physicalFile,seedDocument,writeWord,readWord}
+ executeRoutine,engineSnapshot,normalizeStatusRow,physicalFile,seedDocument,writeWord,readWord}
  from './support/editor-engine-harness.mjs';
 const root=resolve(dirname(fileURLToPath(import.meta.url)),'..');
 const [current,reference]=await Promise.all([assembleCurrent(),loadBaseline(resolve(root,'test/fixtures/editor-engine-milestone2.json'))]);
@@ -12,7 +12,7 @@ assert.equal(typeof current.symbols.EditorPresent,'number','requires M3 presente
 const bytes=t=>Uint8Array.from(Buffer.from(t,'ascii'));
 const hl=v=>({h:v>>>8,l:v&255});
 let commands=0,batches=0,warmSamples=0;
-function same(pair,label){assert.deepEqual(withoutPositionStatus(engineSnapshot(pair[1])),withoutPositionStatus(engineSnapshot(pair[0])),label);}
+function same(pair,label){assert.deepEqual(normalizeStatusRow(engineSnapshot(pair[1])),normalizeStatusRow(engineSnapshot(pair[0])),label);}
 function makePair(content,cursor=0){
  const pair=[reference,current].map(a=>{
   const m=createEngineMachine(a,{files:{'INPUT.NU':physicalFile(content)}});beginSession(m);

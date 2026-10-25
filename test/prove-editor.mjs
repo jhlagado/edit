@@ -13,15 +13,25 @@ import {
   projectOwnedCandidates,
   symbolsFromDebugMap,
 } from "../tools/atom-assembly.mjs";
+import {
+  configureImage,
+  readConfiguration,
+} from "../tools/configure.mjs";
+import {
+  ATTR_REVERSE,
+  createScreenTerminal,
+} from "./support/screen-terminal.mjs";
 
 const outputDirectory = "src";
 const source = join(outputDirectory, "editor.asm");
 const RETURN_ADDRESS = 0x0040;
-const ROUTINE_CALLER_SP = 0xe300;
 const ENTRY_CALLER_SP = 0xe900;
 const WORKSPACE_CANARY = 0xa5;
 const TEXT_CANARY = 0xc7;
 const HIGH_CANARY = 0x5a;
+// BDOS addresses at $0006: a 64 KiB CP/M 2.2 system and TEC-OS.
+const HIGH_TPA_TOP = 0xe400;
+const LOW_TPA_TOP = 0xb406;
 
 const atomArtifacts = await assembleProjectOwnedAtomArtifacts({
   outputDirectory,
@@ -49,10 +59,16 @@ const memoryLayout = {
   workspaceUsedEnd: symbol("EditorWorkspaceEnd"),
   workspaceEnd: symbol("EditorWorkspaceLimit"),
   textStart: symbol("EditorTextBase"),
-  textEnd: symbol("EditorTextLimit"),
-  stackFloor: symbol("EditorStackFloor"),
-  stackTop: symbol("EditorStackTop"),
+  stackSize: symbol("EditorStackSize"),
+  textMinimum: symbol("EditorTextMinimum"),
 };
+
+// The private stack ends at the BDOS address; the text arena ends at the stack.
+function layoutFor(top) {
+  const textEnd = top - memoryLayout.stackSize;
+  return { top, textEnd, capacity: textEnd - memoryLayout.textStart };
+}
+const capacity = layoutFor(HIGH_TPA_TOP).capacity;
 assert.equal(
   binary.bytes.length,
   memoryLayout.residentEnd - memoryLayout.codeStart,
@@ -150,7 +166,11 @@ class FakeBdos {
     const address = ((cpu.d << 8) | cpu.e) & 0xffff;
     let result = 0;
     if (functionNumber === 6) {
-      if (cpu.e === 0xff) result = this.input.shift() ?? 0;
+      if (cpu.e === 0xff) {
+        // A session may observe the screen whenever the editor waits for a key.
+        if (this.input.length === 0) this.onIdle?.();
+        result = this.input.shift() ?? 0;
+      }
       else this.terminal.writeOutput(cpu.e);
     } else if (functionNumber === 15) {
       const { event, name } = this.fileEvent("open", address);
@@ -220,26 +240,48 @@ class FakeBdos {
   }
 }
 
-function createMachine({ files = {}, failures = [] } = {}) {
+// Routine-level proofs start from the workspace state that EditorEntry
+// establishes: the derived arena limit and capacity and the selected screen.
+function createMachine({
+  files = {},
+  failures = [],
+  top = HIGH_TPA_TOP,
+  columns = 80,
+  rows = 24,
+  strictTerminal = columns !== 80 || rows !== 24,
+  image = binary.bytes,
+} = {}) {
   const initial = new Uint8Array(0x10000);
-  initial.set(binary.bytes, memoryLayout.codeStart);
+  initial.set(image, memoryLayout.codeStart);
   const runtime = createZ80Runtime({ memory: initial, startAddress: 0 }, 0);
   const memory = runtime.hardware.memory;
+  const layout = layoutFor(top);
+  writeWord(memory, 6, top);
   memory.fill(
     WORKSPACE_CANARY,
     memoryLayout.workspaceUsedEnd,
     memoryLayout.workspaceEnd,
   );
-  memory.fill(TEXT_CANARY, memoryLayout.textStart, memoryLayout.textEnd);
-  memory.fill(HIGH_CANARY, memoryLayout.stackTop, 0x10000);
+  memory.fill(TEXT_CANARY, memoryLayout.textStart, layout.textEnd);
+  memory.fill(HIGH_CANARY, top, 0x10000);
+  writeWord(memory, symbol("EditorTextLimit"), layout.textEnd);
+  writeWord(memory, symbol("EditorTextCapacity"), layout.capacity);
+  memory[symbol("EditorColumns")] = columns;
+  memory[symbol("EditorTextRows")] = rows - 1;
   const bdos = new FakeBdos(memory, files, failures);
-  return { bdos, memory, runtime };
+  if (strictTerminal) bdos.terminal = createScreenTerminal({ columns, rows });
+  return { bdos, layout, memory, runtime };
 }
 
 function invokeRoutine(
   machine,
   routine,
-  { registers = {}, callerSp = ROUTINE_CALLER_SP, beforeRun } = {},
+  {
+    registers = {},
+    callerSp = machine.layout.top,
+    beforeRun,
+    instructionLimit = 20_000_000,
+  } = {},
 ) {
   const cpu = machine.runtime.cpu;
   Object.assign(cpu, {
@@ -262,8 +304,10 @@ function invokeRoutine(
   let instructions = 0;
   let tStates = 0;
   let minimumSp = cpu.sp;
-  while (cpu.pc !== RETURN_ADDRESS) {
-    assert.ok(instructions < 20_000_000, `${routine} did not return`);
+  // EditorEntry ends with a warm boot after it has selected its private stack.
+  const warmBootExit = routine === "EditorEntry";
+  while (cpu.pc !== RETURN_ADDRESS && !(warmBootExit && cpu.pc === 0)) {
+    assert.ok(instructions < instructionLimit, `${routine} did not return`);
     if (cpu.pc === 5) machine.bdos.invoke(cpu);
     else {
       const step = machine.runtime.step();
@@ -272,15 +316,25 @@ function invokeRoutine(
     }
     minimumSp = Math.min(minimumSp, cpu.sp);
   }
-  assert.equal(cpu.sp, callerSp, `${routine} changed its caller stack depth`);
+  const exit = cpu.pc === 0 ? "warm-boot" : "return";
+  if (exit === "return") {
+    assert.equal(cpu.sp, callerSp, `${routine} changed its caller stack depth`);
+  } else {
+    assert.ok(
+      cpu.sp <= machine.layout.top &&
+        cpu.sp >= machine.layout.top - memoryLayout.stackSize,
+      "EditorEntry warm-booted outside its private stack",
+    );
+  }
   return {
     a: cpu.a,
     carry: cpu.flags.C !== 0,
+    exit,
     instructions,
     tStates,
     stackBytes:
-      (callerSp > memoryLayout.stackTop
-        ? memoryLayout.stackTop
+      (exit === "warm-boot" && callerSp > machine.layout.top
+        ? machine.layout.top
         : callerSp - 2) - minimumSp,
   };
 }
@@ -295,7 +349,7 @@ function assertCanaries(machine, { high = true } = {}) {
   if (high) {
     assert.ok(
       machine.memory
-        .slice(memoryLayout.stackTop, 0x10000)
+        .slice(machine.layout.top, 0x10000)
         .every((byte) => byte === HIGH_CANARY),
       "editor wrote above its private stack partition",
     );
@@ -313,13 +367,16 @@ function selectedName(memory) {
 }
 
 function installBuffer(machine, bytes, cursor = 0) {
-  assert.ok(bytes.length <= symbol("EditorTextCapacity"));
+  assert.ok(bytes.length <= machine.layout.capacity);
   machine.memory.fill(
     TEXT_CANARY,
     memoryLayout.textStart,
-    memoryLayout.textEnd,
+    machine.layout.textEnd,
   );
-  seedDocument({ memory: machine.memory, symbol, artifact: { symbols } }, bytes);
+  seedDocument(
+    { memory: machine.memory, symbol, artifact: { symbols }, layout: machine.layout },
+    bytes,
+  );
   writeWord(machine.memory, symbol("EditorCursor"), cursor);
   writeWord(machine.memory, symbol("EditorTop"), 0);
   writeWord(machine.memory, symbol("EditorHorizontal"), 0);
@@ -363,7 +420,7 @@ function queryBlock(machine) {
 }
 
 function bufferBytes(machine) {
-  return logicalDocument({ memory: machine.memory, symbol, artifact: { symbols } });
+  return logicalDocument({ memory: machine.memory, symbol, artifact: { symbols }, layout: machine.layout });
 }
 
 function assertUnusedTextCanary(machine) {
@@ -377,7 +434,7 @@ function assertUnusedTextCanary(machine) {
   const length = readWord(machine.memory, symbol("EditorLength"));
   assert.ok(
     machine.memory
-      .slice(memoryLayout.textStart + length, memoryLayout.textEnd)
+      .slice(memoryLayout.textStart + length, machine.layout.textEnd)
       .every((byte) => byte === TEXT_CANARY),
     "editor wrote beyond logical text",
   );
@@ -473,7 +530,7 @@ loadMeasurements.missing = proveLoad(
   const snapshot = machine.bdos.terminal.snapshot();
   assert.equal(
     Buffer.from(snapshot.cells.slice(23 * 80)).toString("ascii"),
-    "EDIT NEW     .NU  *  L1 C1  ^S Save  ^Q Quit".padEnd(80),
+    "EDIT NEW.NU *  L1 C1  ^S Save  ^Q Quit".padEnd(80),
   );
   assert.ok(
     snapshot.attributes
@@ -550,7 +607,6 @@ proveLoad(
   [],
   symbol("EditorErrorText"),
 );
-const capacity = symbol("EditorTextCapacity");
 loadMeasurements.full = proveLoad(
   "exact capacity",
   new Uint8Array(capacity).fill(0x41),
@@ -567,7 +623,7 @@ loadMeasurements.full = proveLoad(
   assert.equal(readWord(machine.memory, symbol("EditorLength")), capacity);
   assert.ok(
     machine.memory
-      .slice(memoryLayout.textStart, memoryLayout.textEnd)
+      .slice(memoryLayout.textStart, machine.layout.textEnd)
       .every((byte) => byte === 0x41),
   );
   assertCanaries(machine);
@@ -748,7 +804,7 @@ for (const column of [0, 1, 7, 8, 247, 248, 255, 256, 32767, 65527, 65528, 65535
 // boundary, including the maximum legal all-tab buffer. Expected offsets use
 // an independent unbounded-integer walk of the source bytes.
 for (const width of [65528, 65535, 65536, 65537, 131071, 131072,
-  196607, 196608, 262143, 262144, 327679, 327680, symbol("EditorTextCapacity") * 8]) {
+  196607, 196608, 262143, 262144, 327679, 327680, capacity * 8]) {
   const machine = createMachine();
   const bytes = Buffer.concat([
     Buffer.alloc(Math.floor(width / 8), 9), Buffer.alloc(width % 8, 0x58),
@@ -798,7 +854,7 @@ for (const width of [65528, 65535, 65536, 65537, 131071, 131072,
   assertCanaries(machine);
 }
 for (const [tabCount, suffix] of [[8192, "TAIL"], [8191, "12345678TAIL"],
-  [symbol("EditorTextCapacity") - 4, "TAIL"]]) {
+  [capacity - 4, "TAIL"]]) {
   const machine = createMachine();
   prepareDefaultFcb(machine);
   const bytes = Buffer.concat([Buffer.alloc(tabCount, 9), Buffer.from(suffix)]);
@@ -1307,7 +1363,7 @@ function replacementPersistentSnapshot(machine) {
       symbol("EditorLength"),
       symbol("EditorSaveState") + 1,
     ),
-    text: machine.memory.slice(memoryLayout.textStart, memoryLayout.textEnd),
+    text: machine.memory.slice(memoryLayout.textStart, machine.layout.textEnd),
   };
 }
 
@@ -2008,11 +2064,11 @@ function runEditorInput(input, file = Buffer.from("A\r\n", "ascii")) {
   const result = invokeRoutine(machine, "EditorEntry", {
     callerSp: ENTRY_CALLER_SP,
     beforeRun() {
-      highBefore = machine.memory.slice(memoryLayout.stackTop, 0x10000);
+      highBefore = machine.memory.slice(machine.layout.top, 0x10000);
     },
   });
   assert.deepEqual(
-    machine.memory.slice(memoryLayout.stackTop, 0x10000),
+    machine.memory.slice(machine.layout.top, 0x10000),
     highBefore,
     "EditorEntry changed CP/M high memory",
   );
@@ -2029,10 +2085,10 @@ function runNewEditorInput(input, failures = []) {
   const result = invokeRoutine(machine, "EditorEntry", {
     callerSp: ENTRY_CALLER_SP,
     beforeRun() {
-      highBefore = machine.memory.slice(memoryLayout.stackTop, 0x10000);
+      highBefore = machine.memory.slice(machine.layout.top, 0x10000);
     },
   });
-  assert.deepEqual(machine.memory.slice(memoryLayout.stackTop), highBefore);
+  assert.deepEqual(machine.memory.slice(machine.layout.top), highBefore);
   assert.ok(result.stackBytes > 0 && result.stackBytes <= 32);
   assertCanaries(machine, { high: false });
   return { machine, result };
@@ -2426,16 +2482,600 @@ const entryMeasurements = {};
   const result = invokeRoutine(machine, "EditorEntry", {
     callerSp: ENTRY_CALLER_SP,
     beforeRun() {
-      highBefore = machine.memory.slice(memoryLayout.stackTop, 0x10000);
+      highBefore = machine.memory.slice(machine.layout.top, 0x10000);
     },
   });
-  assert.deepEqual(machine.memory.slice(memoryLayout.stackTop), highBefore);
+  assert.deepEqual(machine.memory.slice(machine.layout.top), highBefore);
   assert.ok(
     Buffer.from(machine.bdos.terminal.snapshot().cells)
       .toString("ascii")
       .includes("EDIT error 02"),
   );
   entryMeasurements.missing = result;
+}
+
+// Configuration block, screen-size selection, and the memory partition
+// derived from the BDOS address.
+const configurationMeasurements = {};
+{
+  assert.equal(symbol("EditorConfig"), 0x0103);
+  assert.equal(symbol("EditorConfigColumns"), 0x0108);
+  assert.equal(symbol("EditorConfigRows"), 0x0109);
+  assert.equal(symbol("EditorConfigFlags"), 0x010a);
+  assert.deepEqual(readConfiguration(binary.bytes), {
+    columns: 80,
+    rows: 24,
+    probe: true,
+  });
+  const configured = configureImage(binary.bytes, {
+    columns: 40,
+    rows: 16,
+    probe: false,
+  });
+  assert.deepEqual(readConfiguration(configured), {
+    columns: 40,
+    rows: 16,
+    probe: false,
+  });
+  assert.deepEqual(configured.slice(0, 8), binary.bytes.slice(0, 8));
+  assert.deepEqual(configured.slice(11), binary.bytes.slice(11));
+  assert.deepEqual(
+    readConfiguration(configureImage(configured, { probe: true })),
+    { columns: 40, rows: 16, probe: true },
+  );
+  for (const options of [
+    { columns: 19 },
+    { columns: 81 },
+    { rows: 3 },
+    { rows: 25 },
+    { columns: 40.5 },
+  ]) {
+    assert.throws(() => configureImage(binary.bytes, options));
+  }
+  assert.throws(() => readConfiguration(binary.bytes.slice(1)));
+}
+
+function selectScreen({ config, flags, abi } = {}) {
+  const machine = createMachine();
+  const memory = machine.memory;
+  memory[symbol("EditorColumns")] = 0;
+  memory[symbol("EditorTextRows")] = 0;
+  if (config !== undefined) {
+    memory[symbol("EditorConfigColumns")] = config[0];
+    memory[symbol("EditorConfigRows")] = config[1];
+  }
+  if (flags !== undefined) memory[symbol("EditorConfigFlags")] = flags;
+  if (abi !== undefined) {
+    memory.set(Buffer.from(abi.tag ?? "TNA", "ascii"), 0xff00);
+    const pointer = abi.pointer ?? 0xff40;
+    writeWord(memory, 0xff09, pointer);
+    if (pointer !== 0) memory.set(abi.size, pointer);
+  }
+  const before = memory.slice();
+  const result = invokeRoutine(machine, "EditorSelectScreen");
+  const changed = [];
+  for (let address = 0; address < 0x10000; address += 1) {
+    const stack =
+      address >= machine.layout.top - memoryLayout.stackSize &&
+      address < machine.layout.top;
+    if (!stack && memory[address] !== before[address]) changed.push(address);
+  }
+  for (const address of changed) {
+    assert.ok(
+      address === symbol("EditorColumns") ||
+        address === symbol("EditorTextRows"),
+      `EditorSelectScreen wrote ${address.toString(16)}`,
+    );
+  }
+  return {
+    size: [memory[symbol("EditorColumns")], memory[symbol("EditorTextRows")] + 1],
+    result,
+  };
+}
+
+for (const [options, expected] of [
+  [{}, [80, 24]],
+  [{ config: [40, 24] }, [40, 24]],
+  [{ config: [32, 24] }, [32, 24]],
+  [{ config: [20, 4] }, [20, 4]],
+  [{ abi: { size: [40, 24] } }, [40, 24]],
+  [{ abi: { size: [32, 24] } }, [32, 24]],
+  [{ abi: { size: [20, 4] } }, [20, 4]],
+  [{ config: [40, 24], abi: { size: [80, 24] } }, [80, 24]],
+  [{ config: [32, 24], flags: 0, abi: { size: [40, 24] } }, [32, 24]],
+  [{ config: [40, 24], abi: { pointer: 0 } }, [40, 24]],
+  [{ config: [40, 24], abi: { size: [0, 24] } }, [40, 24]],
+  [{ config: [40, 24], abi: { tag: "TNB", size: [32, 24] } }, [40, 24]],
+  [{ config: [10, 2] }, [20, 4]],
+  [{ config: [0, 0] }, [20, 4]],
+  [{ config: [200, 150] }, [80, 24]],
+  [{ abi: { size: [132, 43] } }, [80, 24]],
+  [{ abi: { size: [21, 8] } }, [21, 8]],
+]) {
+  const { size, result } = selectScreen(options);
+  assert.deepEqual(size, expected, JSON.stringify(options));
+  configurationMeasurements[`select${expected.join("x")}`] = result;
+}
+
+function runEntry(machine, tail = "") {
+  setCommandTail(machine.memory, tail);
+  let highBefore;
+  const result = invokeRoutine(machine, "EditorEntry", {
+    callerSp: ENTRY_CALLER_SP,
+    instructionLimit: 200_000_000,
+    beforeRun() {
+      highBefore = machine.memory.slice(machine.layout.top, 0x10000);
+    },
+  });
+  assert.deepEqual(
+    machine.memory.slice(machine.layout.top, 0x10000),
+    highBefore,
+    "EditorEntry wrote at or above the BDOS address",
+  );
+  assertCanaries(machine, { high: false });
+  return result;
+}
+
+const memoryMeasurements = {};
+for (const [label, top] of [
+  ["high", HIGH_TPA_TOP],
+  ["low", LOW_TPA_TOP],
+]) {
+  const layout = layoutFor(top);
+  {
+    const content = new Uint8Array(layout.capacity).fill(0x41);
+    const machine = createMachine({
+      top,
+      files: { "INPUT.NU": physicalFile(content) },
+    });
+    writeWord(machine.memory, symbol("EditorTextCapacity"), 0);
+    machine.bdos.input.push(0x42, 0x11);
+    const result = runEntry(machine);
+    assert.equal(result.exit, "warm-boot");
+    assert.ok(result.stackBytes > 0 && result.stackBytes <= 32);
+    assert.equal(
+      readWord(machine.memory, symbol("EditorTextCapacity")),
+      layout.capacity,
+    );
+    assert.deepEqual(bufferBytes(machine), content);
+    assert.equal(
+      machine.memory[symbol("EditorStatus")],
+      symbol("EditorStatusFull"),
+    );
+    assert.equal(machine.bdos.terminal.snapshot().bellCount, 1);
+    memoryMeasurements[`${label}Full`] = result;
+  }
+  {
+    const machine = createMachine({
+      top,
+      files: {
+        "INPUT.NU": physicalFile(new Uint8Array(layout.capacity + 1).fill(0x41)),
+      },
+    });
+    const result = runEntry(machine);
+    assert.equal(result.exit, "warm-boot");
+    assert.equal(readWord(machine.memory, symbol("EditorLength")), layout.capacity);
+    assert.ok(
+      Buffer.from(machine.bdos.terminal.snapshot().cells)
+        .toString("ascii")
+        .includes("EDIT error 04"),
+    );
+    memoryMeasurements[`${label}Overflow`] = result;
+  }
+  {
+    const machine = createMachine({
+      top,
+      files: { "INPUT.NU": physicalFile(Buffer.from("A\r\n", "ascii")) },
+    });
+    machine.bdos.input.push(0x42, 19, 0x11);
+    const result = runEntry(machine);
+    assert.equal(result.exit, "warm-boot");
+    assert.deepEqual(
+      logicalFileBytes(machine.bdos.files.get("INPUT.NU")),
+      Uint8Array.from(Buffer.from("BA\r\n", "ascii")),
+    );
+    assertUnusedTextCanary(machine);
+    memoryMeasurements[`${label}Save`] = result;
+  }
+}
+{
+  const minimumTop =
+    memoryLayout.textStart + memoryLayout.stackSize + memoryLayout.textMinimum;
+  const machine = createMachine({
+    top: minimumTop,
+    files: { "INPUT.NU": physicalFile(Buffer.from("A\r\n", "ascii")) },
+  });
+  machine.bdos.input.push(0x11);
+  const result = runEntry(machine);
+  assert.equal(result.exit, "warm-boot");
+  assert.equal(
+    readWord(machine.memory, symbol("EditorTextCapacity")),
+    memoryLayout.textMinimum,
+  );
+  memoryMeasurements.minimum = result;
+
+  const small = createMachine({ top: minimumTop - 1 });
+  setCommandTail(small.memory, "");
+  const before = small.memory.slice();
+  const refused = invokeRoutine(small, "EditorEntry", {
+    callerSp: ENTRY_CALLER_SP,
+  });
+  assert.equal(refused.exit, "return");
+  assert.ok(refused.stackBytes > 0 && refused.stackBytes <= 16);
+  for (let address = 0; address < 0x10000; address += 1) {
+    if (address >= ENTRY_CALLER_SP - 32 && address < ENTRY_CALLER_SP) continue;
+    assert.equal(
+      small.memory[address],
+      before[address],
+      `refused entry wrote ${address.toString(16)}`,
+    );
+  }
+  const screen = Buffer.from(small.bdos.terminal.snapshot().cells).toString(
+    "ascii",
+  );
+  assert.equal(screen.slice(80, 160).trimEnd(), "EDIT error 06 TPA too small");
+  assert.equal(small.bdos.events.length, 0);
+  memoryMeasurements.refused = refused;
+}
+
+// Complete editing sessions at each supported screen size. The strict
+// terminal rejects scrolling, wrapping, and addresses outside the screen.
+const sessionLines = Array.from(
+  { length: 30 },
+  (_, index) =>
+    `L${String(index).padStart(2, "0")}:${"abcdefghijklmnopqrstuvwxyz0123456789"
+      .repeat(3)
+      .slice(0, 96)}`,
+);
+const sessionFile = Buffer.from(`${sessionLines.join("\r\n")}\r\n`, "ascii");
+const sessionLineBytes = sessionLines[0].length + 2;
+const STATUS_HINTS = "  ^S Save  ^Q Quit";
+const DOWN = [27, 0x5b, 0x42];
+const RIGHT = [27, 0x5b, 0x43];
+const LEFT = [27, 0x5b, 0x44];
+const sessionQuery = Buffer.from("0123456789".repeat(7).slice(0, 64), "ascii");
+const sessionReplacement = Buffer.from(
+  "ABCDEFGHIJ".repeat(7).slice(0, 64),
+  "ascii",
+);
+
+function expectedStatus(
+  columns,
+  { dirty = false, message = "", line = 1, column = 1 } = {},
+) {
+  let text = `EDIT INPUT.NU ${dirty ? "*" : " "}  L${line} C${column}`;
+  if (message !== "") text += `  ${message}`;
+  if (columns - Math.min(text.length, columns) >= STATUS_HINTS.length) {
+    text += STATUS_HINTS;
+  }
+  return text.slice(0, columns).padEnd(columns);
+}
+
+function expectedPrompt(columns, prompt, literal) {
+  const visible = columns - 1 - prompt.length;
+  const tail = Buffer.from(literal.slice(Math.max(0, literal.length - visible)))
+    .toString("ascii")
+    .replaceAll("\t", ">");
+  return {
+    row: `${prompt}${tail}`.padEnd(columns),
+    cursorColumn: prompt.length + tail.length,
+  };
+}
+
+// An independent model of the text rows: logical lines from the top offset,
+// tabs expanded, clipped to the horizontal viewport.
+function expectedTextRows(bytes, topOffset, horizontal, columns, textRows) {
+  const result = [];
+  let offset = topOffset;
+  for (let row = 0; row < textRows; row += 1) {
+    let line = "";
+    if (offset < bytes.length) {
+      const newline = bytes.indexOf(0x0a, offset);
+      const end = newline === -1 ? bytes.length : newline;
+      let content = Buffer.from(bytes.slice(offset, end)).toString("ascii");
+      if (content.endsWith("\r")) content = content.slice(0, -1);
+      for (const character of content) {
+        line +=
+          character === "\t" ? " ".repeat(8 - (line.length % 8)) : character;
+      }
+      offset = newline === -1 ? bytes.length : newline + 1;
+    }
+    result.push(line.slice(horizontal, horizontal + columns).padEnd(columns));
+  }
+  return result;
+}
+
+function runScreenSession({ columns, rows, top, abi = false, strict = true }) {
+  const textRows = rows - 1;
+  const machine = createMachine({
+    top,
+    columns,
+    rows,
+    strictTerminal: strict,
+    files: { "INPUT.NU": physicalFile(sessionFile) },
+  });
+  machine.memory[symbol("EditorColumns")] = 0;
+  machine.memory[symbol("EditorTextRows")] = 0;
+  if (abi) {
+    machine.memory.set(Buffer.from("TNA", "ascii"), 0xff00);
+    writeWord(machine.memory, 0xff09, 0xff40);
+    machine.memory[0xff40] = columns;
+    machine.memory[0xff41] = rows;
+  } else {
+    machine.memory[symbol("EditorConfigColumns")] = columns;
+    machine.memory[symbol("EditorConfigRows")] = rows;
+  }
+  const steps = [
+    ["down", Array(textRows).fill(DOWN).flat()],
+    ["right", Array(columns + 5).fill(RIGHT).flat()],
+    ["left", Array(10).fill(LEFT).flat()],
+    ["insert", [0x58]],
+    ["save", [19]],
+    ["query", [6, ...sessionQuery]],
+    ["cancelQuery", [27]],
+    ["find", [6, 0x4c, 13]],
+    ["replacement", [18, ...sessionReplacement]],
+    ["cancelReplacement", [27]],
+    ["discard", [0x59, 0x11]],
+  ];
+  const snapshots = [];
+  let pending = "initial";
+  machine.bdos.onIdle = () => {
+    snapshots.push({
+      name: pending,
+      screen: machine.bdos.terminal.snapshot(),
+      bytes: bufferBytes(machine),
+      top: readWord(machine.memory, symbol("EditorTop")),
+      horizontal: readVisualColumn(machine.memory, "EditorHorizontal"),
+    });
+    const next = steps.shift();
+    pending = next?.[0];
+    machine.bdos.input.push(...(next?.[1] ?? [0x11]));
+  };
+  const result = runEntry(machine);
+  assert.equal(result.exit, "warm-boot");
+  assert.equal(steps.length, 0);
+  assert.equal(machine.bdos.input.length, 0);
+  assert.equal(machine.memory[symbol("EditorColumns")], columns);
+  assert.equal(machine.memory[symbol("EditorTextRows")], textRows);
+  assert.ok(result.stackBytes > 0 && result.stackBytes <= 32);
+  return { machine, result, snapshots };
+}
+
+function checkScreenSession({ columns, rows }, snapshots) {
+  const textRows = rows - 1;
+  const byName = Object.fromEntries(snapshots.map((entry) => [entry.name, entry]));
+  const lastColumn = columns - 1;
+  // line is the top viewport line; the status reports the cursor's source
+  // line and visual column, both one-based.
+  const at = (line, column) => ({ line, column });
+  const views = {
+    initial: { line: 0, horizontal: 0, cursor: [0, 0], status: at(1, 1) },
+    down: {
+      line: 1,
+      horizontal: 0,
+      cursor: [textRows - 1, 0],
+      status: at(textRows + 1, 1),
+    },
+    right: {
+      line: 1,
+      horizontal: 6,
+      cursor: [textRows - 1, lastColumn],
+      status: at(textRows + 1, columns + 6),
+    },
+    left: {
+      line: 1,
+      horizontal: 0,
+      cursor: [textRows - 1, columns - 5],
+      status: at(textRows + 1, columns - 4),
+    },
+    insert: {
+      line: 1,
+      horizontal: 0,
+      cursor: [textRows - 1, columns - 4],
+      status: { dirty: true, ...at(textRows + 1, columns - 3) },
+    },
+    save: {
+      line: 1,
+      horizontal: 0,
+      cursor: [textRows - 1, columns - 4],
+      status: { message: "Saved  ", ...at(textRows + 1, columns - 3) },
+    },
+    cancelQuery: {
+      line: 1,
+      horizontal: 0,
+      cursor: [textRows - 1, columns - 4],
+      status: at(textRows + 1, columns - 3),
+    },
+    find: {
+      line: 2,
+      horizontal: 0,
+      cursor: [textRows - 1, 0],
+      status: { message: "Found", ...at(textRows + 2, 1) },
+    },
+    cancelReplacement: {
+      line: 2,
+      horizontal: 0,
+      cursor: [textRows - 1, 0],
+      status: at(textRows + 2, 1),
+    },
+    discard: {
+      line: 2,
+      horizontal: 0,
+      cursor: [textRows - 1, 1],
+      status: {
+        dirty: true,
+        message: "Discard changes? ^Q again  ",
+        ...at(textRows + 2, 2),
+      },
+    },
+  };
+  const prompts = {
+    query: ["Find: ", sessionQuery, "save"],
+    replacement: ["Replace: ", sessionReplacement, "find"],
+  };
+  assert.deepEqual(
+    snapshots.map((entry) => entry.name),
+    [
+      "initial",
+      "down",
+      "right",
+      "left",
+      "insert",
+      "save",
+      "query",
+      "cancelQuery",
+      "find",
+      "replacement",
+      "cancelReplacement",
+      "discard",
+    ],
+  );
+  for (const entry of snapshots) {
+    const { screen } = entry;
+    const label = `${columns}x${rows} ${entry.name}`;
+    assert.deepEqual(screen.faults ?? [], [], label);
+    const row = (index) =>
+      Buffer.from(
+        screen.cells.slice(index * columns, (index + 1) * columns),
+      ).toString("ascii");
+    const textAttributes = screen.attributes.slice(0, textRows * columns);
+    const statusAttributes = screen.attributes.slice(
+      textRows * columns,
+      rows * columns,
+    );
+    assert.ok(textAttributes.every((value) => value === 0), label);
+    assert.ok(
+      statusAttributes.every((value) => value === ATTR_REVERSE),
+      label,
+    );
+    const view = views[entry.name];
+    if (view !== undefined) {
+      assert.equal(entry.top, view.line * sessionLineBytes, label);
+      assert.equal(entry.horizontal, view.horizontal, label);
+      assert.deepEqual(
+        Array.from({ length: textRows }, (_, index) => row(index)),
+        expectedTextRows(
+          entry.bytes,
+          entry.top,
+          entry.horizontal,
+          columns,
+          textRows,
+        ),
+        label,
+      );
+      assert.equal(row(textRows), expectedStatus(columns, view.status), label);
+      assert.deepEqual([screen.cursorRow, screen.cursorColumn], view.cursor, label);
+    } else {
+      const [prompt, literal, previous] = prompts[entry.name];
+      const expected = expectedPrompt(columns, prompt, literal);
+      assert.equal(row(textRows), expected.row, label);
+      assert.ok(expected.cursorColumn <= lastColumn, label);
+      assert.deepEqual(
+        [screen.cursorRow, screen.cursorColumn],
+        [textRows, expected.cursorColumn],
+        label,
+      );
+      assert.deepEqual(
+        screen.cells.slice(0, textRows * columns),
+        byName[previous].screen.cells.slice(0, textRows * columns),
+        label,
+      );
+    }
+    assert.equal(screen.bellCount, 0, label);
+  }
+}
+
+const screenMeasurements = {};
+let referenceSnapshots;
+for (const size of [
+  { columns: 80, rows: 24 },
+  { columns: 40, rows: 24 },
+  { columns: 32, rows: 24 },
+  { columns: 21, rows: 8 },
+  { columns: 20, rows: 4 },
+]) {
+  // The high TPA reads its size from the configuration block and the low TPA
+  // from the TEC-OS console geometry.
+  for (const [label, top, abi] of [
+    ["high", HIGH_TPA_TOP, false],
+    ["low", LOW_TPA_TOP, true],
+  ]) {
+    {
+      const { machine, result, snapshots } = runScreenSession({
+        ...size,
+        top,
+        abi,
+      });
+      checkScreenSession(size, snapshots);
+      assert.deepEqual(
+        logicalFileBytes(machine.bdos.files.get("INPUT.NU")),
+        Uint8Array.from(
+          Buffer.from(
+            `${sessionLines
+              .map((line, index) =>
+                index === size.rows - 1
+                  ? `${line.slice(0, size.columns - 5)}X${line.slice(size.columns - 5)}`
+                  : line,
+              )
+              .join("\r\n")}\r\n`,
+            "ascii",
+          ),
+        ),
+      );
+      screenMeasurements[
+        `${size.columns}x${size.rows}${label === "high" ? "High" : "Low"}`
+      ] = result;
+      if (size.columns === 80 && !abi) referenceSnapshots = snapshots;
+    }
+  }
+}
+{
+  // The strict terminal agrees with the reference 80-by-24 terminal model.
+  const reference = runScreenSession({
+    columns: 80,
+    rows: 24,
+    top: HIGH_TPA_TOP,
+    strict: false,
+  });
+  checkScreenSession({ columns: 80, rows: 24 }, reference.snapshots);
+  for (const [index, entry] of referenceSnapshots.entries()) {
+    const other = reference.snapshots[index].screen;
+    assert.deepEqual(entry.screen.cells, other.cells);
+    assert.deepEqual(entry.screen.attributes, other.attributes);
+    assert.deepEqual(
+      [entry.screen.cursorRow, entry.screen.cursorColumn],
+      [other.cursorRow, other.cursorColumn],
+    );
+  }
+}
+{
+  // A configured image ignores the console geometry when its probe is off.
+  const image = configureImage(binary.bytes, {
+    columns: 40,
+    rows: 24,
+    probe: false,
+  });
+  const machine = createMachine({
+    image,
+    columns: 40,
+    rows: 24,
+    files: { "INPUT.NU": physicalFile(Buffer.from("A\r\n", "ascii")) },
+  });
+  machine.memory.set(Buffer.from("TNA", "ascii"), 0xff00);
+  writeWord(machine.memory, 0xff09, 0xff40);
+  machine.memory[0xff40] = 32;
+  machine.memory[0xff41] = 24;
+  let status;
+  machine.bdos.onIdle = () => {
+    status ??= machine.bdos.terminal.row(23);
+    machine.bdos.input.push(0x11);
+  };
+  const result = runEntry(machine);
+  assert.equal(result.exit, "warm-boot");
+  assert.equal(status, expectedStatus(40));
+  assert.deepEqual(machine.bdos.terminal.snapshot().faults, []);
+  configurationMeasurements.configuredImage = result;
 }
 
 const report = {
@@ -2456,6 +3096,9 @@ const report = {
   saves: saveMeasurements,
   newFiles: newFileMeasurements,
   entry: entryMeasurements,
+  configuration: configurationMeasurements,
+  memory: memoryMeasurements,
+  screens: screenMeasurements,
 };
 console.log(
   `CP/M editor proof passed\n${JSON.stringify(report, undefined, 2)}`,

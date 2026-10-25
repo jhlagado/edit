@@ -1,7 +1,68 @@
-; Full repaint for the 80-by-24 terminal profile.
+; Presentation for the selected screen size. Every row except the last shows
+; text; the last row is the status row.
+
+; EditorAbiBase
+ABIBAS      EQU $FF00
+; EditorAbiGeometry
+ABIGEO      EQU $FF09
 
 ; EditorScreenCodeStart
 SCRCODST:
+; Select the screen size from the TEC-OS console geometry when the probe flag
+; is set and the ABI table reports nonzero columns, otherwise from the
+; configuration block. Each dimension is clamped to the supported range.
+;@ROUTINE out A,carry,zero clobbers sign,parity,halfCarry,BC,DE,HL
+; EditorSelectScreen
+SELSCR:
+            LD   HL,(CFGCOL)
+            LD   A,(CFGFLA)
+            AND  CFGPRO
+            JR   Z,SELSCRCL
+            PUSH HL
+            LD   HL,ABIBAS
+            LD   DE,ABITAG
+            CALL COMEXTEQ
+            POP  HL
+            JR   NZ,SELSCRCL
+            LD   DE,(ABIGEO)
+            LD   A,D
+            OR   E
+            JR   Z,SELSCRCL
+            LD   A,(DE)
+            OR   A
+            JR   Z,SELSCRCL
+            EX   DE,HL
+            LD   E,(HL)
+            INC  HL
+            LD   D,(HL)
+            EX   DE,HL
+; EditorSelectScreenClamp
+SELSCRCL:
+            LD   A,L
+            LD   BC,MINCOL*256+MAXCOL
+            CALL CLASIZ
+            LD   (COLUMNS),A
+            LD   A,H
+            LD   BC,MINROW*256+MAXROW
+            CALL CLASIZ
+            DEC  A
+            LD   (TEXROWS),A
+            RET
+
+; Clamp A to the inclusive range B..C.
+;@ROUTINE in A,BC out A,carry,zero clobbers sign,parity,halfCarry
+; EditorClampSize
+CLASIZ:
+            CP   B
+            JR   NC,CLASIZHI
+            LD   A,B
+; EditorClampSizeHigh
+CLASIZHI:
+            CP   C
+            RET  C
+            LD   A,C
+            RET
+
 ;@ROUTINE out A,carry,zero clobbers sign,parity,halfCarry,BC,DE,HL
 ; EditorRender
 RENDER:
@@ -42,7 +103,7 @@ DISPAR:
             LD   D,A
             LD   A,C
             CP   1
-            LD   A,23
+            LD   A,(TEXROWS)
             JR   NZ,DISENDRE
             LD   A,D
 ; EditorDisplayEndReady
@@ -70,8 +131,9 @@ DISROWLO:
             LD   HL,0
             LD   (RENCOU),HL
             CALL DISPAILI
-            LD   A,(RENCOU)
-            CP   80
+            LD   A,(COLUMNS)
+            LD   HL,RENCOU
+            CP   (HL)
             JR   Z,DISNEXRO
 ; EditorDisplayBlankRow
 DISBLARO:
@@ -120,11 +182,12 @@ DISREFST:
             JP   RENSTA
 
 ; Each row starts from a cached near-left anchor and stops at its known content
-; end or eighty visible cells. Hidden suffixes and whole prefixes are not read.
+; end or the screen width. Hidden suffixes and whole prefixes are not read.
 ; EditorDisplayPaintLine
 DISPAILI:
-            LD   A,(RENCOU)
-            CP   80
+            LD   A,(COLUMNS)
+            LD   HL,RENCOU
+            CP   (HL)
             RET  Z
             LD   HL,(RENPOI)
             LD   DE,(LAYROWEN)
@@ -147,8 +210,9 @@ DISTAB:
 DISTABLO:
             LD   A,' '
             CALL RENCEL
-            LD   A,(RENCOU)
-            CP   80
+            LD   A,(COLUMNS)
+            LD   HL,RENCOU
+            CP   (HL)
             RET  Z
             LD   HL,(RENCOL)
             LD   DE,(SCRATCHB)
@@ -208,9 +272,10 @@ ENSROWLO:
             CALL NAVNEXLI
             JR   C,ENSROWRE
             INC  B
-            LD   A,B
-            CP   23
-            JR   C,ENSROWLO
+            LD   A,(TEXROWS)
+            DEC  A
+            CP   B
+            JR   NC,ENSROWLO
             LD   HL,(TOP)
             CALL NAVNEXLI
             JR   C,ENSROWRE
@@ -222,23 +287,28 @@ ENSROWRE:
             LD   A,B
             LD   (CURSCRRO),A
             CALL NAVCURCO
+            LD   C,A
+            LD   A,(COLUMNS)
+            LD   E,A
+            LD   D,0
+            LD   A,C
             OR   A
             JR   NZ,ENSHOR
-            LD   DE,80
             PUSH HL
-            OR   A
             SBC  HL,DE
             POP  HL
             JR   C,ENSNOHOR
 ; EditorEnsureHorizontal
 ENSHOR:
-            LD   DE,79
+            ; Keep the cursor in the final column: HOR = column-(width-1).
+            DEC  DE
             OR   A
             SBC  HL,DE
             LD   (HOR),HL
+            LD   A,C
             SBC  A,0
             LD   (HORHIG),A
-            LD   HL,79
+            EX   DE,HL
             JR   ENSCOLRE
 ; EditorEnsureNoHorizontal
 ENSNOHOR:
@@ -273,9 +343,10 @@ RENCEL:
             JR   C,RENCELAD
 ; EditorRenderCellVisible
 RENCELVI:
-            LD   DE,(RENCOU)
-            LD   A,E
-            CP   80
+            LD   A,(COLUMNS)
+            LD   D,A
+            LD   A,(RENCOU)
+            CP   D
             JR   NC,RENCELAD
             LD   A,(SCRATCHC)
             CALL OUTBYT
@@ -302,32 +373,20 @@ RENSTA:
             LD   (DISLASCU),HL
             LD   DE,STAPRE
             CALL STABEG
+            ; The filename appears without FCB padding, as NAME.EXT or NAME.
             LD   HL,FCB+1
             LD   B,8
-; EditorStatusNameLoop
-STANAMLO:
-            LD   A,(HL)
-            PUSH HL
-            PUSH BC
-            CALL STABYT
-            POP  BC
-            POP  HL
-            INC  HL
-            DJNZ STANAMLO
+            CALL STANAMPA
+            LD   A,(FCB+9)
+            CP   ' '
+            JR   Z,STANAMDO
             LD   A,'.'
             CALL STABYT
             LD   HL,FCB+9
             LD   B,3
-; EditorStatusExtensionLoop
-STAEXTLO:
-            LD   A,(HL)
-            PUSH HL
-            PUSH BC
-            CALL STABYT
-            POP  BC
-            POP  HL
-            INC  HL
-            DJNZ STAEXTLO
+            CALL STANAMPA
+; EditorStatusNameDone
+STANAMDO:
             LD   A,' '
             CALL STABYT
             LD   A,(FLAGS)
@@ -344,9 +403,32 @@ STADIRRE:
             CALL STABYT
             CALL STAPOSN
             CALL STAMES
+            ; Key hints appear only when they fit in the remaining cells.
+            LD   A,(COLUMNS)
+            LD   HL,RENCOU
+            SUB  (HL)
+            CP   STAHINLE
             LD   DE,STAHIN
-            CALL STATEX
+            CALL NC,STATEX
             JP   STAFIL
+
+; Output the B FCB name bytes at HL, omitting padding spaces.
+;@ROUTINE in B,HL out A,carry,zero clobbers sign,parity,halfCarry,BC,DE,HL
+; EditorStatusNamePart
+STANAMPA:
+            LD   A,(HL)
+            CP   ' '
+            JR   Z,STANAMSK
+            PUSH HL
+            PUSH BC
+            CALL STABYT
+            POP  BC
+            POP  HL
+; EditorStatusNameSkip
+STANAMSK:
+            INC  HL
+            DJNZ STANAMPA
+            RET
 
 ; Compact absolute source position. Line and column are one-based; column is
 ; the visual column after tab expansion, matching the existing layout model.
@@ -442,10 +524,10 @@ STADECOU:
 ;@ROUTINE out A,carry,zero clobbers sign,parity,halfCarry,BC,DE,HL
 ; EditorStatusFill
 STAFIL:
-            LD   HL,(RENCOU)
-            LD   A,L
-            CP   80
-            JR   NC,STAFIL1
+            LD   A,(COLUMNS)
+            LD   HL,RENCOU
+            CP   (HL)
+            JR   Z,STAFIL1
             LD   A,' '
             CALL STABYT
             JR   STAFIL
@@ -459,6 +541,11 @@ STAFIL1:
 ; EditorStatusBegin
 STABEG:
             PUSH DE
+            LD   DE,CURPRE
+            CALL OUTTEX
+            LD   A,(TEXROWS)
+            INC  A
+            CALL OUTDEC
             LD   DE,STAPOS
             CALL OUTTEX
             LD   HL,0
@@ -486,7 +573,7 @@ STAMES:
             CP   STASAVCO*2
             JR   C,STAMESDO
             LD   DE,STASAVFA
-            CALL STATEX
+            CALL STASEPTE
             LD   A,(STATUS)
             OR   A
             PUSH AF
@@ -502,7 +589,7 @@ STAMESDO:
             RET
 ; EditorStatusMessageText
 STAMESTE:
-            JR   STATEX
+            JR   STASEPTE
 ; EditorStatusSearchMessage
 STASEAME:
             LD   E,A
@@ -510,6 +597,17 @@ STASEAME:
             LD   HL,STAFOUTE
             ADD  HL,DE
             EX   DE,HL
+
+; Two separator cells after the position, then the text at DE.
+;@ROUTINE in DE out A,carry,zero clobbers sign,parity,halfCarry,BC,DE,HL
+; EditorStatusSeparatedText
+STASEPTE:
+            PUSH DE
+            LD   A,' '
+            CALL STABYT
+            LD   A,' '
+            CALL STABYT
+            POP  DE
             JR   STATEX
 
 ;@ROUTINE in DE out A,carry,zero clobbers sign,parity,halfCarry,BC,DE,HL
@@ -524,14 +622,18 @@ STATEX:
             POP  DE
             JR   STATEX
 
+; Output one status cell in A. Cells beyond the screen width are dropped.
 ;@ROUTINE in A out A,carry,zero clobbers sign,parity,halfCarry,BC,DE,HL
 ; EditorStatusByte
 STABYT:
-            CALL OUTBYT
-            LD   HL,(RENCOU)
-            INC  HL
-            LD   (RENCOU),HL
-            RET
+            LD   C,A
+            LD   A,(COLUMNS)
+            LD   HL,RENCOU
+            CP   (HL)
+            RET  Z
+            INC  (HL)
+            LD   A,C
+            JP   OUTBYT
 
 ;@ROUTINE in A out A,carry,zero clobbers sign,parity,halfCarry,BC,DE,HL
 ; EditorStatusHexNibble

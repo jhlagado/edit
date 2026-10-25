@@ -1,4 +1,6 @@
-; Fixed memory partition for the native CP/M editor.
+; Memory partition for the native CP/M editor. The code, workspace and text
+; base are fixed. The BDOS address in the word at $0006 is the exclusive top of
+; the private stack; the text arena ends where the stack begins.
 
 ; EditorCodeBase
 CODEBASE       EQU $0100
@@ -10,14 +12,26 @@ WORBAS  EQU $1E00
 WORLIM EQU $2000
 ; EditorTextBase
 TEXTBASE       EQU $2000
-; EditorTextLimit
-TEXLIM      EQU $D800
-; EditorTextCapacity
-TEXCAP   EQU TEXLIM-TEXTBASE
-; EditorStackFloor
-STAFLO     EQU $D800
-; EditorStackTop
-STACKTOP       EQU $E400
+; EditorStackSize
+STASIZ      EQU 256
+; EditorTextMinimum
+TEXMIN      EQU 1024
+; Lowest BDOS address that leaves the minimum arena below the private stack.
+; EditorMinimumTop
+MINTOP      EQU TEXTBASE+TEXMIN+STASIZ
+
+; Supported screen sizes. Selected sizes outside them are clamped.
+; EditorMinimumColumns
+MINCOL      EQU 20
+; EditorMaximumColumns
+MAXCOL      EQU 80
+; EditorMinimumRows
+MINROW      EQU 4
+; EditorMaximumRows
+MAXROW      EQU 24
+
+; EditorConfigProbe
+CFGPRO      EQU 1
 
 ; EditorFcb
 FCB            EQU WORBAS
@@ -68,7 +82,7 @@ RENCOU    EQU RENCOL+2
 CURSCRRO EQU RENCOU+2
 ; EditorCursorScreenColumn
 CURSCRCO EQU CURSCRRO+1
-; Visual columns need 19 bits at the full 47104-byte tab-only capacity.
+; Visual columns need 19 bits for a tab-only arena that reaches $FFFF.
 ; Keep low words in their existing slots; byte offsets remain 16-bit.
 ; EditorHorizontalHigh
 HORHIG EQU CURSCRCO+1
@@ -127,8 +141,13 @@ DOCGAPST    EQU DOCMATCO+1
 DOCGAPEN      EQU DOCGAPST+2
 ; EditorDocumentPendingChanges
 DOCPENCH EQU DOCGAPEN+2
+; Arena limit and capacity derived from the BDOS address at entry.
+; EditorTextLimit
+TEXLIM EQU DOCPENCH+1
+; EditorTextCapacity
+TEXCAP EQU TEXLIM+2
 ; EditorDocumentWorkspaceEnd
-DOCWOREN EQU DOCPENCH+1
+DOCWOREN EQU TEXCAP+2
 
 ; EditorDocumentErrorRange
 DOCERRRA    EQU 1
@@ -212,8 +231,13 @@ DISLASCU EQU DISSTAVA+1
 DISROW EQU DISLASCU+2
 ; EditorDisplayEndRow
 DISENDRO EQU DISROW+1
+; Selected screen width and the number of text rows above the status row.
+; EditorColumns
+COLUMNS EQU DISENDRO+1
+; EditorTextRows
+TEXROWS EQU COLUMNS+1
 ; EditorWorkspaceEnd
-WOREND EQU DISENDRO+1
+WOREND EQU TEXROWS+1
 
 ; EditorOpInsert
 OPINSERT EQU 0

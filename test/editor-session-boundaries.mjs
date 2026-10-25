@@ -1,12 +1,12 @@
 import assert from "node:assert/strict";
 import { assembleCurrent, loadBaseline, createEngineMachine, beginSession, executeCommands,
   executeRoutine, engineSnapshot, memoryAccounts, physicalFile, readWord, writeWord,
-  withoutPositionStatus } from "./support/editor-engine-harness.mjs";
+  normalizeStatusRow } from "./support/editor-engine-harness.mjs";
 
 const [current, baseline] = await Promise.all([assembleCurrent(), loadBaseline()]);
 const accounts = memoryAccounts(current);
-assert.equal(accounts.textCapacity, 47104);
-assert.equal(accounts.reservedStackBytes, 3072);
+assert.equal(accounts.textCapacity, 49920);
+assert.equal(accounts.reservedStackBytes, 256);
 assert.ok(accounts.workspaceBytes <= accounts.workspaceCapacity);
 assert.ok(accounts.codeRoom >= 0);
 const bytes = source => Uint8Array.from(Buffer.from(source, "ascii"));
@@ -94,7 +94,7 @@ const sequences = [
     [65], [17], [27,91,68], [6,27], [18,27], [14], [0x01], [19], [17]]},
   {text: "", keys: [[8], [127], [27,91,65], [27,91,66], [14], [18], [9], [13], [65], [19], [17]]},
 ];
-const comparable = machine => withoutPositionStatus(engineSnapshot(machine));
+const comparable = machine => normalizeStatusRow(engineSnapshot(machine));
 let compared = 0;
 for (const {text, keys} of sequences) {
   const pair = [baseline,current].map(artifact => {

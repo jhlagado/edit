@@ -5,13 +5,25 @@
 ; EditorDocumentCodeStart
 DOCCODST:
 
+; Set the exclusive arena limit from HL, which entry has already checked
+; against the minimum arena.
+;@ROUTINE in HL out A clobbers carry,zero,sign,parity,halfCarry,DE,HL
+; EditorDocumentSetLimit
+DOCSETLI:
+            LD   (TEXLIM),HL
+            LD   DE,TEXTBASE
+            OR   A
+            SBC  HL,DE
+            LD   (TEXCAP),HL
+            RET
+
 ;@ROUTINE out A,HL,carry,zero clobbers sign,parity,halfCarry
 ; EditorDocumentReset
 DOCRES:
             LD   HL,0
             LD   (LENGTH),HL
             LD   (DOCGAPST),HL
-            LD   HL,TEXCAP
+            LD   HL,(TEXCAP)
             LD   (DOCGAPEN),HL
             LD   A,2
             LD   (DOCPENCH),A
@@ -27,7 +39,7 @@ DOCRES:
 ; EditorDocumentAppend
 DOCAPP:
             LD   DE,(LENGTH)
-            LD   HL,TEXCAP
+            LD   HL,(TEXCAP)
             OR   A
             SBC  HL,DE
             JR   Z,DOCAPPFU
@@ -252,7 +264,7 @@ DOCEXTAR:
             JR   C,DOCEXTWO
             JR   Z,DOCEXTWO
             PUSH HL
-            LD   DE,TEXLIM
+            LD   DE,(TEXLIM)
             OR   A
             SBC  HL,DE
             POP  HL
@@ -373,7 +385,7 @@ DOCENDVA:
             ADD  HL,DE
             JP   C,DOCCAPER
             LD   (DOCNEWLE),HL
-            LD   DE,TEXCAP
+            LD   DE,(TEXCAP)
             OR   A
             SBC  HL,DE
             JP   C,DOCCAPVA

@@ -26,12 +26,16 @@ BACEXT:    DB "BAK"
 TEMEXT: DB "$$$"
 ; EditorErrorPrefix
 ERRPRE:        DB 13,10,"EDIT error ","$"
+; EditorMemoryText
+MEMTEX:        DB "06 TPA too small",13,10,"$"
+; EditorAbiTag
+ABITAG:        DB "TNA"
 ; EditorNewline
 NEWLINE:            DB 13,10,"$"
 ; EditorClearHome
 CLEHOM:          DB 27,"[0m",27,"[2J",27,"[H","$"
 ; EditorStatusPosition
-STAPOS:     DB 27,"[24;1H",27,"[7m","$"
+STAPOS:     DB ";1H",27,"[7m","$"
 ; EditorReverseOff
 REVOFF:         DB 27,"[0m",27,"[","$"
 ; EditorCursorPrefix
@@ -42,6 +46,8 @@ ERALIN:          DB 27,"[K","$"
 STAPRE:       DB "EDIT ",0
 ; EditorStatusHints
 STAHIN:        DB "  ^S Save  ^Q Quit",0
+; EditorStatusHintsLength
+STAHINLE       EQU 18
 ; EditorStatusSavedText
 STASAVTE:    DB "Saved  ",0
 ; EditorStatusFullText
