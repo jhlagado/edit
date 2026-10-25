@@ -77,6 +77,8 @@ DEFNAM:        DB 0,"        ","   "
 SEAPRO:       DB "Find: ",0
 ; EditorReplacePrompt
 REPPRO:      DB "Replace: ",0
+; EditorSavePrompt
+SAVPRO:      DB "Save as: ",0
 ; EditorImmutableEnd
 IMMEND:
 ; EditorResidentEnd

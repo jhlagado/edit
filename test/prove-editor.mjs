@@ -2159,25 +2159,32 @@ const entryMeasurements = {};
   });
   assert.equal(machine.bdos.files.has("NEW.NU"), false);
 
-  // Bare EDIT starts an unnamed buffer. ^S refuses without touching a file,
-  // and ^Q leaves at once because nothing was typed.
-  machine.bdos.terminal.reset();
-  setCommandTail(machine.memory, "");
-  const eventsBefore = machine.bdos.events.length;
-  machine.bdos.input.push(19, 0x11);
-  entryMeasurements.sequenceBareMissing = invokeRoutine(
-    machine,
-    "EditorEntry",
-    { callerSp: ENTRY_CALLER_SP },
-  );
-  assert.ok(
-    !Buffer.from(machine.bdos.terminal.snapshot().cells)
-      .toString("ascii")
-      .includes("EDIT error"),
-  );
-  assert.deepEqual(machine.bdos.events.slice(eventsBefore), []);
-  assert.equal(machine.bdos.terminal.snapshot().bellCount, 1);
-  assert.equal(machine.bdos.input.length, 0);
+  // Bare EDIT starts an unnamed buffer. ^S asks for a name: Escape leaves it
+  // unnamed without touching a file or ringing, and ^Q then leaves at once
+  // because nothing was typed.
+  const bare = (keys) => {
+    machine.bdos.terminal.reset();
+    setCommandTail(machine.memory, "");
+    const before = machine.bdos.events.length;
+    machine.bdos.input.push(...keys);
+    const result = invokeRoutine(machine, "EditorEntry", { callerSp: ENTRY_CALLER_SP });
+    assert.ok(!Buffer.from(machine.bdos.terminal.snapshot().cells).toString("ascii").includes("EDIT error"));
+    assert.equal(machine.bdos.input.length, 0);
+    return { result, events: machine.bdos.events.slice(before), bells: machine.bdos.terminal.snapshot().bellCount };
+  };
+  const ascii = (text) => [...Buffer.from(text, "ascii")];
+  const cancelled = bare([19, 27, 0x11]);
+  entryMeasurements.sequenceBareMissing = cancelled.result;
+  assert.deepEqual(cancelled.events, []);
+  assert.equal(cancelled.bells, 0);
+  // A name that is not valid rings and stays unnamed; ^Q twice discards.
+  const invalid = bare([...ascii("AB"), 19, ...ascii("*.NU"), 13, 0x11, 0x11]);
+  assert.deepEqual(invalid.events, []);
+  assert.equal(invalid.bells, 1);
+  // A valid name saves the buffer as a new file under it.
+  const named = bare([...ascii("AB"), 19, ...ascii(" saved.nu "), 13, 0x11]);
+  assert.ok(named.events.some((event) => event.includes("SAVED.NU")), named.events.join(" "));
+  assert.deepEqual(logicalFileBytes(machine.bdos.files.get("SAVED.NU")), Uint8Array.from(ascii("AB")));
 
   machine.bdos.terminal.reset();
   setCommandTail(machine.memory, "NEW.NU");

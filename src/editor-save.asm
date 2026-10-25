@@ -102,12 +102,36 @@ SAVEFAIL:
             CALL SAVROL
             SCF
             RET
-; An unnamed buffer cannot be saved yet: say so and ring the bell.
+; An unnamed buffer asks for a name on the status row, checks it as the
+; command line would and saves under it; a file of that name is not replaced.
+; Escape leaves the buffer unnamed; a name that is not valid shows No name
+; and rings the bell.
 ; EditorSaveUnnamed
 SAVUNNAM:
+            LD   HL,DMA
+            LD   (HL),0
+            LD   DE,SAVPRO
+            CALL LITINP
+            JR   C,SAVUNCAN
+            LD   HL,DMA
+            LD   B,(HL)
+            INC  HL
+            CALL COMSKISP
+            JR   Z,SAVUNBAD
+            CALL COMNAME
+            JP   NC,SAVE
+; EditorSaveUnnamedBad
+SAVUNBAD:
+            LD   A,' '           ; still unnamed
+            LD   (FCB+1),A
             LD   A,STAUNNAM
             LD   (STATUS),A
             SCF
+            RET
+; EditorSaveUnnamedCancel
+SAVUNCAN:
+            XOR  A
+            LD   (STATUS),A
             RET
 
 ;@ROUTINE out A,carry,zero clobbers sign,parity,halfCarry,BC,DE,HL

@@ -20,6 +20,12 @@ PRECOM:
             CALL COMSKISP
             JR   Z,COMREA
             LD   (SAVSTA),A
+; Parse the name in the B bytes at HL (spaces already skipped) into the FCB,
+; with the command line's rules. Carry and A = ERRCOM when it is not one
+; current-drive CP/M 8.3 name, or names a reserved extension.
+;@ROUTINE in B,HL out A,carry,zero clobbers sign,parity,halfCarry,BC,DE,HL,IX
+; EditorCommandName
+COMNAME:
             PUSH HL
             LD   C,B
             PUSH BC

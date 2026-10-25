@@ -49,9 +49,13 @@ EDIT NAME.EXT
 ```
 
 The no-argument form starts a new, empty buffer with no name. It is not
-marked changed, so `^Q` leaves at once until something is typed. It cannot
-be saved yet: `^S` shows `No name` on the status row and rings the bell. The
-selected name must be one
+marked changed, so `^Q` leaves at once until something is typed. `^S` on an
+unnamed buffer asks for a name on the status row (`Save as: `), edited like a
+search query. Escape leaves the buffer unnamed. The answer must follow the
+same rules as a name on the command line; one that does not shows `No name`
+and rings the bell. A valid name is saved as a new file, so an existing file
+of that name is not replaced (the save fails with the usual conflict status).
+The selected name must be one
 current-drive CP/M 8.3 filename. Lowercase ASCII is converted to uppercase.
 Spaces may surround the name, but extra arguments, drive prefixes, wildcards,
 empty components, and invalid CP/M filename characters are rejected before the
