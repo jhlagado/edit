@@ -31,6 +31,7 @@ TRMON:
             LD   HL,TRMROW
             LD   B,TRMSTAN
             CALL TRMZERO
+            LD   (TRMHINT),A
             INC  A
             LD   (TRMSHA),A
             RET
@@ -259,6 +260,70 @@ TRMWAD:
             POP  DE
             RET
 
+; Move the wanted text rows one row up (A = 4) or down (A = 5) after the view
+; moved a line; the vacated row is drawn next. On TEC-OS's console the flush
+; is told to move the terminal's rows the same way (TRMHINT) and only the new
+; row is marked; elsewhere every text row is marked and redrawn.
+;@ROUTINE in A clobbers A,carry,zero,sign,parity,halfCarry,C,DE,HL
+; EditorTerminalMove
+TRMMOVE:
+            PUSH BC
+            PUSH AF
+            LD   A,(TEXROWS)
+            DEC  A
+            LD   C,0
+            CALL TRMWAD
+            LD   DE,SCRWAN
+            OR   A
+            SBC  HL,DE
+            LD   B,H
+            LD   C,L
+            POP  AF
+            CP   4
+            JR   NZ,TRMMVDN
+            LD   HL,SCRWAN+MAXCOL
+            LD   DE,SCRWAN
+            LDIR
+            JR   TRMMVMK
+; EditorTerminalMoveDown
+TRMMVDN:
+            LD   HL,SCRWAN-1
+            ADD  HL,BC
+            PUSH HL
+            LD   DE,MAXCOL
+            ADD  HL,DE
+            EX   DE,HL
+            POP  HL
+            LDDR
+; EditorTerminalMoveMark
+TRMMVMK:
+            POP  BC              ; B = the new row
+            LD   A,(TRMICH)
+            OR   A
+            JR   Z,TRMMVALL
+            LD   A,B
+            OR   A
+            LD   A,'L'           ; new row 0: the text moved down
+            JR   Z,TRMMVHI
+            LD   A,'M'
+; EditorTerminalMoveHintSet
+TRMMVHI:
+            LD   (TRMHINT),A
+            LD   A,B
+            JP   TRMMARK
+; EditorTerminalMoveAll
+TRMMVALL:
+            LD   HL,SCRDIR
+            LD   A,(TEXROWS)
+            LD   C,A
+; EditorTerminalMoveMarkLoop
+TRMMVML:
+            LD   (HL),1
+            INC  HL
+            DEC  C
+            JR   NZ,TRMMVML
+            RET
+
 ; Send the differences of every marked row, then place the cursor where the
 ; presentation left it.
 ;@ROUTINE out A,carry,zero clobbers sign,parity,halfCarry,BC,DE,HL
@@ -316,8 +381,16 @@ TRMSCRL:
             LD   B,(HL)
             ADD  HL,DE
             LD   A,(HL)
+            OR   B
+            RET  Z               ; neither end written
+            LD   A,(TRMHINT)
+            OR   A
+            JR   NZ,TRMSCHI
+            LD   A,(HL)
             AND  B
-            RET  Z
+            RET  Z               ; a moved picture writes both ends
+; EditorTerminalScrollHinted
+TRMSCHI:
             LD   A,E
             LD   C,D
             CALL TRMWAD
@@ -325,6 +398,11 @@ TRMSCRL:
             OR   A
             SBC  HL,DE
             LD   (TRMWP),HL      ; cells in all but one text row
+            LD   HL,TRMHINT
+            LD   A,(HL)
+            LD   (HL),0
+            OR   A
+            JR   NZ,TRMSCGO      ; the presenter moved the text itself
             LD   HL,SCRWAN
             LD   DE,SCRWAN+MAXCOL*MAXROW+MAXCOL
             CALL TRMBLK

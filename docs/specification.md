@@ -160,20 +160,20 @@ every upper limit from B, as CP/M programs conventionally do:
 
 | Account                                     | Inclusive addresses    |          Capacity |
 | ------------------------------------------- | ---------------------- | ----------------: |
-| Code and immutable data                     | `$0100..$1DFF`         |       7,424 bytes |
-| Fixed writable workspace and one DMA record | `$1E00..$1FFF`         |         512 bytes |
-| Shadow screens, row flags and their state   | `$2000..$2F2F`         |       3,888 bytes |
-| Text arena                                  | `$2F30` to B − `$0101` | B − `$3030` bytes |
+| Code and immutable data                     | `$0100..$1FFF`         |       7,936 bytes |
+| Fixed writable workspace and one DMA record | `$2000..$21FF`         |         512 bytes |
+| Shadow screens, row flags and their state   | `$2200..$3130`         |       3,889 bytes |
+| Text arena                                  | `$3131` to B − `$0101` | B − `$3231` bytes |
 | Private stack                               | B − `$0100` to B − 1   |         256 bytes |
 
 For example:
 
 | BDOS address B   | Text arena     |     Capacity | Private stack  |
 | ---------------- | -------------- | -----------: | -------------- |
-| `$E400`          | `$2F30..$E2FF` | 46,032 bytes | `$E300..$E3FF` |
-| `$B406` (TEC-OS) | `$2F30..$B305` | 33,750 bytes | `$B306..$B405` |
+| `$E400`          | `$3131..$E2FF` | 45,519 bytes | `$E300..$E3FF` |
+| `$B406` (TEC-OS) | `$3131..$B305` | 33,237 bytes | `$B306..$B405` |
 
-The text arena must hold at least 1,024 bytes, so B must be at least `$3430`.
+The text arena must hold at least 1,024 bytes, so B must be at least `$3631`.
 For a smaller B the editor prints one CRLF-delimited `EDIT error 06 TPA too
 small` line and returns to the CCP with the incoming SP. That check precedes
 every memory write and every other BDOS call.
@@ -188,7 +188,7 @@ non-reentrant.
 
 The code, immutable data, writable workspace, text arena, and stack are
 reported separately. Overlaying one account onto another does not count as a
-size reduction. The complete `.COM` must end before `$1E00`; uninitialized
+size reduction. The complete `.COM` must end before `$2000`; uninitialized
 workspace and the text arena do not inflate the artifact.
 
 ## Screen
@@ -212,8 +212,11 @@ be blank. A cursor move that changes no cells sends one cursor position.
 When the screen size came from TEC-OS's console geometry, the terminal is
 TEC-OS's video console, and a differing span of five or more cells that is
 the shown row moved one cell is sent as `ESC [ @` (insert a blank) or
-`ESC [ P` (delete a character) followed by the one changed cell. The bell is
-sent at once. Error lines printed before the first screen, and the
+`ESC [ P` (delete a character) followed by the one changed cell. When the
+view moves one line up or down with nothing else changed, the layout shifts
+its cached rows instead of rebuilding them and only the new line is drawn;
+on TEC-OS's console the terminal's text rows are moved with `ESC [ M` and
+`ESC [ L`, which keep the status row in place. The bell is sent at once. Error lines printed before the first screen, and the
 final clear at exit, go to the terminal directly.
 
 The editor uses only CR, LF, BEL, printable ASCII, `ESC [ H`,

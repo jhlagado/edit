@@ -6,11 +6,11 @@
 ; EditorCodeBase
 CODEBASE       EQU $0100
 ; EditorCodeLimit
-CODLIM      EQU $1E00
+CODLIM      EQU $2000
 ; EditorWorkspaceBase
-WORBAS  EQU $1E00
+WORBAS  EQU $2000
 ; EditorWorkspaceLimit
-WORLIM EQU $2000
+WORLIM EQU $2200
 ; EditorStackSize
 STASIZ      EQU 256
 ; EditorTextMinimum
@@ -30,7 +30,7 @@ MAXROW      EQU 24
 ; TRMWAD assumes 80), one written-since-flush flag per row, and the shadow
 ; screen's state, which does not fit the fixed workspace.
 ; EditorScreenWant
-SCRWAN      EQU $2000
+SCRWAN      EQU WORLIM
 ; EditorScreenDirty
 SCRDIR      EQU SCRWAN+2*MAXCOL*MAXROW
 ; 1 while presentation output goes through the shadow screen.
@@ -81,8 +81,12 @@ TRMICH EQU TRMKB+1
 ; stays within the stack the rest of the editor needs.
 ; EditorTerminalSave
 TRMSAV EQU TRMICH+1
+; M or L when the presenter moved the text up or down a line and the flush
+; should move the terminal's rows without comparing; 0 otherwise.
+; EditorTerminalMoveHint
+TRMHINT EQU TRMSAV+6
 ; EditorTextBase
-TEXTBASE       EQU TRMSAV+6
+TEXTBASE       EQU TRMHINT+1
 ; Lowest BDOS address that leaves the minimum arena below the private stack.
 ; EditorMinimumTop
 MINTOP      EQU TEXTBASE+TEXMIN+STASIZ
@@ -296,8 +300,12 @@ TEXROWS EQU COLUMNS+1
 ; Cells taken by the pending status message and its separator; zero for none.
 ; EditorStatusMessageCells
 STAMESCE EQU TEXROWS+1
+; A one-line scroll found by the viewport check, for Prepare to report:
+; 4 when the text moved up, 5 when it moved down, 0 for none.
+; EditorLayoutScrollMove
+LAYSCRMV EQU STAMESCE+1
 ; EditorWorkspaceEnd
-WOREND EQU STAMESCE+1
+WOREND EQU LAYSCRMV+1
 
 ; EditorOpInsert
 OPINSERT EQU 0

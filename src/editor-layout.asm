@@ -768,8 +768,160 @@ LAYADJNE:
             RES  1,(HL)
             RET
 
+; One-line scroll. With valid boundaries, no pending document change and no
+; damage yet, a cursor whose line is the one just below the cached rows (the
+; last row full) or just above them moves the view by one line: the cached
+; boundaries and anchors shift a row, one new line is scanned, TOP moves, and
+; LAYSCRMV records the move for Prepare (4 text up, 5 down) with LAYFIR the
+; row to draw. NC then, with B the cursor's row; carry with nothing changed
+; otherwise. OriginTop stays until Prepare, so the top-line count crosses
+; just the one line.
+;@ROUTINE out A,B,carry,zero clobbers sign,parity,halfCarry,C,DE,HL
+; EditorLayoutScroll
+LAYSCRL:
+            LD   A,(LAYFLA)
+            AND  1
+            JP   Z,LAYSCNO
+            LD   A,(LAYDAM)
+            LD   HL,DOCPENCH
+            OR   (HL)
+            JP   NZ,LAYSCNO
+            LD   HL,(TOP)
+            LD   DE,(LAYORITO)
+            OR   A
+            SBC  HL,DE
+            JP   NZ,LAYSCNO
+            LD   HL,(CURSOR)
+            CALL NAVLINST
+            LD   (SCRATCHA),HL
+            LD   A,(LAYROWCO)
+            LD   HL,TEXROWS
+            CP   (HL)
+            JR   NZ,LAYSCUP
+            CALL LAYBOU1
+            LD   DE,(SCRATCHA)
+            OR   A
+            SBC  HL,DE
+            JR   NZ,LAYSCUP
+            ; Down: rows 1..T become 0..T-1 and the line after the last is scanned.
+            LD   A,(TEXROWS)
+            ADD  A,A
+            LD   C,A
+            LD   B,0
+            LD   HL,LAYBOU+2
+            LD   DE,LAYBOU
+            LDIR
+            CALL LAYSCAN
+            LD   HL,LAYANC+3
+            LD   DE,LAYANC
+            LDIR
+            EX   DE,HL
+            CALL LAYSCINV
+            LD   A,(TEXROWS)
+            DEC  A
+            PUSH AF
+            CALL LAYBOU1
+            LD   DE,LAYFLA       ; the half-shifted cache must not answer
+            EX   DE,HL
+            RES  0,(HL)
+            EX   DE,HL
+            CALL NAVNEXLI
+            LD   DE,LAYFLA
+            EX   DE,HL
+            SET  0,(HL)
+            EX   DE,HL
+            EX   DE,HL
+            LD   A,(TEXROWS)
+            CALL LAYWRIBO
+            LD   HL,(LAYBOU)
+            POP  BC              ; B = T-1, the cursor's and the new row
+            LD   A,4
+            JR   LAYSCDO
+; EditorLayoutScrollUp
+LAYSCUP:
+            LD   HL,(SCRATCHA)
+            CALL NAVNEXLI
+            JR   C,LAYSCNO
+            LD   DE,(TOP)
+            OR   A
+            SBC  HL,DE
+            JR   NZ,LAYSCNO
+            ; Up: rows 0..n-1 become 1..n, n = min(RowCount + 1, T).
+            LD   A,(LAYROWCO)
+            INC  A
+            LD   HL,TEXROWS
+            CP   (HL)
+            JR   C,LAYSCUN
+            LD   A,(HL)
+; EditorLayoutScrollUpCount
+LAYSCUN:
+            LD   (LAYROWCO),A
+            ADD  A,A
+            LD   C,A
+            LD   B,0
+            LD   HL,LAYBOU-1
+            ADD  HL,BC
+            LD   D,H
+            LD   E,L
+            INC  DE
+            INC  DE
+            LDDR
+            CALL LAYSCAN
+            LD   HL,LAYANC-1
+            ADD  HL,BC
+            LD   D,H
+            LD   E,L
+            INC  DE
+            INC  DE
+            INC  DE
+            LDDR
+            LD   HL,LAYANC
+            CALL LAYSCINV
+            LD   HL,(SCRATCHA)
+            LD   (LAYBOU),HL
+            LD   B,0
+            LD   A,5
+; EditorLayoutScrollDone
+LAYSCDO:
+            LD   (TOP),HL
+            LD   (LAYSCRMV),A
+            LD   A,B
+            LD   (LAYFIR),A
+            OR   A               ; carry clear
+            RET
+; EditorLayoutScrollNo
+LAYSCNO:
+            SCF
+            RET
+
+; BC = bytes in the anchors of rows 0..T-2.
+;@ROUTINE out BC clobbers A,carry,zero,sign,parity,halfCarry
+; EditorLayoutScrollAnchors
+LAYSCAN:
+            LD   A,(TEXROWS)
+            DEC  A
+            LD   C,A
+            ADD  A,A
+            ADD  A,C
+            LD   C,A
+            LD   B,0
+            RET
+
+; Mark the anchor at HL unknown, as a cold build does.
+;@ROUTINE in HL clobbers HL
+; EditorLayoutScrollInvalidate
+LAYSCINV:
+            LD   (HL),$FF
+            INC  HL
+            LD   (HL),$FF
+            INC  HL
+            LD   (HL),$FF
+            RET
+
 ; Prepare layout and return A damage:0 cursor/status only,1 one row,2 suffix,
-; 3 full text rectangle; B first affected row. No screen output occurs here.
+; 3 full text rectangle, 4 or 5 view moved up or down a line with only row B
+; new (reported only while the shadow screen is on); B first affected row. No
+; screen output occurs here.
 ;@ROUTINE out A,B,carry,zero clobbers sign,parity,halfCarry,C,DE,HL
 ; EditorLayoutPrepare
 LAYPRE:
@@ -802,6 +954,17 @@ LAYPRE:
 ; EditorLayoutPrepareViewport
 LAYPREVI:
             CALL ENSVIE
+            LD   A,(LAYSCRMV)
+            OR   A
+            JR   Z,LAYPREV1
+            LD   (LAYDAM),A
+            XOR  A
+            LD   (LAYSCRMV),A
+            LD   HL,(TOP)
+            LD   (LAYORITO),HL
+            JR   LAYCHEHO
+; EditorLayoutPrepareViewportMoved
+LAYPREV1:
             LD   HL,(TOP)
             LD   DE,(LAYORITO)
             OR   A

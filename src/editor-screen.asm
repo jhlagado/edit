@@ -96,6 +96,13 @@ PRESNOCH:
             CALL LAYPRE
             OR   A
             JP   Z,DISSTA
+            CP   4
+            JR   C,PRESNOSC
+            CALL TRMMOVE         ; the view moved a line: move the picture too
+            LD   A,1
+            JR   DISPAR
+; EditorPresentNoScroll
+PRESNOSC:
             CP   3
             JR   NZ,DISPAR
             LD   DE,CLEHOM
@@ -253,6 +260,15 @@ ENSVIE:
             JR   ENSROWRE
 ; EditorEnsureDiscover
 ENSDIS:
+            ; A move of one line past either end of the cached rows shifts the
+            ; cache instead; that needs the shadow screen to move the picture.
+            LD   A,(TRMSHA)
+            OR   A
+            JR   Z,ENSDISCO
+            CALL LAYSCRL
+            JR   NC,ENSROWRE
+; EditorEnsureDiscoverCold
+ENSDISCO:
             ; Once outside the cached viewport, repeated lookups cannot help
             ; the cold walk. Rebuild after discovery instead of probing each row.
             CALL LAYRES
