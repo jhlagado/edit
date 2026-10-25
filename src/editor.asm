@@ -34,7 +34,7 @@ ABITAG:        DB "TNA"
 ; EditorNewline
 NEWLINE:            DB 13,10,"$"
 ; EditorClearHome
-CLEHOM:          DB 27,"[0m",27,"[2J",27,"[H","$"
+CLEHOM:          DB 27,"[r",27,"[0m",27,"[2J",27,"[H","$"
 ; EditorStatusPosition
 STAPOS:     DB ";1H",27,"[7m","$"
 ; EditorReverseOff

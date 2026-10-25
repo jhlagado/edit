@@ -1,6 +1,6 @@
 // Strict character-cell terminal of any size for the editor's terminal subset,
-// plus the character and line insert and delete the editor sends to TEC-OS's
-// console.
+// plus the scroll region and the character and line insert and delete the
+// editor sends to TEC-OS's console.
 // It follows the deferred-wrap model of a VT100 and records every operation
 // that a correct full-screen repaint never needs: scrolling, wrapping onto a
 // new line, and cursor addresses outside the screen.
@@ -19,6 +19,8 @@ export function createScreenTerminal({ columns, rows }) {
   let bellCount = 0;
   let state = "ground";
   let parameters = "";
+  let regionTop = 0;
+  let regionBottom = rows - 1;
 
   const clear = (from, to) => {
     cells.fill(0x20, from, to);
@@ -80,19 +82,33 @@ export function createScreenTerminal({ columns, rows }) {
         attributes.copyWithin(start, start + n, end);
         clear(end - n, end);
       }
+    } else if (final === 0x72) {
+      // Scroll region (VT100 DECSTBM): rows t to b, the whole screen when
+      // absent; the cursor goes home.
+      const top = (values[0] || 1) - 1;
+      const bottom = (values[1] || rows) - 1;
+      if (top < bottom && bottom < rows) {
+        regionTop = top;
+        regionBottom = bottom;
+      } else faults.push(`region ${parameters}`);
+      cursorRow = 0;
+      cursorColumn = 0;
     } else if (final === 0x4c || final === 0x4d) {
-      // Insert (L) or delete (M) lines at the cursor row, as TEC-OS's video
-      // console does: the rows below move, and the cursor goes to column 1.
+      // Insert (L) or delete (M) lines at the cursor row within the scroll
+      // region, as TEC-OS's video console does: the rows below move to the
+      // region's bottom, and the cursor goes to column 1.
+      if (cursorRow < regionTop || cursorRow > regionBottom) faults.push("line outside region");
       const start = cursorRow * columns;
-      const n = Math.min(values[0] || 1, rows - cursorRow) * columns;
+      const end = (regionBottom + 1) * columns;
+      const n = Math.min(values[0] || 1, regionBottom + 1 - cursorRow) * columns;
       if (final === 0x4c) {
-        cells.copyWithin(start + n, start, count - n);
-        attributes.copyWithin(start + n, start, count - n);
+        cells.copyWithin(start + n, start, end - n);
+        attributes.copyWithin(start + n, start, end - n);
         clear(start, start + n);
       } else {
-        cells.copyWithin(start, start + n, count);
-        attributes.copyWithin(start, start + n, count);
-        clear(count - n, count);
+        cells.copyWithin(start, start + n, end);
+        attributes.copyWithin(start, start + n, end);
+        clear(end - n, end);
       }
       cursorColumn = 0;
     } else if (final === 0x6d) {
@@ -145,6 +161,8 @@ export function createScreenTerminal({ columns, rows }) {
     bellCount = 0;
     state = "ground";
     parameters = "";
+    regionTop = 0;
+    regionBottom = rows - 1;
   };
 
   const snapshot = () => ({

@@ -20,6 +20,9 @@ TRMON:
             CALL TRMOFF
             LD   DE,CLEHOM
             CALL OUTTEX
+            LD   A,(TRMICH)      ; TEC-OS: the text rows are the scroll region,
+            OR   A               ; so moving them never disturbs the status row
+            CALL NZ,TRMREG
             LD   HL,SCRWAN
             LD   DE,SCRWAN+1
             LD   BC,2*MAXCOL*MAXROW-1
@@ -35,6 +38,24 @@ TRMON:
             INC  A
             LD   (TRMSHA),A
             RET
+
+; Send ESC [ 1 ; T r: the text rows are the scroll region. The terminal homes
+; its cursor, where the clear left it.
+;@ROUTINE out A clobbers carry,zero,sign,parity,halfCarry,BC
+; EditorTerminalRegion
+TRMREG:
+            LD   A,27
+            CALL TRMRAW
+            LD   A,'['
+            CALL TRMRAW
+            LD   A,'1'
+            CALL TRMRAW
+            LD   A,';'
+            CALL TRMRAW
+            LD   A,(TEXROWS)
+            CALL TRMDEC
+            LD   A,'r'
+            JP   TRMRAW
 
 ; Zero B bytes from HL. Returns A = 0.
 ;@ROUTINE in B,HL out A,B,HL clobbers carry,zero,sign,parity,halfCarry
@@ -362,8 +383,9 @@ TRMFLNX:
 
 ; On TEC-OS's console, when the first and last text rows were both written
 ; and the wanted text rows are the shown ones moved up or down a line, move
-; the terminal's rows instead of redrawing them: delete a line at one end of
-; the text area and insert one at the other, so the status row stays put.
+; the terminal's rows instead of redrawing them: one line delete or insert at
+; the top of the scroll region, which is the text rows, so the status row
+; stays put.
 ; The shown screen moves the same way and the rows are then compared as
 ; usual, which leaves only the new line to draw.
 ;@ROUTINE out A,carry,zero clobbers sign,parity,halfCarry,BC,DE,HL
@@ -416,24 +438,8 @@ TRMSCHI:
 ; EditorTerminalScrollGo
 TRMSCGO:
             LD   (TRMKB),A       ; M: text moved up, L: down
-            LD   A,(TEXROWS)
-            DEC  A
-            LD   B,A             ; up: delete row 0, insert at the last text row
-            LD   C,0
-            LD   A,(TRMKB)
-            CP   'M'
-            JR   Z,TRMSC1
-            LD   C,B             ; down: delete the last text row, insert at row 0
-            LD   B,0
-; EditorTerminalScrollLines
-TRMSC1:
-            PUSH BC
-            LD   B,C
-            LD   A,'M'
-            CALL TRMLINE
-            POP  BC
-            LD   A,'L'
-            CALL TRMLINE
+            LD   B,0             ; one line delete or insert at the top of the
+            CALL TRMLINE         ; scroll region, which ends above the status row
             LD   BC,(TRMWP)
             LD   A,(TRMKB)
             CP   'M'

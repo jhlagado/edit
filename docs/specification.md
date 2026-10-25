@@ -215,13 +215,15 @@ the shown row moved one cell is sent as `ESC [ @` (insert a blank) or
 `ESC [ P` (delete a character) followed by the one changed cell. When the
 view moves one line up or down with nothing else changed, the layout shifts
 its cached rows instead of rebuilding them and only the new line is drawn;
-on TEC-OS's console the terminal's text rows are moved with `ESC [ M` and
-`ESC [ L`, which keep the status row in place. The bell is sent at once. Error lines printed before the first screen, and the
+on TEC-OS's console the terminal's text rows are moved with one `ESC [ M` or
+`ESC [ L` at the top of the scroll region, which ends above the status row. The bell is sent at once. Error lines printed before the first screen, and the
 final clear at exit, go to the terminal directly.
 
 The editor uses only CR, LF, BEL, printable ASCII, `ESC [ H`,
-`ESC [ r ; c H`, `ESC [ 2 J`, `ESC [ K`, `ESC [ 7 m`, and `ESC [ 0 m`, and on
-TEC-OS's console `ESC [ @` and `ESC [ P`. The
+`ESC [ r ; c H`, `ESC [ 2 J`, `ESC [ K`, `ESC [ 7 m`, `ESC [ 0 m` and
+`ESC [ r` (whole-screen scroll region, sent with every clear), and on
+TEC-OS's console `ESC [ 1 ; R−1 r` (the text rows as the scroll region),
+`ESC [ @`, `ESC [ P`, `ESC [ L` and `ESC [ M`. The
 terminal must defer the wrap after a printable byte in column C until the next
 printable byte, as a VT100 does. The editor never sends a printable byte in
 that state, never scrolls the terminal, and never addresses a position outside
