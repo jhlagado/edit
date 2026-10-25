@@ -69,29 +69,43 @@ Every former constant now reads the workspace:
 - status cells beyond column C are dropped.
 
 The status row now shows the filename without FCB padding (`NOTES.TXT`, not
-`NOTES   .TXT`). A status message is separated from the position by two
-spaces; the position previously ran into it as `L1 C1Saved`. The key hints
-appear only when all 18 bytes fit. A prompt row whose literal does not fit
-before the last column shows only the literal's tail, so the cursor stays on
-the screen.
+`NOTES   .TXT`). A pending status message takes the place of the
+`L<line> C<column>` position until the next command clears it; before, it ran
+into the position as `L1 C1Saved`. A message is always shown whole.
+
+To make room, the row first cuts the base name and keeps the extension. If no
+base byte fits, it drops the filename, and then the `EDIT ` prefix, leaving
+only the dirty marker. The row measures the message by running the message
+routine with output suppressed: a nonzero high byte of the render count
+counts cells without writing them.
+
+The messages lose their trailing padding, and the discard warning becomes
+`Discard? ^Q again`, so the longest message needs 17 columns. A dirty
+`NOTESABC.TXT` at 20 columns shows `EDIT NO.TXT *  Saved` and
+`*  Discard? ^Q again`.
+
+The key hints appear only when all 18 bytes fit. A prompt row whose literal
+does not fit before the last column shows only the literal's tail, so the
+cursor stays on the screen.
 
 ## Accounts
 
 | Account                        | Baseline | Revised |  Delta |
 | ------------------------------ | -------: | ------: | -----: |
-| Complete COM bytes             |    5,890 |   6,113 |   +223 |
+| Complete COM bytes             |    5,890 |   6,222 |   +332 |
 | Entry jump and configuration   |        3 |      11 |     +8 |
-| Code                           |    5,674 |   5,871 |   +197 |
-| Immutable bytes                |      213 |     231 |    +18 |
-| Writable workspace used        |      494 |     500 |     +6 |
-| Code-partition headroom        |    1,534 |   1,311 |   -223 |
+| Code                           |    5,674 |   5,994 |   +320 |
+| Immutable bytes                |      213 |     217 |     +4 |
+| Writable workspace used        |      494 |     501 |     +7 |
+| Code-partition headroom        |    1,534 |   1,202 |   -332 |
 | Private stack partition        |    3,072 |     256 | -2,816 |
 | Text capacity at `$E400`       |   47,104 |  49,920 | +2,816 |
 | Deepest measured stack use     |       24 |      24 |      0 |
 
-The workspace gains the limit and capacity words and the two screen bytes.
-The immutable delta is the memory message and the ABI tag, less four bytes of
-the status position string, which now carries only the column and rendition.
+The workspace gains the limit and capacity words, the two screen bytes, and
+the measured message width. The memory message and the ABI tag add 22
+immutable bytes. The status position string, which now carries only the column
+and rendition, is four bytes shorter, and the shortened messages save 14 more.
 
 ## Proof
 
@@ -108,7 +122,10 @@ and the compact filename. The new proofs cover:
 - a save at both addresses, the minimum arena, and the refused entry one byte
   below it; and
 - one complete editing session at each of 80 × 24, 40 × 24, 32 × 24, 21 × 8,
-  and 20 × 4, at both addresses.
+  and 20 × 4, at both addresses; and
+- every status message at each of those sizes, with short, long, and
+  extension-free filenames, clean and dirty. Each row is checked exactly, and
+  the message must appear whole.
 
 The high-address sessions take their size from the configuration block and the
 low-address sessions from the ABI. Each session checks every text row against
@@ -127,11 +144,11 @@ none. At 80 × 24 its snapshots match the reference terminal model exactly.
 
 | Session (B = `$B406`) | Instructions |   T-states | Stack |
 | --------------------- | -----------: | ---------: | ----: |
-| 80 × 24               |    4,150,191 | 43,455,472 |    24 |
-| 40 × 24               |    2,526,708 | 26,285,150 |    24 |
-| 32 × 24               |    2,218,127 | 23,018,671 |    24 |
-| 21 × 8                |      814,772 |  8,395,163 |    24 |
-| 20 × 4                |      563,580 |  5,785,294 |    24 |
+| 80 × 24               |    4,249,735 | 44,031,934 |    24 |
+| 40 × 24               |    2,573,030 | 26,558,434 |    24 |
+| 32 × 24               |    2,255,194 | 23,238,790 |    24 |
+| 21 × 8                |      836,161 |  8,520,615 |    24 |
+| 20 × 4                |      583,246 |  5,900,539 |    24 |
 
 The engine harness derives each artifact's layout. Frozen editors keep their
 fixed `$E400` partition and CCP return. The current editor gets B = `$E400` by

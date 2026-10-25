@@ -49,11 +49,11 @@ STAHIN:        DB "  ^S Save  ^Q Quit",0
 ; EditorStatusHintsLength
 STAHINLE       EQU 18
 ; EditorStatusSavedText
-STASAVTE:    DB "Saved  ",0
+STASAVTE:    DB "Saved",0
 ; EditorStatusFullText
-STAFULTE:     DB "Full  ",0
+STAFULTE:     DB "Full",0
 ; EditorStatusDiscardText
-STADISTE:  DB "Discard changes? ^Q again  ",0
+STADISTE:  DB "Discard? ^Q again",0
 ; EditorStatusSaveFailedText
 STASAVFA: DB "Save failed ",0
 ; EditorStatusFoundText

@@ -442,15 +442,17 @@ export function snapshotDigest(snapshot) {
 }
 
 // Historical frozen editor artifacts predate the derived L<line> C<column>
-// status text, the unpadded filename, and the gap before the status message.
-// Differential measurements compare the status row's words in order, so those
-// intentional presentation changes are ignored while every other status word,
-// every text cell, and every attribute is retained.
+// status text, the unpadded filename, the message that replaces the position,
+// and the shorter discard warning. Differential measurements compare the
+// status row's words in order, so those intentional presentation changes are
+// ignored while every other status word, every text cell, and every attribute
+// is retained.
 export function normalizeStatusRow(snapshot) {
   const copy = { ...snapshot, cells: snapshot.cells.slice() };
   const start = 23 * 80;
   const row = Buffer.from(copy.cells.slice(start, start + 80)).toString("ascii");
   const normalized = row.replace(/L\d+ C\d+/, "").replace(/ +\./, ".")
+    .replace("Discard changes?", "Discard?")
     .replace(/ +/g, " ").trim().padEnd(80, " ").slice(0, 80);
   copy.cells.splice(start, 80, ...Buffer.from(normalized, "ascii"));
   return copy;

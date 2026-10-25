@@ -248,14 +248,25 @@ The status row contains, in order:
 - `EDIT `;
 - the selected filename without FCB padding, as `NAME.EXT`, or `NAME` when the
   extension is blank;
-- a space, then `*` when the buffer is dirty or a space otherwise;
-- two spaces and the compact position `L<line> C<column>`; and
-- two spaces and the last status message, when there is one.
+- a space, then `*` when the buffer is dirty or a space otherwise; and
+- two spaces and either the compact position `L<line> C<column>` or, while a
+  status message is pending, that message in the position's place.
+
+The messages are `Saved`, `Full`, `Discard? ^Q again`, `Save failed XX`,
+`Found`, `Wrapped`, `Not found`, `No search`, and `Replaced`. A message is
+always shown whole; the longest needs 17 columns. When the row is too narrow
+for the prefix, filename, and message together, the base name is cut first
+and the extension kept. If no base byte then fits, the filename is dropped,
+leaving `EDIT ` and the dirty marker. If that still does not fit, `EDIT ` is
+dropped too, leaving only the dirty marker. At 20 columns, for example, a
+dirty `NOTESABC.TXT` shows `EDIT NO.TXT *  Saved` and `*  Discard? ^Q again`.
+The position returns once the next command clears the message.
 
 The key hints `  ^S Save  ^Q Quit` follow only when all 18 bytes fit in the
 remaining columns. Cells beyond column C are dropped, and spaces fill the row to
-column C. At 80 and 40 columns the ready row of a short filename therefore
-includes the hints; at 32 columns and below it does not.
+column C. Without a message, the position is the field that is cut on a narrow
+row. At 80 and 40 columns the ready row of a short filename includes the
+hints; at 32 columns and below it does not.
 
 The line and column are one-based: the line counts logical source lines and the
 column counts display cells after tab expansion. They are derived view state,
@@ -642,14 +653,17 @@ The memory and screen-size revision must additionally distinguish:
 - the configuration defaults and layout, the configuration tool, size
   selection from the configuration block and from the TEC-OS ABI, a disabled
   probe, an absent tag, a zero geometry pointer, zero columns, and clamping
-  of small and large sizes; and
+  of small and large sizes;
 - complete editing sessions at 80 × 24, 40 × 24, 32 × 24, 21 × 8, and 20 × 4,
   each with both BDOS addresses: exact text rows, status rows with filename and
   position, attributes, and cursor after vertical scroll, horizontal scroll, a
   return within the screen, insertion, save, the 64-byte query and replacement
   rows, cancellation, search, and discard confirmation; a terminal that faults
   on scrolling, wrapping, or out-of-screen addresses; and agreement with the
-  reference 80 × 24 terminal model.
+  reference 80 × 24 terminal model; and
+- every status message shown whole at each tested size, including 20 × 4 and
+  21 × 8, with short, long, and extension-free filenames, clean and dirty, and
+  the exact cut filename or dropped prefix.
 
 The final gate includes strict assembly, scoped editor proofs, the complete
 CP/M acceptance, runtime and terminal tests, Extension Host integration, full

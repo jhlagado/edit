@@ -236,8 +236,11 @@ DISENDRO EQU DISROW+1
 COLUMNS EQU DISENDRO+1
 ; EditorTextRows
 TEXROWS EQU COLUMNS+1
+; Cells taken by the pending status message and its separator; zero for none.
+; EditorStatusMessageCells
+STAMESCE EQU TEXROWS+1
 ; EditorWorkspaceEnd
-WOREND EQU TEXROWS+1
+WOREND EQU STAMESCE+1
 
 ; EditorOpInsert
 OPINSERT EQU 0

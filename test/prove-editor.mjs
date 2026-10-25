@@ -2739,12 +2739,37 @@ const sessionReplacement = Buffer.from(
   "ascii",
 );
 
+// An independent model of the status row. A pending message takes the
+// position's place and is always whole: the base name is cut first, keeping
+// the extension, then the filename is dropped, then the EDIT prefix.
 function expectedStatus(
   columns,
-  { dirty = false, message = "", line = 1, column = 1 } = {},
+  {
+    name = "INPUT",
+    extension = "NU",
+    dirty = false,
+    message = "",
+    line = 1,
+    column = 1,
+  } = {},
 ) {
-  let text = `EDIT INPUT.NU ${dirty ? "*" : " "}  L${line} C${column}`;
-  if (message !== "") text += `  ${message}`;
+  const marker = dirty ? "*" : " ";
+  const suffix = extension === "" ? "" : `.${extension}`;
+  let left = `EDIT ${name}${suffix} ${marker}`;
+  let text;
+  if (message === "") {
+    text = `${left}  L${line} C${column}`;
+  } else {
+    const shown = `  ${message}`;
+    const room = columns - shown.length;
+    const base = room - 7 - suffix.length;
+    if (room < left.length) {
+      if (base >= 1) left = `EDIT ${name.slice(0, base)}${suffix} ${marker}`;
+      else if (room >= 6) left = `EDIT ${marker}`;
+      else left = marker;
+    }
+    text = `${left}${shown}`;
+  }
   if (columns - Math.min(text.length, columns) >= STATUS_HINTS.length) {
     text += STATUS_HINTS;
   }
@@ -2879,7 +2904,7 @@ function checkScreenSession({ columns, rows }, snapshots) {
       line: 1,
       horizontal: 0,
       cursor: [textRows - 1, columns - 4],
-      status: { message: "Saved  ", ...at(textRows + 1, columns - 3) },
+      status: { message: "Saved", ...at(textRows + 1, columns - 3) },
     },
     cancelQuery: {
       line: 1,
@@ -2905,7 +2930,7 @@ function checkScreenSession({ columns, rows }, snapshots) {
       cursor: [textRows - 1, 1],
       status: {
         dirty: true,
-        message: "Discard changes? ^Q again  ",
+        message: "Discard? ^Q again",
         ...at(textRows + 2, 2),
       },
     },
@@ -3030,6 +3055,72 @@ for (const size of [
     }
   }
 }
+// Every status message appears whole at every supported width, with short,
+// long, and extension-free filenames, clean and dirty.
+const statusMessages = [
+  ["EditorStatusSaved", "Saved"],
+  ["EditorStatusFull", "Full"],
+  ["EditorStatusDiscard", "Discard? ^Q again"],
+  ["EditorStatusFound", "Found"],
+  ["EditorStatusWrapped", "Wrapped"],
+  ["EditorStatusNotFound", "Not found"],
+  ["EditorStatusNoSearch", "No search"],
+  ["EditorStatusReplaced", "Replaced"],
+  ["EditorStatusSaveConflict", "Save failed 10"],
+  ["EditorStatusSaveCreate", "Save failed 11"],
+  ["EditorStatusSaveWrite", "Save failed 12"],
+  ["EditorStatusSaveClose", "Save failed 13"],
+  ["EditorStatusSaveRename", "Save failed 14"],
+  ["EditorStatusSaveRollback", "Save failed 15"],
+];
+const statusMeasurements = {};
+for (const { columns, rows } of [
+  { columns: 80, rows: 24 },
+  { columns: 40, rows: 24 },
+  { columns: 32, rows: 24 },
+  { columns: 21, rows: 8 },
+  { columns: 20, rows: 4 },
+]) {
+  for (const filename of ["INPUT.NU", "NOTESABC.TXT", "README", "A.B"]) {
+    const [name, extension = ""] = filename.split(".");
+    for (const dirty of [false, true]) {
+      for (const [status, message] of statusMessages) {
+        const machine = createMachine({ columns, rows, strictTerminal: true });
+        writeFcb(machine.memory, symbol("EditorFcb"), filename);
+        machine.memory[symbol("EditorFlags")] = dirty
+          ? symbol("EditorFlagDirty")
+          : 0;
+        machine.memory[symbol("EditorStatus")] = symbol(status);
+        const result = invokeRoutine(machine, "EditorRenderStatus");
+        const label = `${columns}x${rows} ${filename} ${message}`;
+        const row = machine.bdos.terminal.row(rows - 1);
+        assert.ok(row.includes(`  ${message}`), `${label}: message cut`);
+        assert.equal(
+          row,
+          expectedStatus(columns, { name, extension, dirty, message }),
+          label,
+        );
+        assert.deepEqual(machine.bdos.terminal.snapshot().faults, [], label);
+        if (filename === "NOTESABC.TXT" && dirty) {
+          statusMeasurements[`${columns}x${rows} ${message}`] = result;
+        }
+      }
+    }
+  }
+}
+{
+  // Without a message the position returns, and at 20 columns the row is cut.
+  const machine = createMachine({ columns: 20, rows: 4, strictTerminal: true });
+  writeFcb(machine.memory, symbol("EditorFcb"), "NOTESABC.TXT");
+  machine.memory[symbol("EditorStatus")] = 0;
+  invokeRoutine(machine, "EditorRenderStatus");
+  assert.equal(
+    machine.bdos.terminal.row(3),
+    expectedStatus(20, { name: "NOTESABC", extension: "TXT" }),
+  );
+  assert.equal(machine.bdos.terminal.row(3), "EDIT NOTESABC.TXT   ");
+}
+
 {
   // The strict terminal agrees with the reference 80-by-24 terminal model.
   const reference = runScreenSession({
@@ -3099,6 +3190,7 @@ const report = {
   configuration: configurationMeasurements,
   memory: memoryMeasurements,
   screens: screenMeasurements,
+  statusRows: statusMeasurements,
 };
 console.log(
   `CP/M editor proof passed\n${JSON.stringify(report, undefined, 2)}`,

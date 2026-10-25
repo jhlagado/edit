@@ -368,27 +368,97 @@ RENCELAD:
 
 ;@ROUTINE out A,carry,zero clobbers sign,parity,halfCarry,BC,DE,HL
 ; EditorRenderStatus
+; The row is EDIT, the unpadded filename, the dirty marker, and either the
+; position or a pending message, which takes the position's place. A message
+; is always shown whole: the base name is cut first, keeping the extension,
+; then the filename is dropped, then the EDIT prefix.
 RENSTA:
             LD   HL,(CURSOR)
             LD   (DISLASCU),HL
-            LD   DE,STAPRE
-            CALL STABEG
-            ; The filename appears without FCB padding, as NAME.EXT or NAME.
+            ; Measure the message and its separator by counting cells only.
+            LD   HL,$0100
+            LD   (RENCOU),HL
+            CALL STAMES
+            LD   A,(RENCOU)
+            LD   (STAMESCE),A
             LD   HL,FCB+1
             LD   B,8
+            CALL STACOU
+            LD   D,C
+            LD   HL,FCB+9
+            LD   B,3
+            CALL STACOU
+            LD   A,C
+            OR   A
+            JR   Z,STAEXTRE
+            INC  C
+; EditorStatusExtensionReady
+STAEXTRE:
+            ; D is the base length and C the extension with its dot. E is the
+            ; number of base bytes shown, where 255 shows them all.
+            LD   E,255
+            LD   A,(STAMESCE)
+            OR   A
+            JR   Z,STALAYPR
+            LD   B,A
+            LD   A,(COLUMNS)
+            SUB  B
+            LD   B,A
+            SUB  7
+            JR   C,STANONAM
+            SUB  C
+            JR   C,STANONAM
+            JR   Z,STANONAM
+            CP   D
+            JR   NC,STALAYPR
+            LD   E,A
+; EditorStatusLayoutPrefix
+STALAYPR:
+            LD   D,1
+            JR   STALAYRE
+; EditorStatusNoName
+STANONAM:
+            LD   E,0
+            LD   A,B
+            CP   6
+            SBC  A,A
+            INC  A
+            LD   D,A
+; EditorStatusLayoutReady
+STALAYRE:
+            LD   HL,STAPRE
+            LD   A,D
+            OR   A
+            JR   NZ,STAPRERE
+            LD   HL,STAPRE+5
+; EditorStatusPrefixReady
+STAPRERE:
+            PUSH DE
+            EX   DE,HL
+            CALL STABEG
+            POP  DE
+            LD   A,E
+            OR   A
+            JR   Z,STANAMDO
+            LD   HL,FCB+1
+            LD   B,8
+            LD   C,E
             CALL STANAMPA
             LD   A,(FCB+9)
             CP   ' '
-            JR   Z,STANAMDO
+            JR   Z,STANAMSP
             LD   A,'.'
             CALL STABYT
             LD   HL,FCB+9
             LD   B,3
+            LD   C,255
             CALL STANAMPA
-; EditorStatusNameDone
-STANAMDO:
+; EditorStatusNameSpace
+STANAMSP:
             LD   A,' '
             CALL STABYT
+; EditorStatusNameDone
+STANAMDO:
             LD   A,(FLAGS)
             AND  FLADIR
             LD   A,' '
@@ -397,12 +467,20 @@ STANAMDO:
 ; EditorStatusDirtyReady
 STADIRRE:
             CALL STABYT
+            LD   A,(STAMESCE)
+            OR   A
+            JR   NZ,STAMESSH
             LD   A,' '
             CALL STABYT
             LD   A,' '
             CALL STABYT
             CALL STAPOSN
+            JR   STAHINCH
+; EditorStatusMessageShown
+STAMESSH:
             CALL STAMES
+; EditorStatusHintsCheck
+STAHINCH:
             ; Key hints appear only when they fit in the remaining cells.
             LD   A,(COLUMNS)
             LD   HL,RENCOU
@@ -412,13 +490,35 @@ STADIRRE:
             CALL NC,STATEX
             JP   STAFIL
 
-; Output the B FCB name bytes at HL, omitting padding spaces.
-;@ROUTINE in B,HL out A,carry,zero clobbers sign,parity,halfCarry,BC,DE,HL
+; Count the non-space bytes among the B FCB name bytes at HL into C.
+;@ROUTINE in B,HL out A,C,carry,zero clobbers sign,parity,halfCarry,B,HL
+; EditorStatusCount
+STACOU:
+            LD   C,0
+; EditorStatusCountLoop
+STACOULO:
+            LD   A,(HL)
+            CP   ' '
+            JR   Z,STACOUSK
+            INC  C
+; EditorStatusCountSkip
+STACOUSK:
+            INC  HL
+            DJNZ STACOULO
+            RET
+
+; Output at most C of the B FCB name bytes at HL, omitting padding spaces.
+;@ROUTINE in B,C,HL out A,carry,zero clobbers sign,parity,halfCarry,BC,DE,HL
 ; EditorStatusNamePart
 STANAMPA:
             LD   A,(HL)
             CP   ' '
             JR   Z,STANAMSK
+            LD   A,C
+            OR   A
+            JR   Z,STANAMSK
+            DEC  C
+            LD   A,(HL)
             PUSH HL
             PUSH BC
             CALL STABYT
@@ -598,7 +698,7 @@ STASEAME:
             ADD  HL,DE
             EX   DE,HL
 
-; Two separator cells after the position, then the text at DE.
+; Two separator cells after the dirty marker, then the text at DE.
 ;@ROUTINE in DE out A,carry,zero clobbers sign,parity,halfCarry,BC,DE,HL
 ; EditorStatusSeparatedText
 STASEPTE:
@@ -622,7 +722,8 @@ STATEX:
             POP  DE
             JR   STATEX
 
-; Output one status cell in A. Cells beyond the screen width are dropped.
+; Output one status cell in A. Cells beyond the screen width are dropped. A
+; nonzero high byte of RenderCount counts cells without output.
 ;@ROUTINE in A out A,carry,zero clobbers sign,parity,halfCarry,BC,DE,HL
 ; EditorStatusByte
 STABYT:
@@ -632,6 +733,10 @@ STABYT:
             CP   (HL)
             RET  Z
             INC  (HL)
+            INC  HL
+            LD   A,(HL)
+            OR   A
+            RET  NZ
             LD   A,C
             JP   OUTBYT
 
