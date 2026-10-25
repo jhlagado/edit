@@ -162,18 +162,18 @@ every upper limit from B, as CP/M programs conventionally do:
 | ------------------------------------------- | ---------------------- | ----------------: |
 | Code and immutable data                     | `$0100..$1FFF`         |       7,936 bytes |
 | Fixed writable workspace and one DMA record | `$2000..$21FF`         |         512 bytes |
-| Shadow screens, row flags and their state   | `$2200..$3130`         |       3,889 bytes |
-| Text arena                                  | `$3131` to B − `$0101` | B − `$3231` bytes |
+| Shadow screens, row maps, flags and state   | `$2200..$3165`         |       3,942 bytes |
+| Text arena                                  | `$3166` to B − `$0101` | B − `$3266` bytes |
 | Private stack                               | B − `$0100` to B − 1   |         256 bytes |
 
 For example:
 
 | BDOS address B   | Text arena     |     Capacity | Private stack  |
 | ---------------- | -------------- | -----------: | -------------- |
-| `$E400`          | `$3131..$E2FF` | 45,519 bytes | `$E300..$E3FF` |
-| `$B406` (TEC-OS) | `$3131..$B305` | 33,237 bytes | `$B306..$B405` |
+| `$E400`          | `$3166..$E2FF` | 45,466 bytes | `$E300..$E3FF` |
+| `$B406` (TEC-OS) | `$3166..$B305` | 33,184 bytes | `$B306..$B405` |
 
-The text arena must hold at least 1,024 bytes, so B must be at least `$3631`.
+The text arena must hold at least 1,024 bytes, so B must be at least `$3666`.
 For a smaller B the editor prints one CRLF-delimited `EDIT error 06 TPA too
 small` line and returns to the CCP with the incoming SP. That check precedes
 every memory write and every other BDOS call.

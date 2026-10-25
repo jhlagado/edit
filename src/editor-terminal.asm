@@ -6,8 +6,9 @@
 ; cursor. A keystroke that changes one cell sends a few bytes instead of a
 ; repainted row and status row.
 ;
-; Cells hold ASCII with bit 7 set for reverse video. Rows are MAXCOL cells
-; apart whatever the selected width. The bell is sent at once.
+; Cells hold ASCII with bit 7 set for reverse video. Each screen row is found
+; through a row map (TRMWMAP, TRMSMAP), so moving rows rotates the maps. The
+; bell is sent at once.
 
 ; EditorTerminalCodeStart
 TRMCODST:
@@ -28,9 +29,19 @@ TRMON:
             LD   BC,2*MAXCOL*MAXROW-1
             LD   (HL),' '
             LDIR
+            LD   HL,TRMWMAP      ; rows in order: want slots, then shown slots
+            XOR  A
+; EditorTerminalOnMap
+TRMONMP:
+            LD   (HL),A
+            INC  HL
+            INC  A
+            CP   2*MAXROW
+            JR   NZ,TRMONMP
             LD   HL,SCRDIR
             LD   B,MAXROW
             CALL TRMZERO
+            LD   (TRMPV),A
             LD   HL,TRMROW
             LD   B,TRMSTAN
             CALL TRMZERO
@@ -105,12 +116,17 @@ TRMESCST:
 TRMCR:
             XOR  A
             LD   (TRMCOL),A
+            LD   (TRMPV),A
             RET
 ; EditorTerminalLineFeed
 TRMLF:
             LD   HL,TRMROW
             INC  (HL)
+            XOR  A
+            LD   (TRMPV),A
             RET
+; Characters follow each other along a row, so the cell address is worked
+; out once after each cursor move and then advanced.
 ; EditorTerminalCharacter
 TRMCHR:
             LD   A,(TRMCOL)
@@ -123,11 +139,22 @@ TRMCHR:
             LD   A,(TRMATT)
             OR   E
             LD   E,A
+            LD   HL,(TRMPTR)
+            LD   A,(TRMPV)
+            OR   A
+            JR   NZ,TRMCHRP
             LD   A,(TRMROW)
             CALL TRMWAD
+            LD   A,1
+            LD   (TRMPV),A
+; EditorTerminalCharacterPointer
+TRMCHRP:
             LD   A,(HL)
+            INC  HL
+            LD   (TRMPTR),HL
             CP   E
             RET  Z
+            DEC  HL
             LD   (HL),E
             LD   A,(TRMROW)
 ; Mark row A as written since the last flush.
@@ -222,6 +249,8 @@ TRMPOSR:
 ; EditorTerminalPositionColumn
 TRMPOSC:
             LD   (TRMCOL),A
+            XOR  A
+            LD   (TRMPV),A
             RET
 ; EditorTerminalClearScreen
 TRMCLS:
@@ -257,13 +286,35 @@ TRMELLO:
             LD   A,(TRMROW)
             JP   TRMMARK
 
+; HL = wanted cell and DE = shown cell at row A, column C. Preserves BC.
+;@ROUTINE in A,C out HL,DE clobbers A,carry,zero,sign,parity,halfCarry
+; EditorTerminalBothAddresses
+TRMRWS:
+            PUSH AF
+            LD   HL,TRMSMAP
+            CALL TRMMAPA
+            EX   DE,HL
+            POP  AF
 ; HL = wanted cell at row A, column C. Preserves BC, DE.
 ;@ROUTINE in A,C out HL clobbers A,carry,zero,sign,parity,halfCarry
 ; EditorTerminalWantAddress
 TRMWAD:
             PUSH DE
-            LD   L,A
-            LD   H,0
+            LD   HL,TRMWMAP
+            CALL TRMMAPA
+            POP  DE
+            RET
+
+; HL = SCRWAN + slot * MAXCOL + C, the slot read from the row map at HL for
+; row A. Preserves BC.
+;@ROUTINE in A,C,HL out HL clobbers A,carry,zero,sign,parity,halfCarry,DE
+; EditorTerminalMapAddress
+TRMMAPA:
+            LD   E,A
+            LD   D,0
+            ADD  HL,DE
+            LD   L,(HL)
+            LD   H,D
             ADD  HL,HL
             ADD  HL,HL
             ADD  HL,HL
@@ -278,7 +329,37 @@ TRMWAD:
             ADD  HL,DE
             LD   DE,SCRWAN
             ADD  HL,DE
-            POP  DE
+            RET
+
+; Rotate the first T entries of the row map at HL (T text rows): A = 4 moves
+; the rows up, so row 0's slot becomes the last text row's; otherwise down.
+;@ROUTINE in A,HL clobbers A,carry,zero,sign,parity,halfCarry,BC,DE,HL
+; EditorTerminalRotate
+TRMROT:
+            LD   D,A
+            LD   A,(TEXROWS)
+            DEC  A
+            LD   C,A
+            LD   B,0
+            LD   A,D
+            CP   4
+            JR   NZ,TRMRODN
+            LD   A,(HL)
+            LD   D,H
+            LD   E,L
+            INC  HL
+            LDIR
+            LD   (DE),A
+            RET
+; EditorTerminalRotateDown
+TRMRODN:
+            ADD  HL,BC
+            LD   A,(HL)
+            LD   D,H
+            LD   E,L
+            DEC  HL
+            LDDR
+            LD   (DE),A
             RET
 
 ; Move the wanted text rows one row up (A = 4) or down (A = 5) after the view
@@ -289,44 +370,19 @@ TRMWAD:
 ; EditorTerminalMove
 TRMMOVE:
             PUSH BC
-            PUSH AF
-            LD   A,(TEXROWS)
-            DEC  A
-            LD   C,0
-            CALL TRMWAD
-            LD   DE,SCRWAN
-            OR   A
-            SBC  HL,DE
-            LD   B,H
-            LD   C,L
-            POP  AF
-            CP   4
-            JR   NZ,TRMMVDN
-            LD   HL,SCRWAN+MAXCOL
-            LD   DE,SCRWAN
-            LDIR
-            JR   TRMMVMK
-; EditorTerminalMoveDown
-TRMMVDN:
-            LD   HL,SCRWAN-1
-            ADD  HL,BC
-            PUSH HL
-            LD   DE,MAXCOL
-            ADD  HL,DE
-            EX   DE,HL
-            POP  HL
-            LDDR
-; EditorTerminalMoveMark
-TRMMVMK:
+            LD   HL,TRMWMAP
+            CALL TRMROT
+            XOR  A
+            LD   (TRMPV),A
             POP  BC              ; B = the new row
             LD   A,(TRMICH)
             OR   A
             JR   Z,TRMMVALL
             LD   A,B
             OR   A
-            LD   A,'L'           ; new row 0: the text moved down
+            LD   A,5             ; new row 0: the text moved down
             JR   Z,TRMMVHI
-            LD   A,'M'
+            LD   A,4
 ; EditorTerminalMoveHintSet
 TRMMVHI:
             LD   (TRMHINT),A
@@ -413,54 +469,43 @@ TRMSCRL:
             RET  Z               ; a moved picture writes both ends
 ; EditorTerminalScrollHinted
 TRMSCHI:
-            LD   A,E
-            LD   C,D
-            CALL TRMWAD
-            LD   DE,SCRWAN
-            OR   A
-            SBC  HL,DE
-            LD   (TRMWP),HL      ; cells in all but one text row
             LD   HL,TRMHINT
             LD   A,(HL)
             LD   (HL),0
             OR   A
             JR   NZ,TRMSCGO      ; the presenter moved the text itself
-            LD   HL,SCRWAN
-            LD   DE,SCRWAN+MAXCOL*MAXROW+MAXCOL
-            CALL TRMBLK
-            LD   A,'M'
+            LD   DE,$0001        ; want rows 0.. against shown rows 1..
+            CALL TRMRCMP
+            LD   A,4
             JR   Z,TRMSCGO
-            LD   HL,SCRWAN+MAXCOL
-            LD   DE,SCRWAN+MAXCOL*MAXROW
-            CALL TRMBLK
+            LD   DE,$0100        ; want rows 1.. against shown rows 0..
+            CALL TRMRCMP
             RET  NZ
-            LD   A,'L'
+            LD   A,5
 ; EditorTerminalScrollGo
 TRMSCGO:
-            LD   (TRMKB),A       ; M: text moved up, L: down
+            LD   (TRMKB),A       ; 4: text moved up, 5: down
+            CP   4
+            LD   A,'M'
+            JR   Z,TRMSCG1
+            LD   A,'L'
+; EditorTerminalScrollGoLine
+TRMSCG1:
             LD   B,0             ; one line delete or insert at the top of the
             CALL TRMLINE         ; scroll region, which ends above the status row
-            LD   BC,(TRMWP)
             LD   A,(TRMKB)
-            CP   'M'
-            JR   NZ,TRMSCDN
-            LD   HL,SCRWAN+MAXCOL*MAXROW+MAXCOL
-            LD   DE,SCRWAN+MAXCOL*MAXROW
-            LDIR
-            JR   TRMSCBL
-; EditorTerminalScrollDown
-TRMSCDN:
-            LD   HL,SCRWAN+MAXCOL*MAXROW-1
-            ADD  HL,BC
-            PUSH HL
-            LD   DE,MAXCOL
-            ADD  HL,DE
-            EX   DE,HL
-            POP  HL
-            LDDR
-            LD   DE,SCRWAN+MAXCOL*MAXROW
-; EditorTerminalScrollBlank
-TRMSCBL:
+            LD   HL,TRMSMAP
+            CALL TRMROT
+            LD   A,(TRMKB)       ; the shown row that came free is blank
+            CP   4
+            LD   A,0
+            JR   NZ,TRMSCBR
+            LD   A,(TEXROWS)
+            DEC  A
+; EditorTerminalScrollBlankRow
+TRMSCBR:
+            LD   C,0
+            CALL TRMRWS
             LD   B,MAXCOL
             LD   A,' '
 ; EditorTerminalScrollBlankLoop
@@ -470,22 +515,33 @@ TRMSCBLO:
             DJNZ TRMSCBLO
             RET
 
-; Z when the TRMWP cells at HL equal those at DE.
-;@ROUTINE in DE,HL out A,zero clobbers carry,sign,parity,halfCarry,BC,DE,HL
-; EditorTerminalBlock
-TRMBLK:
-            LD   BC,(TRMWP)
-; EditorTerminalBlockLoop
-TRMBLKLO:
-            LD   A,(DE)
-            CP   (HL)
+; Z when the T-1 wanted rows from row D equal the shown rows from row E.
+;@ROUTINE in DE out A,zero clobbers carry,sign,parity,halfCarry,BC,DE,HL
+; EditorTerminalRowsCompare
+TRMRCMP:
+            LD   A,(TEXROWS)
+            DEC  A
+            LD   B,A
+; EditorTerminalRowsCompareLoop
+TRMRCLO:
+            PUSH BC
+            PUSH DE
+            LD   A,E
+            LD   C,0
+            CALL TRMRWS          ; DE = shown row E
+            POP  HL
+            PUSH HL
+            LD   A,H
+            CALL TRMWAD          ; HL = wanted row D
+            LD   A,(COLUMNS)
+            LD   B,A
+            CALL TRMSAMB
+            POP  DE
+            POP  BC
             RET  NZ
-            INC  HL
-            INC  DE
-            DEC  BC
-            LD   A,B
-            OR   C
-            JR   NZ,TRMBLKLO
+            INC  D
+            INC  E
+            DJNZ TRMRCLO
             RET
 
 ; Send ESC [ A at row B, column 1: insert (L) or delete (M) a line there.
@@ -511,9 +567,9 @@ TRMLINE:
 TRMROWF:
             LD   A,(TRMFR)
             LD   C,0
-            CALL TRMWAD
+            CALL TRMRWS
             LD   (TRMWP),HL
-            CALL TRMSHP
+            LD   (TRMSP),DE
             LD   A,(COLUMNS)
             LD   B,A
             LD   C,0
@@ -535,11 +591,12 @@ TRMFIRST:
             LD   B,A
             LD   E,A
             LD   D,0
-            LD   HL,(TRMWP)
+            LD   HL,(TRMSP)
             ADD  HL,DE
             PUSH HL
-            CALL TRMSHP
-            POP  HL
+            LD   HL,(TRMWP)
+            ADD  HL,DE
+            POP  DE
 ; EditorTerminalLastLoop
 TRMLASLO:
             DEC  HL
@@ -590,8 +647,7 @@ TRMSPAN:
             LD   A,(TRMFR)
             LD   HL,TRMFC
             LD   C,(HL)
-            CALL TRMWAD
-            CALL TRMSHP
+            CALL TRMRWS
             LD   A,(TRMFC)
             LD   B,A
             LD   A,(TRMKK)
@@ -642,8 +698,7 @@ TRMTAILP:
             SUB  C
             LD   B,A
             LD   A,(TRMFR)
-            CALL TRMWAD
-            CALL TRMSHP
+            CALL TRMRWS
 ; EditorTerminalTailLoop
 TRMTALO:
             LD   A,' '
@@ -671,8 +726,7 @@ TRMSHIFT:
             LD   (TRMKK),A
             LD   A,(TRMFR)
             LD   C,(HL)
-            CALL TRMWAD
-            CALL TRMSHP
+            CALL TRMRWS
             PUSH HL
             PUSH DE
             INC  HL
@@ -715,8 +769,7 @@ TRMSHGO:
             DEC  A
             LD   C,A
             LD   A,(TRMFR)
-            CALL TRMWAD
-            CALL TRMSHP          ; DE = last shown cell of the row
+            CALL TRMRWS          ; DE = last shown cell of the row
             POP  BC
             LD   A,(TRMKB)
             CP   '@'
@@ -735,8 +788,7 @@ TRMSHDEL:
             LD   A,(TRMFR)
             LD   HL,TRMFC
             LD   C,(HL)
-            CALL TRMWAD
-            CALL TRMSHP
+            CALL TRMRWS
             POP  HL              ; HL = last shown cell
             PUSH HL
             LD   A,(TRMFC)
@@ -755,12 +807,14 @@ TRMSHDEL:
             XOR  A
             RET
 
-; Z when the TRMKK cells at HL equal those at DE.
+; Z when the TRMKK cells at HL equal those at DE; TRMSAMB compares B cells.
 ;@ROUTINE in DE,HL out A,zero clobbers carry,sign,parity,halfCarry,B,DE,HL
 ; EditorTerminalSame
 TRMSAME:
             LD   A,(TRMKK)
             LD   B,A
+; EditorTerminalSameCount
+TRMSAMB:
 ; EditorTerminalSameLoop
 TRMSAMLO:
             LD   A,(DE)
@@ -769,17 +823,6 @@ TRMSAMLO:
             INC  HL
             INC  DE
             DJNZ TRMSAMLO
-            RET
-
-; DE = the shown cell matching wanted cell HL. Preserves BC, HL.
-;@ROUTINE in HL out DE clobbers A,carry,zero,sign,parity,halfCarry
-; EditorTerminalShownPointer
-TRMSHP:
-            PUSH HL
-            LD   DE,MAXCOL*MAXROW
-            ADD  HL,DE
-            EX   DE,HL
-            POP  HL
             RET
 
 ; Move the terminal cursor to row B, column C unless it is already there. The

@@ -85,8 +85,23 @@ TRMSAV EQU TRMICH+1
 ; should move the terminal's rows without comparing; 0 otherwise.
 ; EditorTerminalMoveHint
 TRMHINT EQU TRMSAV+6
+; Which buffer row holds each screen row: want rows use slots 0-23 and
+; shown rows 24-47, MAXCOL cells each from SCRWAN. A scroll rotates entries
+; instead of copying rows. The shown map must follow the want map.
+; EditorTerminalWantMap
+TRMWMAP EQU TRMHINT+1
+; EditorTerminalShownMap
+TRMSMAP EQU TRMWMAP+MAXROW
+; The wanted cell the next character goes to, valid while TRMPV is 1.
+; EditorTerminalPointer
+TRMPTR EQU TRMSMAP+MAXROW
+; EditorTerminalPointerValid
+TRMPV EQU TRMPTR+2
+; The shown row being flushed.
+; EditorTerminalShownPointer
+TRMSP EQU TRMPV+1
 ; EditorTextBase
-TEXTBASE       EQU TRMHINT+1
+TEXTBASE       EQU TRMSP+2
 ; Lowest BDOS address that leaves the minimum arena below the private stack.
 ; EditorMinimumTop
 MINTOP      EQU TEXTBASE+TEXMIN+STASIZ

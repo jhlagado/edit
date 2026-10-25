@@ -253,6 +253,27 @@ ENSVIE:
             OR   A
             SBC  HL,DE
             JR   NZ,ENSDIS
+            ; A cursor at or past the start of the line after a full set of
+            ; cached rows is below them: skip the lookup that would walk every
+            ; row to find that out. A boundary at the end of the document is
+            ; left to the lookup, which knows whether it is a line of its own.
+            LD   A,(LAYROWCO)
+            LD   HL,TEXROWS
+            CP   (HL)
+            JR   NZ,ENSLOOK
+            CALL LAYBOU1
+            LD   DE,(LENGTH)
+            OR   A
+            SBC  HL,DE
+            JR   NC,ENSLOOK
+            ADD  HL,DE
+            EX   DE,HL
+            LD   HL,(CURSOR)
+            OR   A
+            SBC  HL,DE
+            JR   NC,ENSDIS
+; EditorEnsureLookup
+ENSLOOK:
             LD   HL,(CURSOR)
             CALL LAYFINLI
             JR   C,ENSDIS

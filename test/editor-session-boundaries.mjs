@@ -5,7 +5,7 @@ import { assembleCurrent, loadBaseline, createEngineMachine, beginSession, execu
 
 const [current, baseline] = await Promise.all([assembleCurrent(), loadBaseline()]);
 const accounts = memoryAccounts(current);
-assert.equal(accounts.textCapacity, 45519); // 49,920 less the shadow screens and moved workspace
+assert.equal(accounts.textCapacity, 45466); // 49,920 less the shadow screens and moved workspace
 assert.equal(accounts.reservedStackBytes, 256);
 assert.ok(accounts.workspaceBytes <= accounts.workspaceCapacity);
 assert.ok(accounts.codeRoom >= 0);
