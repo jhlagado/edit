@@ -14,6 +14,9 @@ SCRCODST:
 ;@ROUTINE out A,carry,zero clobbers sign,parity,halfCarry,BC,DE,HL
 ; EditorSelectScreen
 SELSCR:
+            XOR  A
+            LD   (TRMICH),A
+            LD   (TRMSHA),A      ; direct output until the first screen
             LD   HL,(CFGCOL)
             LD   A,(CFGFLA)
             AND  CFGPRO
@@ -31,6 +34,7 @@ SELSCR:
             LD   A,(DE)
             OR   A
             JR   Z,SELSCRCL
+            LD   (TRMICH),A
             EX   DE,HL
             LD   E,(HL)
             INC  HL
@@ -69,13 +73,19 @@ RENDER:
             CALL LAYRES
             XOR  A
             LD   (DISSTAVA),A
+            CALL TRMON           ; a forced repaint trusts nothing on screen
             JP   PRESENT
 
 ; Incremental presentation after one raw command. Layout reports byte-independent
-; damage and owns cache invalidation; this adapter emits only affected rows.
+; damage and owns cache invalidation; this adapter emits only affected rows,
+; into the shadow screen, and the flush sends what changed.
 ;@ROUTINE out A,carry,zero clobbers sign,parity,halfCarry,BC,DE,HL
 ; EditorPresent
 PRESENT:
+            CALL PRESBODY
+            JP   TRMFLU
+; EditorPresentBody
+PRESBODY:
             LD   A,(DOCPENCH)
             OR   A
             JR   Z,PRESNOCH
@@ -670,6 +680,9 @@ STAMES:
             CP   STADIS*2
             LD   DE,STADISTE
             JR   Z,STAMESTE
+            CP   STAUNNAM*2
+            LD   DE,STAUNNTE
+            JR   Z,STAMESTE
             CP   STASAVCO*2
             JR   C,STAMESDO
             LD   DE,STASAVFA
@@ -797,6 +810,9 @@ OUTDECON:
 ; EditorOutputByte
 OUTBYT:
             LD   E,A
+            LD   A,(TRMSHA)
+            OR   A
+            JP   NZ,TRMPUT
             LD   C,6
             JP   CALLBDOS
 

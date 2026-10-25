@@ -1,0 +1,792 @@
+; Shadow screen. While it is on, presentation output is not sent: OUTBYT
+; feeds this interpreter of the editor's own terminal subset, which draws into
+; the wanted screen and marks the rows it writes. Before the editor waits for
+; a key, TRMFLU compares each marked row with the shown screen, sends only the
+; span that differs, uses ESC [ K for a blank tail, and then places the
+; cursor. A keystroke that changes one cell sends a few bytes instead of a
+; repainted row and status row.
+;
+; Cells hold ASCII with bit 7 set for reverse video. Rows are MAXCOL cells
+; apart whatever the selected width. The bell is sent at once.
+
+; EditorTerminalCodeStart
+TRMCODST:
+
+; Clear the terminal directly, then route output through the shadow screen
+; with both screens blank. Used for every full repaint.
+;@ROUTINE out A,carry,zero clobbers sign,parity,halfCarry,BC,DE,HL
+; EditorTerminalOn
+TRMON:
+            CALL TRMOFF
+            LD   DE,CLEHOM
+            CALL OUTTEX
+            LD   HL,SCRWAN
+            LD   DE,SCRWAN+1
+            LD   BC,2*MAXCOL*MAXROW-1
+            LD   (HL),' '
+            LDIR
+            LD   HL,SCRDIR
+            LD   B,MAXROW
+            CALL TRMZERO
+            LD   HL,TRMROW
+            LD   B,TRMSTAN
+            CALL TRMZERO
+            INC  A
+            LD   (TRMSHA),A
+            RET
+
+; Zero B bytes from HL. Returns A = 0.
+;@ROUTINE in B,HL out A,B,HL clobbers carry,zero,sign,parity,halfCarry
+; EditorTerminalZero
+TRMZERO:
+            XOR  A
+; EditorTerminalZeroLoop
+TRMZERLO:
+            LD   (HL),A
+            INC  HL
+            DJNZ TRMZERLO
+            RET
+
+;@ROUTINE out A clobbers carry,zero,sign,parity,halfCarry
+; EditorTerminalOff
+TRMOFF:
+            XOR  A
+            LD   (TRMSHA),A
+            RET
+
+; Interpret one presentation byte in E.
+;@ROUTINE in E out A clobbers carry,zero,sign,parity,halfCarry,BC,DE,HL
+; EditorTerminalPut
+TRMPUT:
+            LD   A,(TRMESC)
+            OR   A
+            JR   NZ,TRMSEQ
+            LD   A,E
+            CP   ' '
+            JR   NC,TRMCHR
+            CP   27
+            JR   Z,TRMESCST
+            CP   13
+            JR   Z,TRMCR
+            CP   10
+            JR   Z,TRMLF
+            CP   7
+            RET  NZ
+            LD   C,6
+            JP   CALLBDOS
+; EditorTerminalEscapeStart
+TRMESCST:
+            LD   A,1
+            LD   (TRMESC),A
+            RET
+; EditorTerminalCarriageReturn
+TRMCR:
+            XOR  A
+            LD   (TRMCOL),A
+            RET
+; EditorTerminalLineFeed
+TRMLF:
+            LD   HL,TRMROW
+            INC  (HL)
+            RET
+; EditorTerminalCharacter
+TRMCHR:
+            LD   A,(TRMCOL)
+            LD   HL,COLUMNS
+            CP   (HL)
+            RET  NC
+            LD   C,A
+            INC  A
+            LD   (TRMCOL),A
+            LD   A,(TRMATT)
+            OR   E
+            LD   E,A
+            LD   A,(TRMROW)
+            CALL TRMWAD
+            LD   A,(HL)
+            CP   E
+            RET  Z
+            LD   (HL),E
+            LD   A,(TRMROW)
+; Mark row A as written since the last flush.
+; EditorTerminalMark
+TRMMARK:
+            LD   E,A
+            LD   D,0
+            LD   HL,SCRDIR
+            ADD  HL,DE
+            LD   (HL),1
+            RET
+
+; Escape sequences. TRMESC is 1 after ESC, 2 in the first parameter and 3 in
+; the second.
+; EditorTerminalSequence
+TRMSEQ:
+            CP   1
+            JR   NZ,TRMPARB
+            LD   A,E
+            CP   '['
+            LD   A,0
+            JR   NZ,TRMSETST
+            LD   (TRMPAR),A
+            LD   (TRMPA2),A
+            LD   A,2
+; EditorTerminalSetState
+TRMSETST:
+            LD   (TRMESC),A
+            RET
+; EditorTerminalParameterByte
+TRMPARB:
+            LD   A,E
+            SUB  '0'
+            CP   10
+            JR   NC,TRMNODIG
+            LD   D,A
+            LD   HL,TRMPAR
+            LD   A,(TRMESC)
+            CP   2
+            JR   Z,TRMPARD
+            INC  HL
+; EditorTerminalParameterDigit
+TRMPARD:
+            LD   A,(HL)
+            ADD  A,A
+            LD   C,A
+            ADD  A,A
+            ADD  A,A
+            ADD  A,C
+            ADD  A,D
+            LD   (HL),A
+            RET
+; EditorTerminalNotDigit
+TRMNODIG:
+            LD   A,E
+            CP   ';'
+            LD   A,3
+            JR   Z,TRMSETST
+            XOR  A
+            LD   (TRMESC),A
+            LD   A,E
+            CP   'H'
+            JR   Z,TRMPOS
+            CP   'J'
+            JR   Z,TRMCLS
+            CP   'K'
+            JR   Z,TRMEL
+            CP   'm'
+            RET  NZ
+            LD   A,(TRMPAR)
+            CP   7
+            LD   A,$80
+            JR   Z,TRMSATT
+            XOR  A
+; EditorTerminalSetAttribute
+TRMSATT:
+            LD   (TRMATT),A
+            RET
+; EditorTerminalPosition
+TRMPOS:
+            LD   A,(TRMPAR)
+            OR   A
+            JR   Z,TRMPOSR
+            DEC  A
+; EditorTerminalPositionRow
+TRMPOSR:
+            LD   (TRMROW),A
+            LD   A,(TRMPA2)
+            OR   A
+            JR   Z,TRMPOSC
+            DEC  A
+; EditorTerminalPositionColumn
+TRMPOSC:
+            LD   (TRMCOL),A
+            RET
+; EditorTerminalClearScreen
+TRMCLS:
+            LD   HL,SCRWAN
+            LD   DE,SCRWAN+1
+            LD   BC,MAXCOL*MAXROW-1
+            LD   (HL),' '
+            LDIR
+            LD   HL,SCRDIR
+            LD   B,MAXROW
+; EditorTerminalClearMark
+TRMCLSMA:
+            LD   (HL),1
+            INC  HL
+            DJNZ TRMCLSMA
+            RET
+; EditorTerminalEraseLine
+TRMEL:
+            LD   A,(TRMCOL)
+            LD   C,A
+            LD   A,(COLUMNS)
+            SUB  C
+            RET  Z
+            RET  C
+            LD   B,A
+            LD   A,(TRMROW)
+            CALL TRMWAD
+; EditorTerminalEraseLoop
+TRMELLO:
+            LD   (HL),' '
+            INC  HL
+            DJNZ TRMELLO
+            LD   A,(TRMROW)
+            JP   TRMMARK
+
+; HL = wanted cell at row A, column C. Preserves BC, DE.
+;@ROUTINE in A,C out HL clobbers A,carry,zero,sign,parity,halfCarry
+; EditorTerminalWantAddress
+TRMWAD:
+            PUSH DE
+            LD   L,A
+            LD   H,0
+            ADD  HL,HL
+            ADD  HL,HL
+            ADD  HL,HL
+            ADD  HL,HL
+            LD   D,H
+            LD   E,L
+            ADD  HL,HL
+            ADD  HL,HL
+            ADD  HL,DE
+            LD   E,C
+            LD   D,0
+            ADD  HL,DE
+            LD   DE,SCRWAN
+            ADD  HL,DE
+            POP  DE
+            RET
+
+; Send the differences of every marked row, then place the cursor where the
+; presentation left it.
+;@ROUTINE out A,carry,zero clobbers sign,parity,halfCarry,BC,DE,HL
+; EditorTerminalFlush
+TRMFLU:
+            LD   A,(TRMSHA)
+            OR   A
+            RET  Z
+            CALL TRMSCRL
+            XOR  A
+            LD   (TRMFR),A
+; EditorTerminalFlushRow
+TRMFLRO:
+            LD   A,(TRMFR)
+            LD   E,A
+            LD   D,0
+            LD   HL,SCRDIR
+            ADD  HL,DE
+            LD   A,(HL)
+            OR   A
+            JR   Z,TRMFLNX
+            LD   (HL),0
+            CALL TRMROWF
+; EditorTerminalFlushNext
+TRMFLNX:
+            LD   HL,TRMFR
+            INC  (HL)
+            LD   A,(TEXROWS)
+            CP   (HL)
+            JR   NC,TRMFLRO
+            LD   A,(TRMROW)
+            LD   B,A
+            LD   A,(TRMCOL)
+            LD   C,A
+            JP   TRMGO
+
+; On TEC-OS's console, when the first and last text rows were both written
+; and the wanted text rows are the shown ones moved up or down a line, move
+; the terminal's rows instead of redrawing them: delete a line at one end of
+; the text area and insert one at the other, so the status row stays put.
+; The shown screen moves the same way and the rows are then compared as
+; usual, which leaves only the new line to draw.
+;@ROUTINE out A,carry,zero clobbers sign,parity,halfCarry,BC,DE,HL
+; EditorTerminalScroll
+TRMSCRL:
+            LD   A,(TRMICH)
+            OR   A
+            RET  Z
+            LD   A,(TEXROWS)
+            DEC  A
+            RET  Z
+            LD   E,A
+            LD   D,0
+            LD   HL,SCRDIR
+            LD   B,(HL)
+            ADD  HL,DE
+            LD   A,(HL)
+            AND  B
+            RET  Z
+            LD   A,E
+            LD   C,D
+            CALL TRMWAD
+            LD   DE,SCRWAN
+            OR   A
+            SBC  HL,DE
+            LD   (TRMWP),HL      ; cells in all but one text row
+            LD   HL,SCRWAN
+            LD   DE,SCRWAN+MAXCOL*MAXROW+MAXCOL
+            CALL TRMBLK
+            LD   A,'M'
+            JR   Z,TRMSCGO
+            LD   HL,SCRWAN+MAXCOL
+            LD   DE,SCRWAN+MAXCOL*MAXROW
+            CALL TRMBLK
+            RET  NZ
+            LD   A,'L'
+; EditorTerminalScrollGo
+TRMSCGO:
+            LD   (TRMKB),A       ; M: text moved up, L: down
+            LD   A,(TEXROWS)
+            DEC  A
+            LD   B,A             ; up: delete row 0, insert at the last text row
+            LD   C,0
+            LD   A,(TRMKB)
+            CP   'M'
+            JR   Z,TRMSC1
+            LD   C,B             ; down: delete the last text row, insert at row 0
+            LD   B,0
+; EditorTerminalScrollLines
+TRMSC1:
+            PUSH BC
+            LD   B,C
+            LD   A,'M'
+            CALL TRMLINE
+            POP  BC
+            LD   A,'L'
+            CALL TRMLINE
+            LD   BC,(TRMWP)
+            LD   A,(TRMKB)
+            CP   'M'
+            JR   NZ,TRMSCDN
+            LD   HL,SCRWAN+MAXCOL*MAXROW+MAXCOL
+            LD   DE,SCRWAN+MAXCOL*MAXROW
+            LDIR
+            JR   TRMSCBL
+; EditorTerminalScrollDown
+TRMSCDN:
+            LD   HL,SCRWAN+MAXCOL*MAXROW-1
+            ADD  HL,BC
+            PUSH HL
+            LD   DE,MAXCOL
+            ADD  HL,DE
+            EX   DE,HL
+            POP  HL
+            LDDR
+            LD   DE,SCRWAN+MAXCOL*MAXROW
+; EditorTerminalScrollBlank
+TRMSCBL:
+            LD   B,MAXCOL
+            LD   A,' '
+; EditorTerminalScrollBlankLoop
+TRMSCBLO:
+            LD   (DE),A
+            INC  DE
+            DJNZ TRMSCBLO
+            RET
+
+; Z when the TRMWP cells at HL equal those at DE.
+;@ROUTINE in DE,HL out A,zero clobbers carry,sign,parity,halfCarry,BC,DE,HL
+; EditorTerminalBlock
+TRMBLK:
+            LD   BC,(TRMWP)
+; EditorTerminalBlockLoop
+TRMBLKLO:
+            LD   A,(DE)
+            CP   (HL)
+            RET  NZ
+            INC  HL
+            INC  DE
+            DEC  BC
+            LD   A,B
+            OR   C
+            JR   NZ,TRMBLKLO
+            RET
+
+; Send ESC [ A at row B, column 1: insert (L) or delete (M) a line there.
+; TEC-OS leaves the cursor in column 1.
+;@ROUTINE in A,B out A clobbers carry,zero,sign,parity,halfCarry,BC
+; EditorTerminalLine
+TRMLINE:
+            LD   (TRMKK),A
+            LD   C,0
+            CALL TRMGO
+            LD   A,27
+            CALL TRMRAW
+            LD   A,'['
+            CALL TRMRAW
+            LD   A,(TRMKK)
+            JP   TRMRAW
+
+; One marked row: F is the first differing cell, L1 one past the last, and K
+; one past the last cell the row wants that is not a plain space. Cells F to
+; min(L1, K) - 1 are sent; differences from K on are cleared with ESC [ K.
+;@ROUTINE out A,carry,zero clobbers sign,parity,halfCarry,BC,DE,HL
+; EditorTerminalRowFlush
+TRMROWF:
+            LD   A,(TRMFR)
+            LD   C,0
+            CALL TRMWAD
+            LD   (TRMWP),HL
+            CALL TRMSHP
+            LD   A,(COLUMNS)
+            LD   B,A
+            LD   C,0
+; EditorTerminalFirstLoop
+TRMFIRLO:
+            LD   A,(DE)
+            CP   (HL)
+            JR   NZ,TRMFIRST
+            INC  HL
+            INC  DE
+            INC  C
+            DJNZ TRMFIRLO
+            RET
+; EditorTerminalFirst
+TRMFIRST:
+            LD   A,C
+            LD   (TRMFC),A
+            LD   A,(COLUMNS)
+            LD   B,A
+            LD   E,A
+            LD   D,0
+            LD   HL,(TRMWP)
+            ADD  HL,DE
+            PUSH HL
+            CALL TRMSHP
+            POP  HL
+; EditorTerminalLastLoop
+TRMLASLO:
+            DEC  HL
+            DEC  DE
+            LD   A,(DE)
+            CP   (HL)
+            JR   NZ,TRMLAST
+            DJNZ TRMLASLO
+; EditorTerminalLast
+TRMLAST:
+            LD   A,B
+            LD   (TRMLL),A
+            CALL TRMSHIFT
+            JP   Z,TRMROWF
+            LD   A,(COLUMNS)
+            LD   B,A
+            LD   E,A
+            LD   D,0
+            LD   HL,(TRMWP)
+            ADD  HL,DE
+; EditorTerminalKeepLoop
+TRMKEELO:
+            DEC  HL
+            LD   A,(HL)
+            CP   ' '
+            JR   NZ,TRMKEEP
+            DJNZ TRMKEELO
+; EditorTerminalKeep
+TRMKEEP:
+            LD   A,(TRMLL)
+            CP   B
+            JR   C,TRMSPAN
+            LD   A,B
+; EditorTerminalSpan
+TRMSPAN:
+            LD   (TRMKK),A
+            LD   A,B
+            LD   (TRMKB),A
+            LD   A,(TRMKK)
+            LD   HL,TRMFC
+            SUB  (HL)
+            JR   Z,TRMTAIL
+            JR   C,TRMTAIL
+            LD   A,(TRMFR)
+            LD   B,A
+            LD   C,(HL)
+            CALL TRMGO
+            LD   A,(TRMFR)
+            LD   HL,TRMFC
+            LD   C,(HL)
+            CALL TRMWAD
+            CALL TRMSHP
+            LD   A,(TRMFC)
+            LD   B,A
+            LD   A,(TRMKK)
+            LD   (PHYCOL),A
+            SUB  B
+            LD   B,A
+; EditorTerminalWriteLoop
+TRMWRLO:
+            LD   A,(HL)
+            PUSH AF
+            AND  $80
+            CALL TRMATR
+            POP  AF
+            LD   (DE),A
+            AND  $7F
+            CALL TRMRAW
+            INC  HL
+            INC  DE
+            DJNZ TRMWRLO
+; Differences past the last kept cell are blanks the row wants: clear them.
+; EditorTerminalTail
+TRMTAIL:
+            LD   A,(TRMKB)
+            LD   HL,TRMLL
+            CP   (HL)
+            RET  NC
+            LD   HL,TRMFC
+            CP   (HL)
+            JR   NC,TRMTAILP
+            LD   A,(HL)
+; EditorTerminalTailPosition
+TRMTAILP:
+            LD   C,A
+            LD   A,(TRMFR)
+            LD   B,A
+            CALL TRMGO
+            XOR  A
+            CALL TRMATR
+            LD   A,27
+            CALL TRMRAW
+            LD   A,'['
+            CALL TRMRAW
+            LD   A,'K'
+            CALL TRMRAW
+            LD   A,(PHYCOL)
+            LD   C,A
+            LD   A,(COLUMNS)
+            SUB  C
+            LD   B,A
+            LD   A,(TRMFR)
+            CALL TRMWAD
+            CALL TRMSHP
+; EditorTerminalTailLoop
+TRMTALO:
+            LD   A,' '
+            LD   (DE),A
+            INC  DE
+            DJNZ TRMTALO
+            RET
+
+; On TEC-OS's console, a differing span of five or more cells that is the
+; shown row moved one cell right or left from F is an inserted or deleted
+; character: send ESC [ @ or ESC [ P at F, move the shown row the same way,
+; and return Z so the row is compared again. NZ otherwise.
+;@ROUTINE out A,zero clobbers carry,sign,parity,halfCarry,BC,DE,HL
+; EditorTerminalShift
+TRMSHIFT:
+            LD   A,(TRMICH)
+            OR   A
+            JR   Z,TRMSHNO
+            LD   A,(TRMLL)
+            LD   HL,TRMFC
+            SUB  (HL)
+            CP   5
+            JR   C,TRMSHNO
+            DEC  A
+            LD   (TRMKK),A
+            LD   A,(TRMFR)
+            LD   C,(HL)
+            CALL TRMWAD
+            CALL TRMSHP
+            PUSH HL
+            PUSH DE
+            INC  HL
+            CALL TRMSAME
+            POP  DE
+            POP  HL
+            LD   A,'@'
+            JR   Z,TRMSHGO
+            INC  DE
+            CALL TRMSAME
+            LD   A,'P'
+            JR   Z,TRMSHGO
+; EditorTerminalShiftNo
+TRMSHNO:
+            OR   1
+            RET
+; EditorTerminalShiftGo
+TRMSHGO:
+            LD   (TRMKB),A       ; the final byte, until the row is compared again
+            LD   A,(TRMFR)
+            LD   B,A
+            LD   A,(TRMFC)
+            LD   C,A
+            CALL TRMGO
+            LD   A,27
+            CALL TRMRAW
+            LD   A,'['
+            CALL TRMRAW
+            LD   A,(TRMKB)
+            CALL TRMRAW
+            LD   A,(TRMFC)
+            LD   C,A
+            LD   A,(COLUMNS)
+            DEC  A
+            SUB  C
+            LD   B,0
+            LD   C,A             ; cells that move: F+1 to the last column
+            PUSH BC
+            LD   A,(COLUMNS)
+            DEC  A
+            LD   C,A
+            LD   A,(TRMFR)
+            CALL TRMWAD
+            CALL TRMSHP          ; DE = last shown cell of the row
+            POP  BC
+            LD   A,(TRMKB)
+            CP   '@'
+            JR   NZ,TRMSHDEL
+            LD   H,D
+            LD   L,E
+            DEC  HL
+            LDDR                 ; a shift spans at least five cells
+            INC  HL
+            LD   (HL),' '
+            XOR  A
+            RET
+; EditorTerminalShiftDelete
+TRMSHDEL:
+            PUSH DE
+            LD   A,(TRMFR)
+            LD   HL,TRMFC
+            LD   C,(HL)
+            CALL TRMWAD
+            CALL TRMSHP
+            POP  HL              ; HL = last shown cell
+            PUSH HL
+            LD   A,(TRMFC)
+            LD   C,A
+            LD   A,(COLUMNS)
+            DEC  A
+            SUB  C
+            LD   C,A
+            LD   B,0
+            LD   H,D
+            LD   L,E
+            INC  HL
+            LDIR
+            POP  HL
+            LD   (HL),' '
+            XOR  A
+            RET
+
+; Z when the TRMKK cells at HL equal those at DE.
+;@ROUTINE in DE,HL out A,zero clobbers carry,sign,parity,halfCarry,B,DE,HL
+; EditorTerminalSame
+TRMSAME:
+            LD   A,(TRMKK)
+            LD   B,A
+; EditorTerminalSameLoop
+TRMSAMLO:
+            LD   A,(DE)
+            CP   (HL)
+            RET  NZ
+            INC  HL
+            INC  DE
+            DJNZ TRMSAMLO
+            RET
+
+; DE = the shown cell matching wanted cell HL. Preserves BC, HL.
+;@ROUTINE in HL out DE clobbers A,carry,zero,sign,parity,halfCarry
+; EditorTerminalShownPointer
+TRMSHP:
+            PUSH HL
+            LD   DE,MAXCOL*MAXROW
+            ADD  HL,DE
+            EX   DE,HL
+            POP  HL
+            RET
+
+; Move the terminal cursor to row B, column C unless it is already there. The
+; position is kept in PHYROW and PHYCOL before it is sent, so nothing here
+; needs the stack beyond the output call.
+;@ROUTINE in B,C out A clobbers carry,zero,sign,parity,halfCarry,BC
+; EditorTerminalGo
+TRMGO:
+            LD   A,(PHYROW)
+            CP   B
+            JR   NZ,TRMGOSE
+            LD   A,(PHYCOL)
+            CP   C
+            RET  Z
+; EditorTerminalGoSend
+TRMGOSE:
+            LD   A,B
+            LD   (PHYROW),A
+            LD   A,C
+            LD   (PHYCOL),A
+            LD   A,27
+            CALL TRMRAW
+            LD   A,'['
+            CALL TRMRAW
+            LD   A,(PHYROW)
+            INC  A
+            CALL TRMDEC
+            LD   A,';'
+            CALL TRMRAW
+            LD   A,(PHYCOL)
+            INC  A
+            CALL TRMDEC
+            LD   A,'H'
+            JR   TRMRAW
+
+; Select reverse video when A is 80h, normal when 0, unless already selected.
+;@ROUTINE in A out A clobbers carry,zero,sign,parity,halfCarry
+; EditorTerminalAttribute
+TRMATR:
+            PUSH HL
+            LD   HL,PHYATT
+            CP   (HL)
+            POP  HL
+            RET  Z
+            LD   (PHYATT),A
+            OR   A
+            LD   A,'0'
+            JR   Z,TRMATRS
+            LD   A,'7'
+; EditorTerminalAttributeSend
+TRMATRS:
+            PUSH AF
+            LD   A,27
+            CALL TRMRAW
+            LD   A,'['
+            CALL TRMRAW
+            POP  AF
+            CALL TRMRAW
+            LD   A,'m'
+            JR   TRMRAW
+
+; Send A (1-99) in decimal.
+;@ROUTINE in A out A clobbers carry,zero,sign,parity,halfCarry,BC
+; EditorTerminalDecimal
+TRMDEC:
+            LD   B,'0'-1
+; EditorTerminalDecimalTens
+TRMDECTE:
+            INC  B
+            SUB  10
+            JR   NC,TRMDECTE
+            ADD  A,10+'0'
+            LD   C,A
+            LD   A,B
+            CP   '0'
+            CALL NZ,TRMRAW
+            LD   A,C
+; Send A to the console now. Preserves BC, DE, HL in TRMSAV.
+;@ROUTINE in A out A clobbers carry,zero,sign,parity,halfCarry
+; EditorTerminalRaw
+TRMRAW:
+            LD   (TRMSAV),HL
+            LD   (TRMSAV+2),DE
+            LD   (TRMSAV+4),BC
+            LD   E,A
+            LD   C,6
+            CALL CALLBDOS
+            LD   HL,(TRMSAV)
+            LD   DE,(TRMSAV+2)
+            LD   BC,(TRMSAV+4)
+            RET
+
+; EditorTerminalCodeEnd
+TRMCODEN:

@@ -3,7 +3,7 @@ import assert from "node:assert/strict";
 import { readFile, writeFile } from "node:fs/promises";
 import { dirname, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
-import { FROZEN_ARENA_TOP, artifactLayout, assembleCurrent, loadBaseline, memoryAccounts, createEngineMachine,
+import { FROZEN_ARENA_TOP, comparableTop, artifactLayout, assembleCurrent, loadBaseline, memoryAccounts, createEngineMachine,
   beginSession, executeCommands, executeRoutine, engineSnapshot, snapshotDigest,
   physicalFile, writeWord, readWord, seedDocument, logicalDocument, sha256,
   normalizeStatusRow,
@@ -46,10 +46,10 @@ function command(machine, name, bytes, checks) {
   return observe(machine, name, () => executeCommands(machine, bytes), checks);
 }
 function prepare(artifact, workload) {
-  const machine = createEngineMachine(artifact, { files: { "INPUT.NU": physicalFile(workload.text) }, top: FROZEN_ARENA_TOP });
+  const machine = createEngineMachine(artifact, { files: { "INPUT.NU": physicalFile(workload.text) }, top: comparableTop(artifact) });
   const entry = beginSession(machine);
   const initialGap = gap(machine);
-  if (initialGap !== null) assert.deepEqual(initialGap, { start: workload.text.length, end: artifactLayout(artifact, FROZEN_ARENA_TOP).capacity }, "load must leave an end gap");
+  if (initialGap !== null) assert.deepEqual(initialGap, { start: workload.text.length, end: artifactLayout(artifact, comparableTop(artifact)).capacity }, "load must leave an end gap");
   if (workload.gapAt !== undefined) seedDocument(machine, workload.text, { gapAt: workload.gapAt });
   assert.deepEqual(Array.from(logicalDocument(machine)), Array.from(workload.text));
   writeWord(machine.memory, machine.symbol("EditorCursor"), workload.cursor ?? 0);

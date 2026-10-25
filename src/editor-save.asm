@@ -5,6 +5,9 @@ SAVCODST:
 ;@ROUTINE out A,carry,zero clobbers sign,parity,halfCarry,BC,DE,HL
 ; EditorSave
 SAVE:
+            LD   A,(FCB+1)
+            CP   ' '
+            JP   Z,SAVUNNAM
             XOR  A
             LD   (SAVSTA),A
             CALL SAVSETTE
@@ -97,6 +100,13 @@ SAVRENFA:
 SAVEFAIL:
             LD   (STATUS),A
             CALL SAVROL
+            SCF
+            RET
+; An unnamed buffer cannot be saved yet: say so and ring the bell.
+; EditorSaveUnnamed
+SAVUNNAM:
+            LD   A,STAUNNAM
+            LD   (STATUS),A
             SCF
             RET
 

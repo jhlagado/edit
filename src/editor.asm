@@ -9,6 +9,7 @@
 %INCLUDE "editor-navigation.asm"
 %INCLUDE "editor-layout.asm"
 %INCLUDE "editor-screen.asm"
+%INCLUDE "editor-terminal.asm"
 %INCLUDE "editor-save.asm"
 %INCLUDE "editor-search.asm"
 %INCLUDE "editor-replace.asm"
@@ -54,6 +55,8 @@ STASAVTE:    DB "Saved",0
 STAFULTE:     DB "Full",0
 ; EditorStatusDiscardText
 STADISTE:  DB "Discard? ^Q again",0
+; EditorStatusUnnamedText
+STAUNNTE:  DB "No name",0
 ; EditorStatusSaveFailedText
 STASAVFA: DB "Save failed ",0
 ; EditorStatusFoundText
@@ -67,8 +70,9 @@ STANOSE1: DB "No search",0
 ; The default FCB's leading drive byte also terminates the replacement status.
 ; EditorStatusReplacedText
 STAREPTE: DB "Replaced"
+; With no name on the command line the buffer starts new and unnamed.
 ; EditorDefaultName
-DEFNAM:        DB 0,"INPUT   ","NU "
+DEFNAM:        DB 0,"        ","   "
 ; EditorSearchPrompt
 SEAPRO:       DB "Find: ",0
 ; EditorReplacePrompt

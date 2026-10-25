@@ -8,6 +8,10 @@ LOADFILE:
             XOR  A
             LD   (LOAPENCR),A
             CALL DOCRES
+            LD   A,(FCB+1)
+            CP   ' '
+            LD   A,FLAGNEW
+            JR   Z,LOARES
             LD   C,15
             CALL SELCAL
             INC  A
@@ -76,11 +80,6 @@ LOARES:
             RET
 ; EditorLoadNotFound
 LOANOTFO:
-            LD   A,(SAVSTA)
-            OR   A
-            CCF
-            LD   A,ERRNOTFO
-            RET  Z
             LD   A,FLADIR|FLAGNEW
             OR   A
             JR   LOARES

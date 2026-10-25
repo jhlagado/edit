@@ -17,6 +17,12 @@ export const DEFAULT_TPA_TOP = 0xe400;
 // BDOS address that gives a current editor the frozen editors' 47,104-byte
 // arena, so measurements compare like with like.
 export const FROZEN_ARENA_TOP = 0xd900;
+/** The BDOS address that gives an artifact the frozen editors' text capacity:
+ *  later builds that keep more below the text arena (the shadow screens) get
+ *  a correspondingly higher top, so full-capacity workloads compare alike. */
+export function comparableTop(artifact) {
+  return FROZEN_ARENA_TOP + ((artifact.symbols.EditorTextBase ?? 0x2000) - 0x2000);
+}
 export const sha256 = (bytes) => createHash("sha256").update(bytes).digest("hex");
 export { readWord, writeWord, writeFcb, physicalFile, logicalFileBytes };
 

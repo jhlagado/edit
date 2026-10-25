@@ -22,7 +22,7 @@ function descriptiveDebugMap(debugMap,ledger){
 
 async function assembleNative({sourcePath,ledgerPath,base=0x100,entryAddress=base,expectedBytes}){
  const result=await assembleAtomProject({root:dirname(sourcePath),entry:sourcePath.split('/').at(-1),
-  target:{start:0,capacity:0xffff},maxInstructions:50_000_000,maxCycles:500_000_000});
+  target:{start:0,capacity:0xffff},maxInstructions:100_000_000,maxCycles:1_000_000_000});
  const bytes=materializeAtomGeneration(result.generation,{base}).bytes;
  if(expectedBytes!==undefined)assert.deepEqual(bytes,Uint8Array.from(expectedBytes),'native ATOM binary differs from frozen artifact');
  const ledger=JSON.parse(await readFile(ledgerPath,'utf8'));

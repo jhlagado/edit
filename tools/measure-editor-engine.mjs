@@ -3,7 +3,7 @@ import assert from "node:assert/strict";
 import { readFile, writeFile } from "node:fs/promises";
 import { dirname, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
-import { FROZEN_ARENA_TOP, assembleCurrent, loadBaseline, memoryAccounts, createEngineMachine,
+import { FROZEN_ARENA_TOP, comparableTop, assembleCurrent, loadBaseline, memoryAccounts, createEngineMachine,
   beginSession, executeCommands, executeRoutine, engineSnapshot, snapshotDigest,
   normalizeStatusRow, physicalFile, writeWord, sha256 } from "../test/support/editor-engine-harness.mjs";
 
@@ -69,7 +69,7 @@ const result = { format: mode === "compare" ? "edit-engine-command-measurements-
   workloads: [] };
 
 function measure(artifact, workload) {
-  const machine = createEngineMachine(artifact, { files: { "INPUT.NU": physicalFile(workload.text) }, top: FROZEN_ARENA_TOP });
+  const machine = createEngineMachine(artifact, { files: { "INPUT.NU": physicalFile(workload.text) }, top: comparableTop(artifact) });
   const setup = { entry: beginSession(machine) };
   if (workload.cursor !== undefined) {
     writeWord(machine.memory, machine.symbol("EditorCursor"), workload.cursor);

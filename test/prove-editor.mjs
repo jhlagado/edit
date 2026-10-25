@@ -450,7 +450,8 @@ const commandMeasurements = {};
   setCommandTail(machine.memory, "");
   commandMeasurements.default = invokeRoutine(machine, "EditorPrepareCommand");
   assert.equal(commandMeasurements.default.carry, false);
-  assert.equal(selectedName(machine.memory), "INPUT.NU");
+  // No name: the buffer starts new and unnamed.
+  assert.equal(machine.memory[symbol("EditorFcb") + 1], 0x20);
   assert.equal(machine.memory[symbol("EditorSaveState")], 0);
 
   setCommandTail(machine.memory, "  lower.nu  ");
@@ -494,12 +495,9 @@ function proveLoad(name, physical, expected, expectedError) {
   return result;
 }
 
-loadMeasurements.missing = proveLoad(
-  "missing",
-  undefined,
-  [],
-  symbol("EditorErrorNotFound"),
-);
+// A missing file opens as a new, empty buffer whatever the command line said;
+// only an unnamed buffer skips the open.
+loadMeasurements.missing = proveLoad("missing", undefined, []);
 {
   const machine = createMachine();
   setCommandTail(machine.memory, "NEW.NU");
@@ -2058,7 +2056,7 @@ for (const [label, failures, expectedStatus, retainedTemporary] of [
 
 function runEditorInput(input, file = Buffer.from("A\r\n", "ascii")) {
   const machine = createMachine({ files: { "INPUT.NU": physicalFile(file) } });
-  setCommandTail(machine.memory, "");
+  setCommandTail(machine.memory, "INPUT.NU");
   machine.bdos.input.push(...input);
   let highBefore;
   const result = invokeRoutine(machine, "EditorEntry", {
@@ -2161,18 +2159,25 @@ const entryMeasurements = {};
   });
   assert.equal(machine.bdos.files.has("NEW.NU"), false);
 
+  // Bare EDIT starts an unnamed buffer. ^S refuses without touching a file,
+  // and ^Q leaves at once because nothing was typed.
   machine.bdos.terminal.reset();
   setCommandTail(machine.memory, "");
+  const eventsBefore = machine.bdos.events.length;
+  machine.bdos.input.push(19, 0x11);
   entryMeasurements.sequenceBareMissing = invokeRoutine(
     machine,
     "EditorEntry",
     { callerSp: ENTRY_CALLER_SP },
   );
   assert.ok(
-    Buffer.from(machine.bdos.terminal.snapshot().cells)
+    !Buffer.from(machine.bdos.terminal.snapshot().cells)
       .toString("ascii")
-      .includes("EDIT error 02"),
+      .includes("EDIT error"),
   );
+  assert.deepEqual(machine.bdos.events.slice(eventsBefore), []);
+  assert.equal(machine.bdos.terminal.snapshot().bellCount, 1);
+  assert.equal(machine.bdos.input.length, 0);
 
   machine.bdos.terminal.reset();
   setCommandTail(machine.memory, "NEW.NU");
@@ -2308,7 +2313,7 @@ const entryMeasurements = {};
   assert.equal(machine.bdos.input.length, 0);
 
   machine.bdos.terminal.reset();
-  setCommandTail(machine.memory, "");
+  setCommandTail(machine.memory, "INPUT.NU");
   machine.bdos.input.push(0x11);
   entryMeasurements.replaceReload = invokeRoutine(machine, "EditorEntry", {
     callerSp: ENTRY_CALLER_SP,
@@ -2451,7 +2456,7 @@ const entryMeasurements = {};
   const machine = createMachine({
     files: { "INPUT.NU": physicalFile(Buffer.from("ABC\r\n", "ascii")) },
   });
-  setCommandTail(machine.memory, "");
+  setCommandTail(machine.memory, "INPUT.NU");
   machine.bdos.input.push(6, 0x42, 13, 0x11);
   entryMeasurements.firstExecutionSearch = invokeRoutine(
     machine,
@@ -2477,7 +2482,7 @@ const entryMeasurements = {};
 }
 {
   const machine = createMachine();
-  setCommandTail(machine.memory, "");
+  setCommandTail(machine.memory, "*.NU");
   let highBefore;
   const result = invokeRoutine(machine, "EditorEntry", {
     callerSp: ENTRY_CALLER_SP,
@@ -2489,7 +2494,7 @@ const entryMeasurements = {};
   assert.ok(
     Buffer.from(machine.bdos.terminal.snapshot().cells)
       .toString("ascii")
-      .includes("EDIT error 02"),
+      .includes("EDIT error 01"),
   );
   entryMeasurements.missing = result;
 }
@@ -2563,7 +2568,8 @@ function selectScreen({ config, flags, abi } = {}) {
   for (const address of changed) {
     assert.ok(
       address === symbol("EditorColumns") ||
-        address === symbol("EditorTextRows"),
+        address === symbol("EditorTextRows") ||
+        address === symbol("TRMICH"),
       `EditorSelectScreen wrote ${address.toString(16)}`,
     );
   }
@@ -2597,7 +2603,7 @@ for (const [options, expected] of [
   configurationMeasurements[`select${expected.join("x")}`] = result;
 }
 
-function runEntry(machine, tail = "") {
+function runEntry(machine, tail = "INPUT.NU") {
   setCommandTail(machine.memory, tail);
   let highBefore;
   const result = invokeRoutine(machine, "EditorEntry", {

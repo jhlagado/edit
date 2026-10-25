@@ -1,4 +1,6 @@
-// Strict character-cell terminal of any size for the editor's terminal subset.
+// Strict character-cell terminal of any size for the editor's terminal subset,
+// plus the character and line insert and delete the editor sends to TEC-OS's
+// console.
 // It follows the deferred-wrap model of a VT100 and records every operation
 // that a correct full-screen repaint never needs: scrolling, wrapping onto a
 // new line, and cursor addresses outside the screen.
@@ -63,6 +65,36 @@ export function createScreenTerminal({ columns, rows }) {
       clear(0, count);
     } else if (final === 0x4b && (values[0] ?? 0) === 0) {
       clear(cursorRow * columns + cursorColumn, (cursorRow + 1) * columns);
+    } else if (final === 0x40 || final === 0x50) {
+      // Insert (@) or delete (P) characters at the cursor, as TEC-OS's video
+      // console does: the rest of the line moves, and blanks are plain.
+      const start = cursorRow * columns + cursorColumn;
+      const end = (cursorRow + 1) * columns;
+      const n = Math.min(values[0] || 1, end - start);
+      if (final === 0x40) {
+        cells.copyWithin(start + n, start, end - n);
+        attributes.copyWithin(start + n, start, end - n);
+        clear(start, start + n);
+      } else {
+        cells.copyWithin(start, start + n, end);
+        attributes.copyWithin(start, start + n, end);
+        clear(end - n, end);
+      }
+    } else if (final === 0x4c || final === 0x4d) {
+      // Insert (L) or delete (M) lines at the cursor row, as TEC-OS's video
+      // console does: the rows below move, and the cursor goes to column 1.
+      const start = cursorRow * columns;
+      const n = Math.min(values[0] || 1, rows - cursorRow) * columns;
+      if (final === 0x4c) {
+        cells.copyWithin(start + n, start, count - n);
+        attributes.copyWithin(start + n, start, count - n);
+        clear(start, start + n);
+      } else {
+        cells.copyWithin(start, start + n, count);
+        attributes.copyWithin(start, start + n, count);
+        clear(count - n, count);
+      }
+      cursorColumn = 0;
     } else if (final === 0x6d) {
       for (const value of values.length === 0 ? [0] : values) {
         if (value === 0) reverse = false;

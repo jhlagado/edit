@@ -1,6 +1,7 @@
-; Memory partition for the native CP/M editor. The code, workspace and text
-; base are fixed. The BDOS address in the word at $0006 is the exclusive top of
-; the private stack; the text arena ends where the stack begins.
+; Memory partition for the native CP/M editor. The code, workspace, shadow
+; screens and text base are fixed. The BDOS address in the word at $0006 is
+; the exclusive top of the private stack; the text arena ends where the stack
+; begins.
 
 ; EditorCodeBase
 CODEBASE       EQU $0100
@@ -10,15 +11,10 @@ CODLIM      EQU $1E00
 WORBAS  EQU $1E00
 ; EditorWorkspaceLimit
 WORLIM EQU $2000
-; EditorTextBase
-TEXTBASE       EQU $2000
 ; EditorStackSize
 STASIZ      EQU 256
 ; EditorTextMinimum
 TEXMIN      EQU 1024
-; Lowest BDOS address that leaves the minimum arena below the private stack.
-; EditorMinimumTop
-MINTOP      EQU TEXTBASE+TEXMIN+STASIZ
 
 ; Supported screen sizes. Selected sizes outside them are clamped.
 ; EditorMinimumColumns
@@ -29,6 +25,67 @@ MAXCOL      EQU 80
 MINROW      EQU 4
 ; EditorMaximumRows
 MAXROW      EQU 24
+
+; The wanted and shown screens, MAXCOL cells a row (the row arithmetic in
+; TRMWAD assumes 80), one written-since-flush flag per row, and the shadow
+; screen's state, which does not fit the fixed workspace.
+; EditorScreenWant
+SCRWAN      EQU $2000
+; EditorScreenDirty
+SCRDIR      EQU SCRWAN+2*MAXCOL*MAXROW
+; 1 while presentation output goes through the shadow screen.
+; EditorTerminalShadow
+TRMSHA EQU SCRDIR+MAXROW
+; Where the presentation's output cursor is, and its attribute.
+; EditorTerminalRow
+TRMROW EQU TRMSHA+1
+; EditorTerminalColumn
+TRMCOL EQU TRMROW+1
+; EditorTerminalAttr
+TRMATT EQU TRMCOL+1
+; EditorTerminalEscape
+TRMESC EQU TRMATT+1
+; EditorTerminalParameter
+TRMPAR EQU TRMESC+1
+; EditorTerminalSecond
+TRMPA2 EQU TRMPAR+1
+; Where the terminal's cursor is, and its attribute.
+; EditorPhysicalRow
+PHYROW EQU TRMPA2+1
+; EditorPhysicalColumn
+PHYCOL EQU PHYROW+1
+; EditorPhysicalAttribute
+PHYATT EQU PHYCOL+1
+; Bytes from TerminalRow to PhysicalAttribute, cleared when the shadow starts.
+; EditorTerminalStateBytes
+TRMSTAN EQU 9
+; Row flush scratch: the row, its wanted cells, the first differing cell, one
+; past the last, the send limit and one past the last kept cell.
+; EditorTerminalFlushRowIndex
+TRMFR EQU PHYATT+1
+; EditorTerminalWantPointer
+TRMWP EQU TRMFR+1
+; EditorTerminalFirstCell
+TRMFC EQU TRMWP+2
+; EditorTerminalLastLimit
+TRMLL EQU TRMFC+1
+; EditorTerminalSendLimit
+TRMKK EQU TRMLL+1
+; EditorTerminalKeepLimit
+TRMKB EQU TRMKK+1
+; 1 when the terminal is TEC-OS's video console, which inserts and deletes
+; characters (ESC [ @ and ESC [ P).
+; EditorTerminalInsertDelete
+TRMICH EQU TRMKB+1
+; Registers kept across a direct console write, off the stack, so the flush
+; stays within the stack the rest of the editor needs.
+; EditorTerminalSave
+TRMSAV EQU TRMICH+1
+; EditorTextBase
+TEXTBASE       EQU TRMSAV+6
+; Lowest BDOS address that leaves the minimum arena below the private stack.
+; EditorMinimumTop
+MINTOP      EQU TEXTBASE+TEXMIN+STASIZ
 
 ; EditorConfigProbe
 CFGPRO      EQU 1
@@ -284,6 +341,8 @@ STAFUL        EQU 2
 STABOU    EQU 3
 ; EditorStatusDiscard
 STADIS     EQU 4
+; EditorStatusUnnamed
+STAUNNAM   EQU 5
 ; Search statuses carry a high-bit tag and half the byte offset of their
 ; contiguous message. ADD A,A both classifies the tag and recovers the offset.
 ; EditorStatusFound

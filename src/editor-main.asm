@@ -28,9 +28,22 @@ ENTRY:
 ; EditorEntryMemory
 ENTMEM:
             LD   DE,ERRPRE
-            CALL OUTTEX
+            CALL ENTTEX
             LD   DE,MEMTEX
-            JP   OUTTEX
+; Send the text at DE straight to the console: nothing in memory is written
+; or trusted before the TPA check, the shadow-screen flag included.
+; EditorEntryText
+ENTTEX:
+            LD   A,(DE)
+            CP   '$'
+            RET  Z
+            INC  DE
+            PUSH DE
+            LD   E,A
+            LD   C,6
+            CALL CALLBDOS
+            POP  DE
+            JR   ENTTEX
 
 ;@ROUTINE out A,carry,zero clobbers sign,parity,halfCarry,BC,DE,HL,IX,IY
 ; EditorRun
@@ -175,6 +188,7 @@ COMQUI:
             JP   MAINLOOP
 ; EditorCommandExit
 COMEXI:
+            CALL TRMOFF
             LD   DE,CLEHOM
             JP   OUTTEX
 
@@ -198,11 +212,14 @@ RUNERROR:
 ;@ROUTINE out A,carry,zero clobbers sign,parity,halfCarry,BC,DE,HL
 ; EditorReadByte
 READBYTE:
+            CALL TRMFLU
+; EditorReadByteLoop
+REABYTLO:
             LD   DE,$00FF
             LD   C,6
             CALL CALLBDOS
             OR   A
-            JR   Z,READBYTE
+            JR   Z,REABYTLO
             RET
 
 ;@ROUTINE out A,carry,zero clobbers sign,parity,halfCarry,BC,DE,HL

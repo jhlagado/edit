@@ -48,15 +48,18 @@ EDIT
 EDIT NAME.EXT
 ```
 
-The no-argument form opens `INPUT.NU`. The selected name must be one
+The no-argument form starts a new, empty buffer with no name. It is not
+marked changed, so `^Q` leaves at once until something is typed. It cannot
+be saved yet: `^S` shows `No name` on the status row and rings the bell. The
+selected name must be one
 current-drive CP/M 8.3 filename. Lowercase ASCII is converted to uppercase.
 Spaces may surround the name, but extra arguments, drive prefixes, wildcards,
 empty components, and invalid CP/M filename characters are rejected before the
 screen is changed.
 
 The extensions `BAK` and `$$$` are reserved for the save transaction and are
-rejected as selected filenames. The no-argument default file must already
-exist; an explicitly named file follows the new-file rule below. A command or
+rejected as selected filenames. An explicitly named file follows the new-file
+rule below. A command or
 open failure prints one CRLF-terminated `EDIT error XX` line, where `XX` is a
 stable two-digit hexadecimal editor status and ends with a warm boot, as every
 exit after entry does (see TPA allocation).
@@ -73,8 +76,9 @@ existing-file save transaction retain their settled contracts.
 `EDIT NAME.EXT` first attempts the ordinary open. If the named file exists, it
 is loaded and validated exactly as before. If it is absent, the editor opens a
 new empty buffer associated with that name. Explicitness is syntactic:
-`EDIT INPUT.NU` may create a missing `INPUT.NU`, while bare `EDIT` still reports
-`EDIT error 02` when its default `INPUT.NU` is absent. An invalid existing text
+`EDIT INPUT.NU` may create a missing `INPUT.NU`. (Bare `EDIT` reported `EDIT
+error 02` for a missing default `INPUT.NU` until 2026-10-25; it now starts an
+unnamed buffer.) An invalid existing text
 file remains an error and never becomes a new buffer.
 
 A new buffer has length, cursor, viewport, desired column, and committed search
@@ -158,17 +162,18 @@ every upper limit from B, as CP/M programs conventionally do:
 | ------------------------------------------- | ---------------------- | ----------------: |
 | Code and immutable data                     | `$0100..$1DFF`         |       7,424 bytes |
 | Fixed writable workspace and one DMA record | `$1E00..$1FFF`         |         512 bytes |
-| Text arena                                  | `$2000` to B − `$0101` | B − `$2100` bytes |
+| Shadow screens, row flags and their state   | `$2000..$2F2F`         |       3,888 bytes |
+| Text arena                                  | `$2F30` to B − `$0101` | B − `$3030` bytes |
 | Private stack                               | B − `$0100` to B − 1   |         256 bytes |
 
 For example:
 
 | BDOS address B   | Text arena     |     Capacity | Private stack  |
 | ---------------- | -------------- | -----------: | -------------- |
-| `$E400`          | `$2000..$E2FF` | 49,920 bytes | `$E300..$E3FF` |
-| `$B406` (TEC-OS) | `$2000..$B305` | 37,638 bytes | `$B306..$B405` |
+| `$E400`          | `$2F30..$E2FF` | 46,032 bytes | `$E300..$E3FF` |
+| `$B406` (TEC-OS) | `$2F30..$B305` | 33,750 bytes | `$B306..$B405` |
 
-The text arena must hold at least 1,024 bytes, so B must be at least `$2500`.
+The text arena must hold at least 1,024 bytes, so B must be at least `$3430`.
 For a smaller B the editor prints one CRLF-delimited `EDIT error 06 TPA too
 small` line and returns to the CCP with the incoming SP. That check precedes
 every memory write and every other BDOS call.
@@ -194,8 +199,26 @@ and R may be 4 through 24; a selected value outside that range is clamped to
 the nearer limit. The 24-row limit matches the bounded layout cache of 23 text
 rows. The tested sizes are 80 × 24, 40 × 24, 32 × 24, 21 × 8, and 20 × 4.
 
+### Output
+
+From the first full screen until exit, presentation output goes to a shadow
+screen rather than the terminal. The editor keeps two copies of the screen in
+the account below the text arena: the screen it wants and the screen the
+terminal shows. Drawing changes only the wanted copy and marks the rows it
+writes. Before each wait for a key, each marked row is compared with the
+shown copy; the terminal receives the cursor position and the cells from the
+first difference to the last, and `ESC [ K` where the rest of the row should
+be blank. A cursor move that changes no cells sends one cursor position.
+When the screen size came from TEC-OS's console geometry, the terminal is
+TEC-OS's video console, and a differing span of five or more cells that is
+the shown row moved one cell is sent as `ESC [ @` (insert a blank) or
+`ESC [ P` (delete a character) followed by the one changed cell. The bell is
+sent at once. Error lines printed before the first screen, and the
+final clear at exit, go to the terminal directly.
+
 The editor uses only CR, LF, BEL, printable ASCII, `ESC [ H`,
-`ESC [ r ; c H`, `ESC [ 2 J`, `ESC [ K`, `ESC [ 7 m`, and `ESC [ 0 m`. The
+`ESC [ r ; c H`, `ESC [ 2 J`, `ESC [ K`, `ESC [ 7 m`, and `ESC [ 0 m`, and on
+TEC-OS's console `ESC [ @` and `ESC [ P`. The
 terminal must defer the wrap after a printable byte in column C until the next
 printable byte, as a VT100 does. The editor never sends a printable byte in
 that state, never scrolls the terminal, and never addresses a position outside
@@ -594,8 +617,8 @@ The search increment must additionally distinguish:
 
 The new-file increment must additionally distinguish:
 
-- bare `EDIT` with a missing default file and explicitly named missing files,
-  including explicit `INPUT.NU`;
+- bare `EDIT`, which starts an unnamed buffer that refuses to save, and
+  explicitly named missing files, including explicit `INPUT.NU`;
 - unchanged loading and validation of existing empty, representative, invalid,
   and maximum-capacity files;
 - exact empty-buffer cells, filename, dirty marker, cursor, status, and query
