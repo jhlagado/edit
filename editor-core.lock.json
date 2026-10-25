@@ -3,7 +3,7 @@
   "name": "edit-document-core",
   "version": 1,
   "repository": "https://github.com/jhlagado/edit.git",
-  "revision": "63762528365f8db04464d2fe9bcf4cc4e8091a68",
+  "revision": "02074f658050c6fde68330ea25a30310f502e108",
   "license": "GPL-3.0-or-later",
   "modules": [
     {
