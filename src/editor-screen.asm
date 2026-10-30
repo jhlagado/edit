@@ -2,9 +2,9 @@
 ; text; the last row is the status row.
 
 ; EditorAbiBase
-ABIBAS      EQU $FF00
+ABIBAS      EQU $C003
 ; EditorAbiGeometry
-ABIGEO      EQU $FF09
+ABIGEO      EQU $C008
 
 ; EditorScreenCodeStart
 SCRCODST:
@@ -26,6 +26,9 @@ SELSCR:
             LD   DE,ABITAG
             CALL COMEXTEQ
             POP  HL
+            JR   NZ,SELSCRCL
+            LD   A,(ABIBAS+3)
+            CP   3
             JR   NZ,SELSCRCL
             LD   DE,(ABIGEO)
             LD   A,D

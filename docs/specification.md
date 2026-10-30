@@ -235,12 +235,13 @@ the C × R screen.
 
 ### Size selection
 
-1. If bit 0 of the configuration flags is set, the ROM bytes at `$FF00..$FF02`
-   are `TNA` (the TEC-OS ABI table), the word at `$FF09` is nonzero, and the
+1. If bit 0 of the configuration flags is set, the ROM bytes at `$C003..$C005`
+   are `TNA` (the TEC-OS ABI table), the major version at `$C006` is 3,
+   the word at `$C008` is nonzero, and the
    byte it addresses is nonzero, that byte is C and the following byte is R.
 2. Otherwise C and R come from the configuration block.
 
-The probe only reads `$FF00..$FF0A` and the two geometry bytes.
+The probe only reads `$C003..$C009` and the two geometry bytes.
 
 ### Configuration block
 

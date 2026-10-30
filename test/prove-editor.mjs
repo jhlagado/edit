@@ -2547,7 +2547,7 @@ const configurationMeasurements = {};
   assert.throws(() => readConfiguration(binary.bytes.slice(1)));
 }
 
-function selectScreen({ config, flags, abi } = {}) {
+function selectScreen({ config, flags, abi, legacyAbi } = {}) {
   const machine = createMachine();
   const memory = machine.memory;
   memory[symbol("EditorColumns")] = 0;
@@ -2557,10 +2557,16 @@ function selectScreen({ config, flags, abi } = {}) {
     memory[symbol("EditorConfigRows")] = config[1];
   }
   if (flags !== undefined) memory[symbol("EditorConfigFlags")] = flags;
+  if (legacyAbi) {
+    memory.set(Buffer.from("TNA", "ascii"), 0xff00);
+    writeWord(memory, 0xff09, 0xff40);
+    memory.set([21, 8], 0xff40);
+  }
   if (abi !== undefined) {
-    memory.set(Buffer.from(abi.tag ?? "TNA", "ascii"), 0xff00);
-    const pointer = abi.pointer ?? 0xff40;
-    writeWord(memory, 0xff09, pointer);
+    memory.set(Buffer.from(abi.tag ?? "TNA", "ascii"), 0xc003);
+    const pointer = abi.pointer ?? 0xc040;
+    memory[0xc006] = abi.major ?? 3;
+    writeWord(memory, 0xc008, pointer);
     if (pointer !== 0) memory.set(abi.size, pointer);
   }
   const before = memory.slice();
@@ -2599,6 +2605,10 @@ for (const [options, expected] of [
   [{ config: [40, 24], abi: { pointer: 0 } }, [40, 24]],
   [{ config: [40, 24], abi: { size: [0, 24] } }, [40, 24]],
   [{ config: [40, 24], abi: { tag: "TNB", size: [32, 24] } }, [40, 24]],
+  [{ config: [40, 24], legacyAbi: true }, [40, 24]],
+  [{ legacyAbi: true, abi: { size: [32, 24] } }, [32, 24]],
+  [{ config: [40, 24], abi: { major: 2, size: [21, 8] } }, [40, 24]],
+  [{ config: [40, 24], abi: { major: 4, size: [21, 8] } }, [40, 24]],
   [{ config: [10, 2] }, [20, 4]],
   [{ config: [0, 0] }, [20, 4]],
   [{ config: [200, 150] }, [80, 24]],
@@ -2835,10 +2845,11 @@ function runScreenSession({ columns, rows, top, abi = false, strict = true }) {
   machine.memory[symbol("EditorColumns")] = 0;
   machine.memory[symbol("EditorTextRows")] = 0;
   if (abi) {
-    machine.memory.set(Buffer.from("TNA", "ascii"), 0xff00);
-    writeWord(machine.memory, 0xff09, 0xff40);
-    machine.memory[0xff40] = columns;
-    machine.memory[0xff41] = rows;
+    machine.memory.set(Buffer.from("TNA", "ascii"), 0xc003);
+    machine.memory[0xc006] = 3;
+    writeWord(machine.memory, 0xc008, 0xc040);
+    machine.memory[0xc040] = columns;
+    machine.memory[0xc041] = rows;
   } else {
     machine.memory[symbol("EditorConfigColumns")] = columns;
     machine.memory[symbol("EditorConfigRows")] = rows;
@@ -3166,10 +3177,11 @@ for (const { columns, rows } of [
     rows: 24,
     files: { "INPUT.NU": physicalFile(Buffer.from("A\r\n", "ascii")) },
   });
-  machine.memory.set(Buffer.from("TNA", "ascii"), 0xff00);
-  writeWord(machine.memory, 0xff09, 0xff40);
-  machine.memory[0xff40] = 32;
-  machine.memory[0xff41] = 24;
+  machine.memory.set(Buffer.from("TNA", "ascii"), 0xc003);
+  machine.memory[0xc006] = 3;
+  writeWord(machine.memory, 0xc008, 0xc040);
+  machine.memory[0xc040] = 32;
+  machine.memory[0xc041] = 24;
   let status;
   machine.bdos.onIdle = () => {
     status ??= machine.bdos.terminal.row(23);

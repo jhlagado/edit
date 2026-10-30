@@ -180,17 +180,17 @@
       }
     },
     "current": {
-      "sha256": "599eba0d79c06c0ff85a8d048489e0ba7d689caebce08b498cc041a2d78a1d9b",
+      "sha256": "2c9e7d0ec588019b9184ca89543e5a644fafda864bb940445375edb50bbb0fe6",
       "accounts": {
-        "artifactBytes": 7924,
+        "artifactBytes": 7931,
         "entryBytes": 11,
-        "codeBytes": 7675,
+        "codeBytes": 7682,
         "immutableBytes": 238,
         "workspaceBytes": 502,
         "workspaceCapacity": 512,
         "textCapacity": 45466,
         "reservedStackBytes": 256,
-        "codeRoom": 12
+        "codeRoom": 5
       }
     }
   },
@@ -6202,9 +6202,9 @@
               "boundary": "EditorEntry -> EditorMainLoop (load + initial render)",
               "instructions": 882972,
               "tStates": 8477189,
-              "textReadBytes": 1035,
+              "textReadBytes": 1036,
               "textCopyReadBytes": 0,
-              "textScalarReadBytes": 1035,
+              "textScalarReadBytes": 1036,
               "textWriteBytes": 16384,
               "terminalBytes": 678,
               "recordsRead": 128,
@@ -6219,7 +6219,7 @@
               "minimumSp": 59646,
               "stackBytesBelowStart": 0,
               "stackDepthFromPrivateTop": 360,
-              "returnPc": 7629,
+              "returnPc": 7636,
               "finalSp": 60004
             },
             "initialGap": {
@@ -6304,7 +6304,7 @@
                 "minimumSp": 59984,
                 "stackBytesBelowStart": 20,
                 "stackDepthFromPrivateTop": 22,
-                "returnPc": 7629,
+                "returnPc": 7636,
                 "finalSp": 60004
               },
               "gapBefore": {
@@ -14229,9 +14229,9 @@
               "boundary": "EditorEntry -> EditorMainLoop (load + initial render)",
               "instructions": 882972,
               "tStates": 8477189,
-              "textReadBytes": 1035,
+              "textReadBytes": 1036,
               "textCopyReadBytes": 0,
-              "textScalarReadBytes": 1035,
+              "textScalarReadBytes": 1036,
               "textWriteBytes": 16384,
               "terminalBytes": 678,
               "recordsRead": 128,
@@ -14246,7 +14246,7 @@
               "minimumSp": 59646,
               "stackBytesBelowStart": 0,
               "stackDepthFromPrivateTop": 360,
-              "returnPc": 7629,
+              "returnPc": 7636,
               "finalSp": 60004
             },
             "initialGap": {
@@ -14331,7 +14331,7 @@
                 "minimumSp": 59984,
                 "stackBytesBelowStart": 20,
                 "stackDepthFromPrivateTop": 22,
-                "returnPc": 7629,
+                "returnPc": 7636,
                 "finalSp": 60004
               },
               "gapBefore": {
@@ -22256,9 +22256,9 @@
               "boundary": "EditorEntry -> EditorMainLoop (load + initial render)",
               "instructions": 882972,
               "tStates": 8477189,
-              "textReadBytes": 1035,
+              "textReadBytes": 1036,
               "textCopyReadBytes": 0,
-              "textScalarReadBytes": 1035,
+              "textScalarReadBytes": 1036,
               "textWriteBytes": 16384,
               "terminalBytes": 678,
               "recordsRead": 128,
@@ -22273,7 +22273,7 @@
               "minimumSp": 59646,
               "stackBytesBelowStart": 0,
               "stackDepthFromPrivateTop": 360,
-              "returnPc": 7629,
+              "returnPc": 7636,
               "finalSp": 60004
             },
             "initialGap": {
@@ -22358,7 +22358,7 @@
                 "minimumSp": 59984,
                 "stackBytesBelowStart": 20,
                 "stackDepthFromPrivateTop": 22,
-                "returnPc": 7629,
+                "returnPc": 7636,
                 "finalSp": 60004
               },
               "gapBefore": {
@@ -30283,9 +30283,9 @@
               "boundary": "EditorEntry -> EditorMainLoop (load + initial render)",
               "instructions": 2011260,
               "tStates": 19073021,
-              "textReadBytes": 1035,
+              "textReadBytes": 1036,
               "textCopyReadBytes": 0,
-              "textScalarReadBytes": 1035,
+              "textScalarReadBytes": 1036,
               "textWriteBytes": 40960,
               "terminalBytes": 678,
               "recordsRead": 320,
@@ -30300,7 +30300,7 @@
               "minimumSp": 59646,
               "stackBytesBelowStart": 0,
               "stackDepthFromPrivateTop": 360,
-              "returnPc": 7629,
+              "returnPc": 7636,
               "finalSp": 60004
             },
             "initialGap": {
@@ -30385,7 +30385,7 @@
                 "minimumSp": 59984,
                 "stackBytesBelowStart": 20,
                 "stackDepthFromPrivateTop": 22,
-                "returnPc": 7629,
+                "returnPc": 7636,
                 "finalSp": 60004
               },
               "gapBefore": {
@@ -38310,9 +38310,9 @@
               "boundary": "EditorEntry -> EditorMainLoop (load + initial render)",
               "instructions": 2011260,
               "tStates": 19073021,
-              "textReadBytes": 1035,
+              "textReadBytes": 1036,
               "textCopyReadBytes": 0,
-              "textScalarReadBytes": 1035,
+              "textScalarReadBytes": 1036,
               "textWriteBytes": 40960,
               "terminalBytes": 678,
               "recordsRead": 320,
@@ -38327,7 +38327,7 @@
               "minimumSp": 59646,
               "stackBytesBelowStart": 0,
               "stackDepthFromPrivateTop": 360,
-              "returnPc": 7629,
+              "returnPc": 7636,
               "finalSp": 60004
             },
             "initialGap": {
@@ -38412,7 +38412,7 @@
                 "minimumSp": 59984,
                 "stackBytesBelowStart": 20,
                 "stackDepthFromPrivateTop": 22,
-                "returnPc": 7629,
+                "returnPc": 7636,
                 "finalSp": 60004
               },
               "gapBefore": {
@@ -46337,9 +46337,9 @@
               "boundary": "EditorEntry -> EditorMainLoop (load + initial render)",
               "instructions": 2011260,
               "tStates": 19073021,
-              "textReadBytes": 1035,
+              "textReadBytes": 1036,
               "textCopyReadBytes": 0,
-              "textScalarReadBytes": 1035,
+              "textScalarReadBytes": 1036,
               "textWriteBytes": 40960,
               "terminalBytes": 678,
               "recordsRead": 320,
@@ -46354,7 +46354,7 @@
               "minimumSp": 59646,
               "stackBytesBelowStart": 0,
               "stackDepthFromPrivateTop": 360,
-              "returnPc": 7629,
+              "returnPc": 7636,
               "finalSp": 60004
             },
             "initialGap": {
@@ -46439,7 +46439,7 @@
                 "minimumSp": 59984,
                 "stackBytesBelowStart": 20,
                 "stackDepthFromPrivateTop": 22,
-                "returnPc": 7629,
+                "returnPc": 7636,
                 "finalSp": 60004
               },
               "gapBefore": {
@@ -54364,9 +54364,9 @@
               "boundary": "EditorEntry -> EditorMainLoop (load + initial render)",
               "instructions": 2281586,
               "tStates": 21611646,
-              "textReadBytes": 1035,
+              "textReadBytes": 1036,
               "textCopyReadBytes": 0,
-              "textScalarReadBytes": 1035,
+              "textScalarReadBytes": 1036,
               "textWriteBytes": 46848,
               "terminalBytes": 678,
               "recordsRead": 366,
@@ -54381,7 +54381,7 @@
               "minimumSp": 59646,
               "stackBytesBelowStart": 0,
               "stackDepthFromPrivateTop": 360,
-              "returnPc": 7629,
+              "returnPc": 7636,
               "finalSp": 60004
             },
             "initialGap": {
@@ -54466,7 +54466,7 @@
                 "minimumSp": 59984,
                 "stackBytesBelowStart": 20,
                 "stackDepthFromPrivateTop": 22,
-                "returnPc": 7629,
+                "returnPc": 7636,
                 "finalSp": 60004
               },
               "gapBefore": {
@@ -62391,9 +62391,9 @@
               "boundary": "EditorEntry -> EditorMainLoop (load + initial render)",
               "instructions": 2281586,
               "tStates": 21611646,
-              "textReadBytes": 1035,
+              "textReadBytes": 1036,
               "textCopyReadBytes": 0,
-              "textScalarReadBytes": 1035,
+              "textScalarReadBytes": 1036,
               "textWriteBytes": 46848,
               "terminalBytes": 678,
               "recordsRead": 366,
@@ -62408,7 +62408,7 @@
               "minimumSp": 59646,
               "stackBytesBelowStart": 0,
               "stackDepthFromPrivateTop": 360,
-              "returnPc": 7629,
+              "returnPc": 7636,
               "finalSp": 60004
             },
             "initialGap": {
@@ -62493,7 +62493,7 @@
                 "minimumSp": 59984,
                 "stackBytesBelowStart": 20,
                 "stackDepthFromPrivateTop": 22,
-                "returnPc": 7629,
+                "returnPc": 7636,
                 "finalSp": 60004
               },
               "gapBefore": {
@@ -70418,9 +70418,9 @@
               "boundary": "EditorEntry -> EditorMainLoop (load + initial render)",
               "instructions": 2281586,
               "tStates": 21611646,
-              "textReadBytes": 1035,
+              "textReadBytes": 1036,
               "textCopyReadBytes": 0,
-              "textScalarReadBytes": 1035,
+              "textScalarReadBytes": 1036,
               "textWriteBytes": 46848,
               "terminalBytes": 678,
               "recordsRead": 366,
@@ -70435,7 +70435,7 @@
               "minimumSp": 59646,
               "stackBytesBelowStart": 0,
               "stackDepthFromPrivateTop": 360,
-              "returnPc": 7629,
+              "returnPc": 7636,
               "finalSp": 60004
             },
             "initialGap": {
@@ -70520,7 +70520,7 @@
                 "minimumSp": 59984,
                 "stackBytesBelowStart": 20,
                 "stackDepthFromPrivateTop": 22,
-                "returnPc": 7629,
+                "returnPc": 7636,
                 "finalSp": 60004
               },
               "gapBefore": {
@@ -78802,9 +78802,9 @@
               "boundary": "EditorEntry -> EditorMainLoop (load + initial render)",
               "instructions": 877775,
               "tStates": 8422300,
-              "textReadBytes": 965,
+              "textReadBytes": 966,
               "textCopyReadBytes": 0,
-              "textScalarReadBytes": 965,
+              "textScalarReadBytes": 966,
               "textWriteBytes": 16384,
               "terminalBytes": 645,
               "recordsRead": 128,
@@ -78819,7 +78819,7 @@
               "minimumSp": 59646,
               "stackBytesBelowStart": 0,
               "stackDepthFromPrivateTop": 360,
-              "returnPc": 7629,
+              "returnPc": 7636,
               "finalSp": 60004
             },
             "initialGap": {
@@ -78904,7 +78904,7 @@
                 "minimumSp": 59984,
                 "stackBytesBelowStart": 20,
                 "stackDepthFromPrivateTop": 22,
-                "returnPc": 7629,
+                "returnPc": 7636,
                 "finalSp": 60004
               },
               "gapBefore": {
@@ -78957,7 +78957,7 @@
                 "minimumSp": 59980,
                 "stackBytesBelowStart": 24,
                 "stackDepthFromPrivateTop": 26,
-                "returnPc": 7629,
+                "returnPc": 7636,
                 "finalSp": 60004
               },
               "gapBefore": {
@@ -79017,7 +79017,7 @@
                 "minimumSp": 59984,
                 "stackBytesBelowStart": 20,
                 "stackDepthFromPrivateTop": 22,
-                "returnPc": 7629,
+                "returnPc": 7636,
                 "finalSp": 60004
               },
               "gapBefore": {
@@ -81712,9 +81712,9 @@
               "boundary": "EditorEntry -> EditorMainLoop (load + initial render)",
               "instructions": 882968,
               "tStates": 8477166,
-              "textReadBytes": 1035,
+              "textReadBytes": 1036,
               "textCopyReadBytes": 0,
-              "textScalarReadBytes": 1035,
+              "textScalarReadBytes": 1036,
               "textWriteBytes": 16384,
               "terminalBytes": 678,
               "recordsRead": 128,
@@ -81729,7 +81729,7 @@
               "minimumSp": 59646,
               "stackBytesBelowStart": 0,
               "stackDepthFromPrivateTop": 360,
-              "returnPc": 7629,
+              "returnPc": 7636,
               "finalSp": 60004
             },
             "initialGap": {
@@ -81814,7 +81814,7 @@
                 "minimumSp": 59984,
                 "stackBytesBelowStart": 20,
                 "stackDepthFromPrivateTop": 22,
-                "returnPc": 7629,
+                "returnPc": 7636,
                 "finalSp": 60004
               },
               "gapBefore": {
@@ -81867,7 +81867,7 @@
                 "minimumSp": 59980,
                 "stackBytesBelowStart": 24,
                 "stackDepthFromPrivateTop": 26,
-                "returnPc": 7629,
+                "returnPc": 7636,
                 "finalSp": 60004
               },
               "gapBefore": {
@@ -82416,9 +82416,9 @@
               "boundary": "EditorEntry -> EditorMainLoop (load + initial render)",
               "instructions": 883298,
               "tStates": 8480250,
-              "textReadBytes": 1035,
+              "textReadBytes": 1036,
               "textCopyReadBytes": 0,
-              "textScalarReadBytes": 1035,
+              "textScalarReadBytes": 1036,
               "textWriteBytes": 16391,
               "terminalBytes": 678,
               "recordsRead": 129,
@@ -82433,7 +82433,7 @@
               "minimumSp": 59646,
               "stackBytesBelowStart": 0,
               "stackDepthFromPrivateTop": 360,
-              "returnPc": 7629,
+              "returnPc": 7636,
               "finalSp": 60004
             },
             "initialGap": {
@@ -82525,7 +82525,7 @@
                 "minimumSp": 59984,
                 "stackBytesBelowStart": 20,
                 "stackDepthFromPrivateTop": 22,
-                "returnPc": 7629,
+                "returnPc": 7636,
                 "finalSp": 60004
               },
               "gapBefore": {
@@ -83004,9 +83004,9 @@
               "boundary": "EditorEntry -> EditorMainLoop (load + initial render)",
               "instructions": 883298,
               "tStates": 8480250,
-              "textReadBytes": 1035,
+              "textReadBytes": 1036,
               "textCopyReadBytes": 0,
-              "textScalarReadBytes": 1035,
+              "textScalarReadBytes": 1036,
               "textWriteBytes": 16391,
               "terminalBytes": 678,
               "recordsRead": 129,
@@ -83021,7 +83021,7 @@
               "minimumSp": 59646,
               "stackBytesBelowStart": 0,
               "stackDepthFromPrivateTop": 360,
-              "returnPc": 7629,
+              "returnPc": 7636,
               "finalSp": 60004
             },
             "initialGap": {
@@ -83113,7 +83113,7 @@
                 "minimumSp": 59984,
                 "stackBytesBelowStart": 20,
                 "stackDepthFromPrivateTop": 22,
-                "returnPc": 7629,
+                "returnPc": 7636,
                 "finalSp": 60004
               },
               "gapBefore": {
@@ -83592,9 +83592,9 @@
               "boundary": "EditorEntry -> EditorMainLoop (load + initial render)",
               "instructions": 883298,
               "tStates": 8480250,
-              "textReadBytes": 1035,
+              "textReadBytes": 1036,
               "textCopyReadBytes": 0,
-              "textScalarReadBytes": 1035,
+              "textScalarReadBytes": 1036,
               "textWriteBytes": 16391,
               "terminalBytes": 678,
               "recordsRead": 129,
@@ -83609,7 +83609,7 @@
               "minimumSp": 59646,
               "stackBytesBelowStart": 0,
               "stackDepthFromPrivateTop": 360,
-              "returnPc": 7629,
+              "returnPc": 7636,
               "finalSp": 60004
             },
             "initialGap": {
@@ -83701,7 +83701,7 @@
                 "minimumSp": 59984,
                 "stackBytesBelowStart": 20,
                 "stackDepthFromPrivateTop": 22,
-                "returnPc": 7629,
+                "returnPc": 7636,
                 "finalSp": 60004
               },
               "gapBefore": {
@@ -84780,9 +84780,9 @@
               "boundary": "EditorEntry -> EditorMainLoop (load + initial render)",
               "instructions": 1247847,
               "tStates": 12193237,
-              "textReadBytes": 16468,
+              "textReadBytes": 16469,
               "textCopyReadBytes": 0,
-              "textScalarReadBytes": 16468,
+              "textScalarReadBytes": 16469,
               "textWriteBytes": 16384,
               "terminalBytes": 191,
               "recordsRead": 128,
@@ -84797,7 +84797,7 @@
               "minimumSp": 59646,
               "stackBytesBelowStart": 0,
               "stackDepthFromPrivateTop": 360,
-              "returnPc": 7629,
+              "returnPc": 7636,
               "finalSp": 60004
             },
             "initialGap": {
@@ -84882,7 +84882,7 @@
                 "minimumSp": 59984,
                 "stackBytesBelowStart": 20,
                 "stackDepthFromPrivateTop": 22,
-                "returnPc": 7629,
+                "returnPc": 7636,
                 "finalSp": 60004
               },
               "gapBefore": {
@@ -86183,9 +86183,9 @@
               "boundary": "EditorEntry -> EditorMainLoop (load + initial render)",
               "instructions": 595149,
               "tStates": 6026470,
-              "textReadBytes": 8207,
+              "textReadBytes": 8208,
               "textCopyReadBytes": 0,
-              "textScalarReadBytes": 8207,
+              "textScalarReadBytes": 8208,
               "textWriteBytes": 8193,
               "terminalBytes": 111,
               "recordsRead": 65,
@@ -86200,7 +86200,7 @@
               "minimumSp": 59646,
               "stackBytesBelowStart": 0,
               "stackDepthFromPrivateTop": 360,
-              "returnPc": 7629,
+              "returnPc": 7636,
               "finalSp": 60004
             },
             "initialGap": {
@@ -86285,7 +86285,7 @@
                 "minimumSp": 59984,
                 "stackBytesBelowStart": 20,
                 "stackDepthFromPrivateTop": 22,
-                "returnPc": 7629,
+                "returnPc": 7636,
                 "finalSp": 60004
               },
               "gapBefore": {
@@ -87259,9 +87259,9 @@
               "boundary": "EditorEntry -> EditorMainLoop (load + initial render)",
               "instructions": 1255659,
               "tStates": 12269892,
-              "textReadBytes": 16563,
+              "textReadBytes": 16564,
               "textCopyReadBytes": 0,
-              "textScalarReadBytes": 16563,
+              "textScalarReadBytes": 16564,
               "textWriteBytes": 16469,
               "terminalBytes": 201,
               "recordsRead": 129,
@@ -87276,7 +87276,7 @@
               "minimumSp": 59646,
               "stackBytesBelowStart": 0,
               "stackDepthFromPrivateTop": 360,
-              "returnPc": 7629,
+              "returnPc": 7636,
               "finalSp": 60004
             },
             "initialGap": {
@@ -87361,7 +87361,7 @@
                 "minimumSp": 59984,
                 "stackBytesBelowStart": 20,
                 "stackDepthFromPrivateTop": 22,
-                "returnPc": 7629,
+                "returnPc": 7636,
                 "finalSp": 60004
               },
               "gapBefore": {
@@ -87414,7 +87414,7 @@
                 "minimumSp": 59984,
                 "stackBytesBelowStart": 20,
                 "stackDepthFromPrivateTop": 22,
-                "returnPc": 7629,
+                "returnPc": 7636,
                 "finalSp": 60004
               },
               "gapBefore": {
@@ -87467,7 +87467,7 @@
                 "minimumSp": 59984,
                 "stackBytesBelowStart": 20,
                 "stackDepthFromPrivateTop": 22,
-                "returnPc": 7629,
+                "returnPc": 7636,
                 "finalSp": 60004
               },
               "gapBefore": {
@@ -88546,9 +88546,9 @@
               "boundary": "EditorEntry -> EditorMainLoop (load + initial render)",
               "instructions": 629552,
               "tStates": 6410441,
-              "textReadBytes": 6598,
+              "textReadBytes": 6599,
               "textCopyReadBytes": 0,
-              "textScalarReadBytes": 6598,
+              "textScalarReadBytes": 6599,
               "textWriteBytes": 4622,
               "terminalBytes": 2097,
               "recordsRead": 37,
@@ -88563,7 +88563,7 @@
               "minimumSp": 59646,
               "stackBytesBelowStart": 0,
               "stackDepthFromPrivateTop": 360,
-              "returnPc": 7629,
+              "returnPc": 7636,
               "finalSp": 60004
             },
             "initialGap": {
@@ -88648,7 +88648,7 @@
                 "minimumSp": 59984,
                 "stackBytesBelowStart": 20,
                 "stackDepthFromPrivateTop": 22,
-                "returnPc": 7629,
+                "returnPc": 7636,
                 "finalSp": 60004
               },
               "gapBefore": {
@@ -89949,9 +89949,9 @@
               "boundary": "EditorEntry -> EditorMainLoop (load + initial render)",
               "instructions": 2983917,
               "tStates": 29250962,
-              "textReadBytes": 38798,
+              "textReadBytes": 38799,
               "textCopyReadBytes": 0,
-              "textScalarReadBytes": 38798,
+              "textScalarReadBytes": 38799,
               "textWriteBytes": 36822,
               "terminalBytes": 2097,
               "recordsRead": 288,
@@ -89966,7 +89966,7 @@
               "minimumSp": 59646,
               "stackBytesBelowStart": 0,
               "stackDepthFromPrivateTop": 360,
-              "returnPc": 7629,
+              "returnPc": 7636,
               "finalSp": 60004
             },
             "initialGap": {
@@ -90051,7 +90051,7 @@
                 "minimumSp": 59984,
                 "stackBytesBelowStart": 20,
                 "stackDepthFromPrivateTop": 22,
-                "returnPc": 7629,
+                "returnPc": 7636,
                 "finalSp": 60004
               },
               "gapBefore": {
