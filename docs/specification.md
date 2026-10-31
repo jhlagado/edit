@@ -236,7 +236,7 @@ the C × R screen.
 ### Size selection
 
 1. If bit 0 of the configuration flags is set, the ROM bytes at `$C003..$C005`
-   are `TNA` (the TEC-OS ABI table), the major version at `$C006` is 3,
+   are `TNA` (the TEC-OS ABI table), the major version at `$C006` is 3 or 4,
    the word at `$C008` is nonzero, and the
    byte it addresses is nonzero, that byte is C and the following byte is R.
 2. Otherwise C and R come from the configuration block.

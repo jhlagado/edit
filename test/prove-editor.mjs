@@ -2608,7 +2608,9 @@ for (const [options, expected] of [
   [{ config: [40, 24], legacyAbi: true }, [40, 24]],
   [{ legacyAbi: true, abi: { size: [32, 24] } }, [32, 24]],
   [{ config: [40, 24], abi: { major: 2, size: [21, 8] } }, [40, 24]],
-  [{ config: [40, 24], abi: { major: 4, size: [21, 8] } }, [40, 24]],
+  [{ config: [40, 24], abi: { major: 3, size: [21, 8] } }, [21, 8]],
+  [{ config: [40, 24], abi: { major: 4, size: [21, 8] } }, [21, 8]],
+  [{ config: [40, 24], abi: { major: 5, size: [21, 8] } }, [40, 24]],
   [{ config: [10, 2] }, [20, 4]],
   [{ config: [0, 0] }, [20, 4]],
   [{ config: [200, 150] }, [80, 24]],
@@ -2846,7 +2848,7 @@ function runScreenSession({ columns, rows, top, abi = false, strict = true }) {
   machine.memory[symbol("EditorTextRows")] = 0;
   if (abi) {
     machine.memory.set(Buffer.from("TNA", "ascii"), 0xc003);
-    machine.memory[0xc006] = 3;
+    machine.memory[0xc006] = 4;
     writeWord(machine.memory, 0xc008, 0xc040);
     machine.memory[0xc040] = columns;
     machine.memory[0xc041] = rows;
@@ -3178,7 +3180,7 @@ for (const { columns, rows } of [
     files: { "INPUT.NU": physicalFile(Buffer.from("A\r\n", "ascii")) },
   });
   machine.memory.set(Buffer.from("TNA", "ascii"), 0xc003);
-  machine.memory[0xc006] = 3;
+  machine.memory[0xc006] = 4;
   writeWord(machine.memory, 0xc008, 0xc040);
   machine.memory[0xc040] = 32;
   machine.memory[0xc041] = 24;

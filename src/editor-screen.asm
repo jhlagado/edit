@@ -28,8 +28,9 @@ SELSCR:
             POP  HL
             JR   NZ,SELSCRCL
             LD   A,(ABIBAS+3)
-            CP   3
-            JR   NZ,SELSCRCL
+            SUB  3
+            CP   2
+            JR   NC,SELSCRCL     ; only majors 3 and 4 have this table
             LD   DE,(ABIGEO)
             LD   A,D
             OR   E
